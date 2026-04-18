@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Axoboys — Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --border: #1e1e2e;
+      --accent: #7c3aed;
+      --accent2: #06b6d4;
+      --accent3: #f59e0b;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --glow: rgba(124, 58, 237, 0.3);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(124,58,237,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,58,237,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Nav */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 60px;
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .nav-logo span { color: var(--accent); }
+
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-family: 'Space Mono', monospace;
+      letter-spacing: 0.05em;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--accent2); }
+
+    /* Hero */
+    .hero {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: 85vh;
+      padding: 4rem 2rem;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent2);
+      margin-bottom: 2rem;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .hero-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent2);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .hero h1 {
+      font-size: clamp(3.5rem, 10vw, 8rem);
+      font-weight: 800;
+      line-height: 0.9;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.5rem;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--muted);
+      max-width: 500px;
+      line-height: 1.7;
+      margin-bottom: 3rem;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeUp 0.6s 0.3s ease both;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.75rem;
+      border-radius: 8px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 30px var(--glow);
+    }
+
+    .btn-primary:hover {
+      background: #6d28d9;
+      transform: translateY(-2px);
+      box-shadow: 0 0 40px var(--glow);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Sections */
+    section {
+      position: relative;
+      z-index: 1;
+      padding: 5rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 1rem;
+    }
+
+    .section-desc {
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.7;
+      max-width: 500px;
+      margin-bottom: 3rem;
+    }
+
+    /* Bots grid */
+    .bots-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .bot-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      text-decoration: none;
+      color: var(--text);
+      display: block;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bot-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s;
+    }
+
+    .bot-card:hover::before { transform: scaleX(1); }
+
+    .bot-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+
+    .bot-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .bot-emoji {
+      font-size: 2rem;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .bot-status {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: #22c55e;
+    }
+
+    .bot-status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #22c55e;
+      animation: pulse 2s infinite;
+    }
+
+    .bot-name {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+
+    .bot-desc {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .bot-commands {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .cmd-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.6rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--accent2);
+    }
+
+    .cmd-tag-more {
+      color: var(--muted);
+      border-color: transparent;
+    }
+
+    /* Profiles */
+    .profiles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .profile-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      text-decoration: none;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .profile-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      border: 2px solid var(--border);
+    }
+
+    .profile-name {
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-bottom: 0.25rem;
+    }
+
+    .profile-role {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* Easter egg hint */
+    .easter-hint {
+      text-align: center;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--border);
+      padding: 1rem;
+      letter-spacing: 0.1em;
+      cursor: default;
+      transition: color 0.3s;
+    }
+
+    .easter-hint:hover { color: var(--muted); }
+
+    /* Footer */
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    footer span { color: var(--accent); }
+
+    /* Divider */
+    .divider {
+      max-width: 1200px;
+      margin: 0 auto;
+      border: none;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Rainbow easter egg */
+    body.rainbow-mode {
+      animation: rainbowBg 3s linear infinite;
+    }
+
+    @keyframes rainbowBg {
+      0% { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="index.html" class="nav-logo">AXO<span>BOYS</span></a>
+    <ul class="nav-links">
+      <li><a href="#bots">Bots</a></li>
+      <li><a href="#profiles">Profils</a></li>
+      <li><a href="clicker.html" style="color:var(--accent3);">🍪 Clicker</a></li>
+      <li><a href="login.html" id="nav-auth-link">Connexion</a></li>
+      <li><a href="bug.html">???</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">🤖 Hub officiel — 7 bots actifs</div>
+    <h1>
+      AXO<br><span class="gradient">BOYS</span>
+    </h1>
+    <p class="hero-sub">
+      Le hub central de tous les bots Discord d'Axoboys.<br>
+      Commandes, statuts, et infos — tout au même endroit.
+    </p>
+    <div class="hero-actions">
+      <a href="#bots" class="btn btn-primary">Voir les bots</a>
+      <a href="axo.html" class="btn btn-outline">Profil Axoboys</a>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- BOTS -->
+  <section id="bots">
+    <div class="section-label">// bots discord</div>
+    <h2 class="section-title">Les Bots</h2>
+    <p class="section-desc">Explore chaque bot, ses commandes disponibles et son statut en temps réel.</p>
+
+    <div class="bots-grid">
+
+      <a href="bot1info.html" class="bot-card">
+        <div class="bot-header">
+          <div class="bot-emoji">🧪</div>
+          <div class="bot-status"><div class="bot-status-dot"></div>En ligne</div>
+        </div>
+        <div class="bot-name">AciBot</div>
+        <div class="bot-desc">Le bot de Acidic. Commandes de jeu, classements et bien plus.</div>
+        <div class="bot-commands">
+          <span class="cmd-tag">/bwan</span>
+          <span class="cmd-tag">/classement</span>
+          <span class="cmd-tag">/wordle</span>
+          <span class="cmd-tag">/pendu</span>
+          <span class="cmd-tag cmd-tag-more">+16 cmds</span>
+        </div>
+      </a>
+
+      <a href="bot2info.html" class="bot-card">
+        <div class="bot-header">
+          <div class="bot-emoji">🦎</div>
+          <div class="bot-status"><div class="bot-status-dot"></div>En ligne</div>
+        </div>
+        <div class="bot-name">AxoBot</div>
+        <div class="bot-desc">Le bot d'Axoboys. Le plus complet avec des commandes exclusives.</div>
+        <div class="bot-commands">
+          <span class="cmd-tag">/aquarium</span>
+          <span class="cmd-tag">/noyé</span>
+          <span class="cmd-tag">/banana</span>
+          <span class="cmd-tag">/bwan</span>
+          <span class="cmd-tag cmd-tag-more">+27 cmds</span>
+        </div>
+      </a>
+
+      <a href="bot3info.html" class="bot-card">
+        <div class="bot-header">
+          <div class="bot-emoji">🐼</div>
+          <div class="bot-status"><div class="bot-status-dot"></div>En ligne</div>
+        </div>
+        <div class="bot-name">PandaBot</div>
+        <div class="bot-desc">Le bot de Panda. Avec ses commandes spéciales hibernation et réveil.</div>
+        <div class="bot-commands">
+          <span class="cmd-tag">/hibernation</span>
+          <span class="cmd-tag">/reveille</span>
+          <span class="cmd-tag">/pandastorm</span>
+          <span class="cmd-tag cmd-tag-more">+17 cmds</span>
+        </div>
+      </a>
+
+      <a href="bot4info.html" class="bot-card">
+        <div class="bot-header">
+          <div class="bot-emoji">👑</div>
+          <div class="bot-status"><div class="bot-status-dot"></div>En ligne</div>
+        </div>
+        <div class="bot-name">LeVraiBot</div>
+        <div class="bot-desc">Le vrai bot. Commandes de survie, classements et ravin pour les vilains.</div>
+        <div class="bot-commands">
+          <span class="cmd-tag">/ravin</span>
+          <span class="cmd-tag">/assomption</span>
+          <span class="cmd-tag">/classement</span>
+          <span class="cmd-tag cmd-tag-more">+18 cmds</span>
+        </div>
+      </a>
+
+      <a href="bot5info.html" class="bot-card">
+        <div class="bot-header">
+          <div class="bot-emoji">⚜️</div>
+          <div class="bot-status"><div class="bot-status-dot"></div>En ligne</div>
+        </div>
+        <div class="bot-name">HestnouilleBot</div>
+        <div class="bot-desc">Le bot de Hestnouille. Avec ses commandes exclusives dentiste, lockvoc et plus.</div>
+        <div class="bot-commands">
+          <span class="cmd-tag">/dentiste</span>
+          <span class="cmd-tag">/lockvoc</span>
+          <span class="cmd-tag">/jojo</span>
+          <span class="cmd-tag cmd-tag-more">+24 cmds</span>
+        </div>
+      </a>
+
+      <a href="bot7info.html" class="bot-card">
+        <div class="bot-header">
+          <div class="bot-emoji">🦊</div>
+          <div class="bot-status"><div class="bot-status-dot"></div>En ligne</div>
+        </div>
+        <div class="bot-name">FoxBot</div>
+        <div class="bot-desc">Le bot Fox. Commandes de jeu avec terrier et tombé en exclusivité.</div>
+        <div class="bot-commands">
+          <span class="cmd-tag">/terrier</span>
+          <span class="cmd-tag">/tombé</span>
+          <span class="cmd-tag">/fanarupi</span>
+          <span class="cmd-tag cmd-tag-more">+17 cmds</span>
+        </div>
+      </a>
+
+      <a href="bot8info.html" class="bot-card">
+        <div class="bot-header">
+          <div class="bot-emoji">🔥</div>
+          <div class="bot-status"><div class="bot-status-dot"></div>En ligne</div>
+        </div>
+        <div class="bot-name">AshBot</div>
+        <div class="bot-desc">Le nouveau bot. Commandes de survie, classements, ravin et assomption.</div>
+        <div class="bot-commands">
+          <span class="cmd-tag">/ravin</span>
+          <span class="cmd-tag">/assomption</span>
+          <span class="cmd-tag">/classement</span>
+          <span class="cmd-tag cmd-tag-more">+17 cmds</span>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- PROFILES -->
+  <section id="profiles">
+    <div class="section-label">// créateurs</div>
+    <h2 class="section-title">Profils</h2>
+    <p class="section-desc">Les personnes derrière ces projets.</p>
+
+    <div class="profiles-grid">
+      <a href="axo.html" class="profile-card">
+        <div class="profile-avatar">🦎</div>
+        <div class="profile-name">Axoboys</div>
+        <div class="profile-role">Dev & Créateur</div>
+      </a>
+      <a href="acidic.html" class="profile-card">
+        <div class="profile-avatar">🧪</div>
+        <div class="profile-name">Acidic</div>
+        <div class="profile-role">Tdb</div>
+      </a>
+      <a href="chloe.html" class="profile-card">
+        <div class="profile-avatar">🐼</div>
+        <div class="profile-name">Chloé</div>
+        <div class="profile-role">Tdb</div>
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2026 <span>Axoboys</span> — Tous droits réservés</p>
+  </footer>
+
+  <script>
+    // Easter Egg Konami Code
+    const code = [38,38,40,40,37,39,37,39,66,65];
+    let pos = 0;
+    document.addEventListener('keydown', e => {
+      if (e.keyCode === code[pos]) {
+        pos++;
+        if (pos === code.length) {
+          document.body.classList.add('rainbow-mode');
+          alert('🎉 Mode arc-en-ciel activé !');
+          pos = 0;
+        }
+      } else { pos = 0; }
+    });
+    // Auth nav update
+    (function(){
+      const u = localStorage.getItem('axo_user');
+      if(u){
+        try{
+          const data = JSON.parse(u);
+          const link = document.getElementById('nav-auth-link');
+          if(link){ link.href='profile.html'; link.textContent='👤 '+data.username; }
+        }catch(e){}
+      }
+    })();
+  </script>
+
+</body>
+</html>

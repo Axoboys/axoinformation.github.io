@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>&#x336;&#x30D;&#x336;</title>
+<style>
+body {
+    margin: 0;
+    overflow: hidden;
+    background: black;
+    font-family: monospace;
+    color: #00ff00;
+    animation: shake 0.2s infinite alternate;
+}
+@keyframes shake {
+    from { transform: translate(0px, 0px) rotate(0deg); }
+    to { transform: translate(2px, -2px) rotate(0.3deg); }
+}
+.glitch {
+    font-size: 4rem;
+    position: absolute;
+    top: 40%;
+    width: 100%;
+    text-align: center;
+    text-transform: uppercase;
+    animation: glitch 0.3s infinite;
+}
+@keyframes glitch {
+    0% { text-shadow: 4px 0 red, -4px 0 blue; }
+    20% { text-shadow: -4px 0 red, 4px 0 blue; }
+    40% { text-shadow: 4px 4px red, -4px -4px blue; }
+    60% { text-shadow: -4px -4px red, 4px 4px blue; }
+    80% { text-shadow: 2px -2px red, -2px 2px blue; }
+    100% { text-shadow: -2px 2px red, 2px -2px blue; }
+}
+.flash {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: white;
+    opacity: 0;
+    animation: flash 4s infinite;
+}
+@keyframes flash {
+    0% { opacity: 0; }
+    2% { opacity: 1; }
+    4% { opacity: 0; }
+    100% { opacity: 0; }
+}
+.moving {
+    position: absolute;
+    font-size: 1rem;
+    color: red;
+    animation: float 5s infinite linear;
+}
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(200px); }
+    100% { transform: translateY(0px); }
+}
+.escape {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 999;
+    padding: 0.5rem 1rem;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    color: rgba(255,255,255,0.5);
+    font-family: monospace;
+    font-size: 0.7rem;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+.escape:hover { background: rgba(255,255,255,0.2); color: white; }
+</style>
+</head>
+<body>
+<div class="flash"></div>
+<div class="glitch">ERROR</div>
+<a href="index.html" class="escape">← Échapper</a>
+<script>
+setInterval(() => {
+    const span = document.createElement("div");
+    span.classList.add("moving");
+    span.innerText = "ERROR";
+    span.style.left = Math.random() * window.innerWidth + "px";
+    span.style.top = Math.random() * window.innerHeight + "px";
+    document.body.appendChild(span);
+    setTimeout(() => span.remove(), 3000);
+}, 100);
+setInterval(() => {
+    document.body.style.background = "rgb(" +
+        Math.random()*100 + "," +
+        Math.random()*20 + "," +
+        Math.random()*20 + ")";
+}, 500);
+setInterval(() => {
+    window.scrollBy(0, Math.random() * 50);
+}, 200);
+</script>
+</body>
+</html>
