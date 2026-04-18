@@ -87,10 +87,11 @@
   <div class="auth-gate-box">
     <div class="auth-gate-icon">🔑</div>
     <h1 class="auth-gate-title">Panel Admin</h1>
-    <p class="auth-gate-sub">Accès restreint — mot de passe requis</p>
-    <input type="password" class="auth-input" id="admin-pw" placeholder="Mot de passe admin..." onkeydown="if(event.key==='Enter')checkAdmin()">
+    <p class="auth-gate-sub">Connecte-toi avec ton compte admin</p>
+    <input type="text" class="auth-input" id="admin-user" placeholder="Nom d'utilisateur..." style="margin-bottom:0.75rem;" onkeydown="if(event.key==='Enter')checkAdmin()">
+    <input type="password" class="auth-input" id="admin-pw" placeholder="Mot de passe..." onkeydown="if(event.key==='Enter')checkAdmin()">
     <button class="auth-btn" onclick="checkAdmin()">Accéder →</button>
-    <div class="auth-err" id="auth-err">Mot de passe incorrect.</div>
+    <div class="auth-err" id="auth-err">Identifiants incorrects ou compte non-admin.</div>
     <div style="margin-top:1.5rem;"><a href="index.html" style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);text-decoration:none;">← Retour au Hub</a></div>
   </div>
 </div>

@@ -337,7 +337,7 @@
 <script type="module">
 // ====================================================
 // FIREBASE CONFIG — remplace avec tes valeurs
-// https://console.firebase.google.com
+// https://console.firebase.google.com → Paramètres → Général → Tes apps
 // ====================================================
 import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -355,30 +355,19 @@ const _app = initializeApp(FIREBASE_CONFIG);
 const _db  = getFirestore(_app);
 
 // ====================================================
-// SHARED STORAGE HELPERS (Firebase Firestore)
-// clé format "col:id"  ex: "saves:toto", "users:toto", "scores:toto"
+// FIREBASE HELPERS — collections: users, saves, scores
 // ====================================================
-function _parseKey(key) {
-  const i = key.indexOf(':');
-  return i === -1 ? ['data', key] : [key.slice(0,i), key.slice(i+1)];
-}
-async function dbGet(key) {
-  const [col, id] = _parseKey(key);
+async function dbGet(col, id) {
   try { const s = await getDoc(doc(_db, col, id)); return s.exists() ? s.data() : null; }
-  catch(e) { console.error('dbGet', key, e); return null; }
+  catch(e) { console.error('dbGet', col, id, e); return null; }
 }
-async function dbSet(key, val) {
-  const [col, id] = _parseKey(key);
-  try { await setDoc(doc(_db, col, id), typeof val === 'object' ? val : { _v: val }); return true; }
-  catch(e) { console.error('dbSet', key, e); return false; }
+async function dbSet(col, id, val) {
+  try { await setDoc(doc(_db, col, id), val); return true; }
+  catch(e) { console.error('dbSet', col, id, e); return false; }
 }
-async function dbList(prefix) {
-  // prefix ex: "score:" → liste la collection "score"
-  const col = prefix.replace(/:$/, '');
-  try {
-    const snap = await getDocs(collection(_db, col));
-    return snap.docs.map(d => col + ':' + d.id);
-  } catch(e) { console.error('dbList', prefix, e); return []; }
+async function dbListAll(col) {
+  try { const snap = await getDocs(collection(_db, col)); return snap.docs.map(d => d.data()); }
+  catch(e) { console.error('dbListAll', col, e); return []; }
 }
 
 function simpleHash(str) {
@@ -392,7 +381,7 @@ function getSession() { try { return JSON.parse(localStorage.getItem('axo_sessio
 // ====================================================
 // MOBILE TABS
 // ====================================================
-function switchMobTab(tab) {
+window.switchMobTab = function(tab) {
   const pl = document.getElementById('panel-upgrades');
   const pc = document.getElementById('panel-game');
   const pr = document.getElementById('panel-buildings');
@@ -404,7 +393,7 @@ function switchMobTab(tab) {
   document.getElementById('tab-upg').classList.toggle('active', tab === 'upgrades');
   document.getElementById('tab-game').classList.toggle('active', tab === 'game');
   document.getElementById('tab-bld').classList.toggle('active', tab === 'buildings');
-}
+};
 
 // ====================================================
 // GAME DATA
@@ -499,7 +488,7 @@ if (!currentUser) {
 }
 
 async function initGame() {
-  const saved = await dbGet('save:' + userKey);
+  const saved = await dbGet('saves', userKey);
   if (saved) loadFromSave(saved);
   updateDisplay();
 }
@@ -530,12 +519,12 @@ function getStateToSave() {
   };
 }
 
-async function saveGame(silent=false) {
+window.saveGame = async function(silent=false) {
   if (!currentUser) {
     if (!silent) showToast('💾 Connecte-toi pour sauvegarder !');
     return;
   }
-  const ok = await dbSet('save:' + userKey, getStateToSave());
+  const ok = await dbSet('saves', userKey, getStateToSave());
   if (ok) {
     const ind = document.getElementById('save-indicator');
     ind.style.display = 'inline'; setTimeout(() => ind.style.display='none', 2000);
@@ -631,7 +620,7 @@ function buyUpgrade(id) {
   showToast(u.emoji + ' ' + u.name + ' débloqué !'); updateDisplay();
 }
 
-function buyRebirthItem(id) {
+window.buyRebirthItem = function(id) {
   const item = REBIRTH_ITEMS.find(x=>x.id===id); if(!item) return;
   if(state.rebirthShop[id]) return; // already bought
   if(state.rebirthPoints < item.cost) { showToast('❌ Pas assez de points rebirth !'); return; }
@@ -684,7 +673,7 @@ function openRebirthModal() {
     </div>`;
 }
 
-function doRebirth() {
+window.doRebirth = function() {
   if (state.totalCookies < getRebirthRequirement()) { showToast('❌ Prérequis non atteint !'); return; }
   const pts = getRebirthPointsEarned();
   state.rebirthPoints += pts;
@@ -740,7 +729,7 @@ function showGoldenCookie(){
   gc.style.animation='none';gc.offsetHeight;gc.style.animation='goldenFloat 10s ease-in-out forwards';
   setTimeout(()=>{gc.style.display='none';scheduleGoldenCookie();},10000);
 }
-function goldenClick(){
+window.goldenClick = function(){
   const bonus=Math.max(13,computeCps()*77);
   state.cookies+=bonus;state.totalCookies+=bonus;
   document.getElementById('golden-cookie').style.display='none';
@@ -881,15 +870,15 @@ function renderUpgrades(){
 // ====================================================
 // MODALS
 // ====================================================
-function openModal(id) {
+window.openModal = function(id) {
   document.getElementById('modal-'+id).classList.add('open');
   if(id==='lb')renderLeaderboard();
   if(id==='rebirth')openRebirthModal();
   if(id==='rshop')renderRebirthShop();
 }
-function closeModal(id) { document.getElementById('modal-'+id).classList.remove('open'); }
-function closeLbIfOutside(e){if(e.target===document.getElementById('modal-lb'))closeModal('lb');}
-function closeModalIfOutside(e,id){if(e.target===document.getElementById('modal-'+id))closeModal(id);}
+window.closeModal = function(id) { document.getElementById('modal-'+id).classList.remove('open'); }
+window.closeLbIfOutside = function(e){if(e.target===document.getElementById('modal-lb'))closeModal('lb');}
+window.closeModalIfOutside = function(e,id){if(e.target===document.getElementById('modal-'+id))closeModal(id);}
 
 // ====================================================
 // LEADERBOARD — reads all saves from shared storage
@@ -899,7 +888,7 @@ let lbCurrentTab='cookies';
 async function pushScore() {
   if(!currentUser) return;
   try {
-    await dbSet('score:'+userKey, {
+    await dbSet('scores', userKey, {
       username: currentUser,
       cookies: Math.floor(state.totalCookies),
       cps: Math.round(computeCps()*100)/100,
@@ -911,23 +900,17 @@ async function pushScore() {
 }
 
 async function fetchAllScores() {
-  const keys = await dbList('score:');
-  const scores = [];
-  for (const k of keys) {
-    const s = await dbGet(k);
-    if (s && s.username) scores.push(s);
-  }
-  return scores;
+  return await dbListAll('scores');
 }
 
-function switchLbTab(tab){
+window.switchLbTab = function(tab){
   lbCurrentTab=tab;
   document.querySelectorAll('.modal-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   renderLeaderboard();
 }
 
-async function renderLeaderboard(){
+window.renderLeaderboard = async function(){
   const body=document.getElementById('lb-body');
   body.innerHTML='<div class="lb-empty">⏳ Chargement de tous les joueurs...</div>';
   await pushScore();
@@ -963,7 +946,7 @@ if(currentUser)setInterval(pushScore,60000);
 let mgActive=false;
 let snakeInterval=null;
 
-function openMinigame(bid){
+window.openMinigame = function(bid){
   if(!state.minigameUnlocks[bid]){showToast('🔒 Achète le mini-jeu dans le Shop Rebirth !');return;}
   const b=BUILDINGS.find(x=>x.id===bid);if(!b)return;
   document.getElementById('mg-title').textContent=b.emoji+' Mini-jeu : '+b.name;
@@ -976,7 +959,7 @@ function openMinigame(bid){
   openModal('mg');
 }
 
-function stopMinigame(){
+window.stopMinigame = function(){
   mgActive=false;
   if(snakeInterval){clearInterval(snakeInterval);snakeInterval=null;}
 }
@@ -1192,7 +1175,7 @@ function showToast(msg){
   clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2500);
 }
 
-function confirmReset(){
+window.confirmReset = function(){
   if(confirm('🗑 Tout remettre à zéro ? (progression ET rebirths)')){
     state.cookies=0;state.totalCookies=0;state.totalClicks=0;
     BUILDINGS.forEach(b=>state.buildings[b.id]=0);
@@ -1206,6 +1189,18 @@ function confirmReset(){
 // INIT
 // ====================================================
 updateDisplay();
+
+// Recharge depuis Firebase quand l'onglet redevient visible
+// (utile après une modif admin ou retour depuis une autre page)
+document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState === 'visible' && currentUser) {
+    const saved = await dbGet('saves', userKey);
+    if (saved) {
+      loadFromSave(saved);
+      updateDisplay();
+    }
+  }
+});
 </script>
 </body>
 </html>
