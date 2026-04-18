@@ -130,12 +130,32 @@ function simpleHash(str) {
   return (h >>> 0).toString(16);
 }
 
-// Session stored locally (just username, validated against shared storage on each page)
-function setSession(username) { localStorage.setItem('axo_session', JSON.stringify({username, ts: Date.now()})); }
-function getSession()         { try { return JSON.parse(localStorage.getItem('axo_session')); } catch(e){ return null; } }
+// Session stockée localement, mais validée contre le storage partagé à chaque visite
+function setSession(username) {
+  localStorage.setItem('axo_session', JSON.stringify({ username, ts: Date.now() }));
+}
+function getSession() {
+  try { return JSON.parse(localStorage.getItem('axo_session')); } catch(e) { return null; }
+}
+function clearSession() {
+  localStorage.removeItem('axo_session');
+}
 
-// Redirect if already logged in
-if (getSession()) window.location.href = 'profile.html';
+// Vérifie si la session locale est toujours valide côté serveur partagé
+async function validateAndRedirect() {
+  const session = getSession();
+  if (!session) return; // Pas de session locale, on reste sur login
+  showLoading('Vérification de ta session...');
+  const user = await dbGet('user:' + session.username.toLowerCase());
+  hideLoading();
+  if (user) {
+    // Session toujours valide, on redirige
+    window.location.href = 'profile.html';
+  } else {
+    // Compte supprimé ou session corrompue, on nettoie
+    clearSession();
+  }
+}
 
 // ===== UI =====
 function showLoading(text='Chargement...') { document.getElementById('loading').classList.add('show'); document.getElementById('loading-text').textContent = text; }
@@ -237,10 +257,17 @@ async function doRegister() {
     minigameUnlocks: {},
   };
 
-  await dbSet('user:' + key, userData);
-  await dbSet('save:' + key, defaultSave);
+  const ok1 = await dbSet('user:' + key, userData);
+  const ok2 = await dbSet('save:' + key, defaultSave);
 
   hideLoading();
+  document.getElementById('btn-register').disabled = false;
+
+  if (!ok1 || !ok2) {
+    showMsg('register-msg','error','Erreur lors de la création du compte. Réessaie.');
+    return;
+  }
+
   setSession(username);
   showMsg('register-msg','success','Compte créé ! Redirection...');
   setTimeout(() => window.location.href = 'clicker.html', 700);
@@ -253,6 +280,9 @@ document.addEventListener('keydown', e => {
     if (loginActive) doLogin(); else doRegister();
   }
 });
+
+// Vérification de session au chargement (multi-appareils)
+validateAndRedirect();
 </script>
 </body>
 </html>

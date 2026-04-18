@@ -69,7 +69,7 @@
 <main>
   <div class="page-label">// mon compte</div>
   <h1 class="page-title">Mon Profil</h1>
-  <div id="loading-state" style="text-align:center;padding:3rem;"><div class="spinner"></div></div>
+  <div id="loading-state" style="text-align:center;padding:3rem;"><div class="spinner"></div><p style="font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--muted);margin-top:1rem;">Chargement du profil...</p></div>
   <div id="profile-content" style="display:none;">
     <div class="profile-grid">
       <div class="card">
@@ -124,15 +124,23 @@
       </div>
     </div>
   </div>
+  <div id="error-state" style="display:none;text-align:center;padding:3rem;">
+    <div style="font-size:3rem;margin-bottom:1rem;">⚠️</div>
+    <p style="font-family:'Space Mono',monospace;font-size:0.85rem;color:var(--muted);margin-bottom:1.5rem;">Session expirée ou compte introuvable.</p>
+    <a href="login.html" style="font-family:'Space Mono',monospace;font-size:0.82rem;color:var(--accent);text-decoration:none;border:1px solid var(--accent);padding:0.65rem 1.5rem;border-radius:8px;">→ Se reconnecter</a>
+  </div>
 </main>
 
 <footer><p>© 2026 <span>Axoboys</span> — Tous droits réservés</p></footer>
 
 <script>
+// ===== STORAGE =====
 async function dbGet(key){try{const r=await window.storage.get(key,true);return r?JSON.parse(r.value):null;}catch(e){return null;}}
+async function dbSet(key,val){try{await window.storage.set(key,JSON.stringify(val),true);return true;}catch(e){return false;}}
 async function dbDel(key){try{await window.storage.delete(key,true);}catch(e){}}
 
 function getSession(){try{return JSON.parse(localStorage.getItem('axo_session'));}catch(e){return null;}}
+function clearSession(){localStorage.removeItem('axo_session');}
 
 function formatNum(n){
   n=Math.floor(n||0);
@@ -143,20 +151,43 @@ function formatNum(n){
   return n.toString();
 }
 
-const session=getSession();
-if(!session){window.location.href='login.html';}
-const uKey=session.username.toLowerCase();
-
 async function init(){
-  const [user,save]=[await dbGet('user:'+uKey),await dbGet('save:'+uKey)];
+  const session = getSession();
+
+  // Pas de session locale → redirige vers login
+  if(!session){
+    window.location.href = 'login.html';
+    return;
+  }
+
+  const uKey = session.username.toLowerCase();
+
+  // Valide la session contre le storage partagé
+  const user = await dbGet('user:' + uKey);
+
+  if(!user){
+    // Compte introuvable dans le storage partagé (supprimé ou mauvais appareil sans compte)
+    clearSession();
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('error-state').style.display = 'block';
+    return;
+  }
+
+  // Rafraîchit la session locale avec le bon username (au cas où casse différente)
+  // et remet le timestamp pour éviter expiration future
+  localStorage.setItem('axo_session', JSON.stringify({ username: user.username, ts: Date.now() }));
+
+  const save = await dbGet('save:' + uKey);
+
   document.getElementById('loading-state').style.display='none';
   document.getElementById('profile-content').style.display='block';
-  if(!user){doLogout();return;}
-  document.getElementById('user-avatar').textContent=session.username[0].toUpperCase();
+
+  document.getElementById('user-avatar').textContent=user.username[0].toUpperCase();
   document.getElementById('user-name').textContent=user.username;
   document.getElementById('user-since').textContent='Membre depuis le '+new Date(user.createdAt).toLocaleDateString('fr-FR');
   document.getElementById('admin-status').textContent=user.isAdmin?'✓ Oui':'Non';
   if(user.isAdmin)document.getElementById('admin-status').style.color='var(--red)';
+
   if(save){
     document.getElementById('stat-cookies').textContent=formatNum(save.cookies||0);
     document.getElementById('stat-total').textContent=formatNum(save.totalCookies||0);
@@ -176,14 +207,20 @@ async function init(){
   }
 }
 
-function doLogout(){localStorage.removeItem('axo_session');window.location.href='index.html';}
+function doLogout(){
+  clearSession();
+  window.location.href='index.html';
+}
 
 async function confirmDelete(){
+  const session=getSession();
+  if(!session)return;
   if(!confirm('⚠️ Supprimer ton compte ? Toute ta progression sera perdue. Irréversible !'))return;
+  const uKey=session.username.toLowerCase();
   await dbDel('user:'+uKey);
   await dbDel('save:'+uKey);
   await dbDel('score:'+uKey);
-  localStorage.removeItem('axo_session');
+  clearSession();
   window.location.href='index.html';
 }
 

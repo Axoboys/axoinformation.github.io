@@ -613,17 +613,33 @@ function buyRebirthItem(id) {
 // ====================================================
 // REBIRTH
 // ====================================================
+function getRebirthRequirement() {
+  // 1 milliard pour le 1er rebirth, x10 à chaque fois : 1B → 10B → 100B...
+  return Math.pow(10, 9 + state.rebirths);
+}
+
 function openRebirthModal() {
   const pts = getRebirthPointsEarned();
   const bonus = ((state.rebirths + 1) * 0.5 * 100).toFixed(0);
+  const req = getRebirthRequirement();
+  const canRebirth = state.totalCookies >= req;
+  const progress = Math.min(100, (state.totalCookies / req * 100)).toFixed(1);
+
   document.getElementById('rebirth-body').innerHTML = `
     <div style="padding:1rem;">
       <div class="rebirth-preview">
         <div class="rebirth-stat"><span>Rebirth actuel</span><span class="rebirth-stat-val">#${state.rebirths}</span></div>
-        <div class="rebirth-stat"><span>Points gagnés</span><span class="rebirth-stat-val">+${pts} pts</span></div>
-        <div class="rebirth-stat"><span>Points après rebirth</span><span class="rebirth-stat-val">${state.rebirthPoints + pts} pts</span></div>
+        <div class="rebirth-stat"><span>Prérequis</span><span class="rebirth-stat-val" style="color:${canRebirth?'#22c55e':'#ef4444'};">${formatNum(req)} cookies totaux</span></div>
+        <div class="rebirth-stat"><span>Ta progression</span><span class="rebirth-stat-val" style="color:${canRebirth?'#22c55e':'#f97316'};">${formatNum(state.totalCookies)} (${progress}%)</span></div>
+        <div class="rebirth-stat"><span>Points gagnés</span><span class="rebirth-stat-val">${canRebirth ? '+'+pts+' pts' : '—'}</span></div>
+        <div class="rebirth-stat"><span>Points après rebirth</span><span class="rebirth-stat-val">${canRebirth ? (state.rebirthPoints + pts)+' pts' : state.rebirthPoints+' pts'}</span></div>
         <div class="rebirth-stat"><span>Nouveau bonus production</span><span class="rebirth-stat-val">+${bonus}%</span></div>
       </div>
+      ${!canRebirth ? `
+      <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:0.85rem 1rem;margin-bottom:1rem;font-family:'Space Mono',monospace;font-size:0.72rem;color:#ef4444;line-height:1.8;">
+        🔒 Prérequis non atteint<br>
+        Il te manque encore <strong>${formatNum(req - state.totalCookies)}</strong> cookies totaux.
+      </div>` : ''}
       <div class="rebirth-warning">
         ⚠️ Le rebirth va remettre à zéro :<br>
         • Tous tes cookies<br>
@@ -634,11 +650,18 @@ function openRebirthModal() {
         ✓ Tes mini-jeux débloqués<br>
         ✓ Ton historique total
       </div>
-      <button class="rebirth-confirm-btn" onclick="doRebirth()">🌀 Confirmer le Rebirth #${state.rebirths+1}</button>
+      ${canRebirth
+        ? `<button class="rebirth-confirm-btn" onclick="doRebirth()">🌀 Confirmer le Rebirth #${state.rebirths+1}</button>`
+        : `<button class="rebirth-confirm-btn" style="opacity:0.35;cursor:not-allowed;box-shadow:none;" disabled>🔒 Pas encore assez de cookies</button>`
+      }
     </div>`;
 }
 
 function doRebirth() {
+  if (state.totalCookies < getRebirthRequirement()) {
+    showToast('❌ Prérequis non atteint !');
+    return;
+  }
   const pts = getRebirthPointsEarned();
   state.rebirthPoints += pts;
   state.rebirths++;
