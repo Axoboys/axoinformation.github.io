@@ -202,6 +202,9 @@
     .mg-card{height:60px;border-radius:8px;border:1px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.5rem;transition:all 0.2s;-webkit-user-select:none;}
     .mg-card.revealed{background:rgba(6,182,212,0.15);border-color:var(--accent2);}
     .mg-card.matched{background:rgba(34,197,94,0.15);border-color:var(--green);cursor:default;}
+    /* Calcul mental input */
+    .mg-number-input{width:100%;max-width:200px;background:var(--bg);border:2px solid var(--border);border-radius:8px;padding:0.6rem 1rem;color:var(--text);font-family:'Space Mono',monospace;font-size:1.4rem;text-align:center;outline:none;display:block;margin:0 auto;}
+    .mg-number-input:focus{border-color:var(--accent);}
     /* Snake */
     #snake-canvas{border:2px solid var(--border);border-radius:8px;display:block;margin:0 auto;touch-action:none;}
     .mg-controls{display:flex;flex-direction:column;align-items:center;gap:0.3rem;margin-top:0.5rem;}
@@ -399,38 +402,76 @@ window.switchMobTab = function(tab) {
 // GAME DATA
 // ====================================================
 const BUILDINGS = [
-  { id:'cursor',  emoji:'🖱', name:'Curseur',       baseCost:15,     baseCps:1,      desc:'Clique tout seul', mg:'clickrush' },
-  { id:'grandma', emoji:'👵', name:'Grand-mère',    baseCost:100,    baseCps:5,      desc:'Fait des cookies avec amour', mg:'number' },
-  { id:'farm',    emoji:'🌾', name:'Ferme',         baseCost:1100,   baseCps:20,     desc:'Cultive des cookies', mg:'memory' },
-  { id:'mine',    emoji:'⛏',  name:'Mine',          baseCost:12000,  baseCps:80,     desc:'Extrait des pépites', mg:'snake' },
-  { id:'factory', emoji:'🏭', name:'Usine',         baseCost:130000, baseCps:300,    desc:'Produit en masse', mg:'clickrush' },
-  { id:'bank',    emoji:'🏦', name:'Banque',        baseCost:1.4e6,  baseCps:1000,   desc:'Génère des intérêts', mg:'number' },
-  { id:'temple',  emoji:'⛩',  name:'Temple',        baseCost:2e7,    baseCps:4000,   desc:'Cookies bénis', mg:'memory' },
-  { id:'wizard',  emoji:'🧙', name:'Tour de mage',  baseCost:3.3e8,  baseCps:16000,  desc:'Cookies magiques', mg:'snake' },
-  { id:'ship',    emoji:'🚀', name:'Vaisseau',      baseCost:5.1e9,  baseCps:65000,  desc:'Mine des planètes', mg:'clickrush' },
-  { id:'lab',     emoji:'🔬', name:'Labo temporel', baseCost:7.5e10, baseCps:280000, desc:'Vole dans le passé', mg:'number' },
+  { id:'cursor',  emoji:'🖱', name:'Curseur',       baseCost:15,     baseCps:1,      desc:'Clique tout seul',          mg:'clickrush' },
+  { id:'grandma', emoji:'👵', name:'Grand-mère',    baseCost:100,    baseCps:5,      desc:'Fait des cookies avec amour',mg:'number' },
+  { id:'farm',    emoji:'🌾', name:'Ferme',         baseCost:1100,   baseCps:20,     desc:'Cultive des cookies',        mg:'memory' },
+  { id:'mine',    emoji:'⛏',  name:'Mine',          baseCost:12000,  baseCps:80,     desc:'Extrait des pépites',        mg:'snake' },
+  { id:'factory', emoji:'🏭', name:'Usine',         baseCost:130000, baseCps:300,    desc:'Produit en masse',           mg:'reaction' },
+  { id:'bank',    emoji:'🏦', name:'Banque',        baseCost:1.4e6,  baseCps:1000,   desc:'Génère des intérêts',        mg:'math' },
+  { id:'temple',  emoji:'⛩',  name:'Temple',        baseCost:2e7,    baseCps:4000,   desc:'Cookies bénis',              mg:'memory' },
+  { id:'wizard',  emoji:'🧙', name:'Tour de mage',  baseCost:3.3e8,  baseCps:16000,  desc:'Cookies magiques',           mg:'reaction' },
+  { id:'ship',    emoji:'🚀', name:'Vaisseau',      baseCost:5.1e9,  baseCps:65000,  desc:'Mine des planètes',          mg:'snake' },
+  { id:'lab',     emoji:'🔬', name:'Labo temporel', baseCost:7.5e10, baseCps:280000, desc:'Vole dans le passé',         mg:'math' },
 ];
 
 const UPGRADES = [
-  { id:'click1', emoji:'👆', name:"Doigt d'acier",    cost:100,    desc:'×2/clic',   effect:'click',    mult:2 },
-  { id:'click2', emoji:'👊', name:'Poing de fer',      cost:1000,   desc:'×2/clic',   effect:'click',    mult:2 },
-  { id:'click3', emoji:'🤛', name:'Frappe divine',     cost:10000,  desc:'×2/clic',   effect:'click',    mult:2 },
-  { id:'click4', emoji:'⚡', name:'Éclair de clic',    cost:200000, desc:'×3/clic',   effect:'click',    mult:3 },
-  { id:'click5', emoji:'🌩', name:'Tonnerre de doigt', cost:5e6,    desc:'×5/clic',   effect:'click',    mult:5 },
-  { id:'cur1',   emoji:'🖱', name:'Souris rapide',     cost:500,    desc:'Curseurs ×2',effect:'building', bid:'cursor',  mult:2 },
-  { id:'cur2',   emoji:'🖱', name:'Souris optique',    cost:5000,   desc:'Curseurs ×2',effect:'building', bid:'cursor',  mult:2 },
-  { id:'gma1',   emoji:'👵', name:'Tablier brodé',     cost:2000,   desc:'GM ×2',     effect:'building', bid:'grandma', mult:2 },
-  { id:'gma2',   emoji:'👵', name:'Lunettes magiques', cost:20000,  desc:'GM ×2',     effect:'building', bid:'grandma', mult:2 },
-  { id:'gma3',   emoji:'👵', name:'Prothèses turbo',   cost:200000, desc:'GM ×2',     effect:'building', bid:'grandma', mult:2 },
-  { id:'frm1',   emoji:'🌾', name:'Engrais ultra',     cost:50000,  desc:'Fermes ×2', effect:'building', bid:'farm',    mult:2 },
-  { id:'frm2',   emoji:'🌾', name:'OGM Cookies',       cost:500000, desc:'Fermes ×2', effect:'building', bid:'farm',    mult:2 },
-  { id:'min1',   emoji:'⛏', name:'Dynamite cookies',  cost:600000, desc:'Mines ×2',  effect:'building', bid:'mine',    mult:2 },
-  { id:'min2',   emoji:'⛏', name:'Laser mineur',      cost:6e6,    desc:'Mines ×2',  effect:'building', bid:'mine',    mult:2 },
-  { id:'glob1',  emoji:'✨', name:'Magie des cookies', cost:1e7,    desc:'Prod ×2',   effect:'global',   mult:2 },
-  { id:'glob2',  emoji:'🌟', name:'Frappe cosmique',   cost:1e9,    desc:'Prod ×2',   effect:'global',   mult:2 },
-  { id:'glob3',  emoji:'🌌', name:'Singularité',       cost:1e12,   desc:'Prod ×3',   effect:'global',   mult:3 },
-  { id:'golden1',emoji:'🌕', name:'Cookie doré',       cost:5e5,    desc:'Bonus rare+',effect:'golden' },
-  { id:'axo1',   emoji:'🦎', name:"Bénédiction d'Axo", cost:1e8,    desc:'Tout ×1.5', effect:'global',   mult:1.5 },
+  // ── CLIC ──────────────────────────────────────────
+  { id:'click1', emoji:'👆', name:"Doigt d'acier",      cost:100,    desc:'×2/clic',    effect:'click',    mult:2 },
+  { id:'click2', emoji:'👊', name:'Poing de fer',        cost:1000,   desc:'×2/clic',    effect:'click',    mult:2 },
+  { id:'click3', emoji:'🤛', name:'Frappe divine',       cost:10000,  desc:'×2/clic',    effect:'click',    mult:2 },
+  { id:'click4', emoji:'⚡', name:'Éclair de clic',      cost:200000, desc:'×3/clic',    effect:'click',    mult:3 },
+  { id:'click5', emoji:'🌩', name:'Tonnerre de doigt',   cost:5e6,    desc:'×5/clic',    effect:'click',    mult:5 },
+  { id:'click6', emoji:'☄️', name:'Météore digital',     cost:5e8,    desc:'×10/clic',   effect:'click',    mult:10 },
+  // ── CURSEUR ───────────────────────────────────────
+  { id:'cur1',   emoji:'🖱', name:'Souris rapide',       cost:500,    desc:'Curseurs ×2', effect:'building', bid:'cursor',  mult:2 },
+  { id:'cur2',   emoji:'🖱', name:'Souris optique',      cost:5000,   desc:'Curseurs ×2', effect:'building', bid:'cursor',  mult:2 },
+  { id:'cur3',   emoji:'🖱', name:'Souris quantique',    cost:500000, desc:'Curseurs ×3', effect:'building', bid:'cursor',  mult:3 },
+  // ── GRAND-MÈRE ────────────────────────────────────
+  { id:'gma1',   emoji:'👵', name:'Tablier brodé',       cost:2000,   desc:'GM ×2',       effect:'building', bid:'grandma', mult:2 },
+  { id:'gma2',   emoji:'👵', name:'Lunettes magiques',   cost:20000,  desc:'GM ×2',       effect:'building', bid:'grandma', mult:2 },
+  { id:'gma3',   emoji:'👵', name:'Prothèses turbo',     cost:200000, desc:'GM ×2',       effect:'building', bid:'grandma', mult:2 },
+  { id:'gma4',   emoji:'👵', name:'Grimoire ancestral',  cost:2e6,    desc:'GM ×3',       effect:'building', bid:'grandma', mult:3 },
+  // ── FERME ─────────────────────────────────────────
+  { id:'frm1',   emoji:'🌾', name:'Engrais ultra',       cost:50000,  desc:'Fermes ×2',   effect:'building', bid:'farm',    mult:2 },
+  { id:'frm2',   emoji:'🌾', name:'OGM Cookies',         cost:500000, desc:'Fermes ×2',   effect:'building', bid:'farm',    mult:2 },
+  { id:'frm3',   emoji:'🌾', name:'Récolte cosmique',    cost:5e6,    desc:'Fermes ×3',   effect:'building', bid:'farm',    mult:3 },
+  // ── MINE ──────────────────────────────────────────
+  { id:'min1',   emoji:'⛏',  name:'Dynamite cookies',   cost:600000, desc:'Mines ×2',    effect:'building', bid:'mine',    mult:2 },
+  { id:'min2',   emoji:'⛏',  name:'Laser mineur',       cost:6e6,    desc:'Mines ×2',    effect:'building', bid:'mine',    mult:2 },
+  { id:'min3',   emoji:'⛏',  name:'Foreuse plasma',     cost:6e7,    desc:'Mines ×3',    effect:'building', bid:'mine',    mult:3 },
+  // ── USINE ─────────────────────────────────────────
+  { id:'fac1',   emoji:'🏭', name:'Chaîne rouillée',    cost:7e6,    desc:'Usines ×2',   effect:'building', bid:'factory', mult:2 },
+  { id:'fac2',   emoji:'🏭', name:'Robot assembleur',   cost:7e7,    desc:'Usines ×2',   effect:'building', bid:'factory', mult:2 },
+  { id:'fac3',   emoji:'🏭', name:'IA de production',   cost:7e8,    desc:'Usines ×3',   effect:'building', bid:'factory', mult:3 },
+  // ── BANQUE ────────────────────────────────────────
+  { id:'ban1',   emoji:'🏦', name:'Compte épargne',     cost:8e7,    desc:'Banques ×2',  effect:'building', bid:'bank',    mult:2 },
+  { id:'ban2',   emoji:'🏦', name:'Hedge fund cookie',  cost:8e8,    desc:'Banques ×2',  effect:'building', bid:'bank',    mult:2 },
+  { id:'ban3',   emoji:'🏦', name:'Crypto-cookie',      cost:8e9,    desc:'Banques ×3',  effect:'building', bid:'bank',    mult:3 },
+  // ── TEMPLE ────────────────────────────────────────
+  { id:'tmp1',   emoji:'⛩',  name:'Encens sacré',       cost:1.2e9,  desc:'Temples ×2',  effect:'building', bid:'temple',  mult:2 },
+  { id:'tmp2',   emoji:'⛩',  name:'Rituel divin',       cost:1.2e10, desc:'Temples ×2',  effect:'building', bid:'temple',  mult:2 },
+  { id:'tmp3',   emoji:'⛩',  name:'Ascension cookie',   cost:1.2e11, desc:'Temples ×3',  effect:'building', bid:'temple',  mult:3 },
+  // ── TOUR DE MAGE ──────────────────────────────────
+  { id:'wiz1',   emoji:'🧙', name:'Baguette de noisette',cost:2e10,  desc:'Mages ×2',    effect:'building', bid:'wizard',  mult:2 },
+  { id:'wiz2',   emoji:'🧙', name:'Grimoire des sorts',  cost:2e11,  desc:'Mages ×2',    effect:'building', bid:'wizard',  mult:2 },
+  { id:'wiz3',   emoji:'🧙', name:'Portail des sucres',  cost:2e12,  desc:'Mages ×3',    effect:'building', bid:'wizard',  mult:3 },
+  // ── VAISSEAU ──────────────────────────────────────
+  { id:'shp1',   emoji:'🚀', name:'Propulseur ionique',  cost:3e11,  desc:'Vaisseaux ×2', effect:'building', bid:'ship',    mult:2 },
+  { id:'shp2',   emoji:'🚀', name:'Warp cookie drive',   cost:3e12,  desc:'Vaisseaux ×2', effect:'building', bid:'ship',    mult:2 },
+  { id:'shp3',   emoji:'🚀', name:'Moteur de singularité',cost:3e13, desc:'Vaisseaux ×3', effect:'building', bid:'ship',    mult:3 },
+  // ── LABO TEMPOREL ─────────────────────────────────
+  { id:'lab1',   emoji:'🔬', name:'Chrono-accélérateur', cost:5e12,  desc:'Labos ×2',    effect:'building', bid:'lab',     mult:2 },
+  { id:'lab2',   emoji:'🔬', name:'Paradoxe de cookie',  cost:5e13,  desc:'Labos ×2',    effect:'building', bid:'lab',     mult:2 },
+  { id:'lab3',   emoji:'🔬', name:'Boucle temporelle',   cost:5e14,  desc:'Labos ×3',    effect:'building', bid:'lab',     mult:3 },
+  // ── GLOBAL ────────────────────────────────────────
+  { id:'glob1',  emoji:'✨', name:'Magie des cookies',   cost:1e7,   desc:'Prod ×2',     effect:'global',   mult:2 },
+  { id:'glob2',  emoji:'🌟', name:'Frappe cosmique',     cost:1e9,   desc:'Prod ×2',     effect:'global',   mult:2 },
+  { id:'glob3',  emoji:'🌌', name:'Singularité',         cost:1e12,  desc:'Prod ×3',     effect:'global',   mult:3 },
+  { id:'glob4',  emoji:'🌠', name:'Big Bang sucré',      cost:1e15,  desc:'Prod ×5',     effect:'global',   mult:5 },
+  { id:'golden1',emoji:'🌕', name:'Cookie doré',         cost:5e5,   desc:'Bonus rare+', effect:'golden' },
+  { id:'axo1',   emoji:'🦎', name:"Bénédiction d'Axo",  cost:1e8,   desc:'Tout ×1.5',   effect:'global',   mult:1.5 },
+  { id:'axo2',   emoji:'🦎', name:"Éveil d'Axo",        cost:1e11,  desc:'Tout ×2',     effect:'global',   mult:2 },
+  { id:'axo3',   emoji:'🦎', name:"Transcendance d'Axo",cost:1e14,  desc:'Tout ×4',     effect:'global',   mult:4 },
 ];
 
 // REBIRTH SHOP — bought with rebirthPoints
@@ -959,6 +1000,8 @@ window.openMinigame = function(bid){
   else if(b.mg==='number')renderNumberGuess(body,bid);
   else if(b.mg==='memory')renderMemory(body,bid);
   else if(b.mg==='snake')renderSnake(body,bid);
+  else if(b.mg==='reaction')renderReaction(body,bid);
+  else if(b.mg==='math')renderMath(body,bid);
   openModal('mg');
 }
 
@@ -1138,6 +1181,113 @@ window.snakeTick=function(){
   else s.snake.pop();
   snakeDraw();
 };
+// --- REACTION ---
+function renderReaction(body,bid){
+  const emojis=['🍪','🎮','🌟','⚡','🦎','🎯','🔥','💎','🚀','👾'];
+  const target=emojis[Math.floor(Math.random()*emojis.length)];
+  let score=0,round=0,maxRound=8,active=false,iv=null,tStart=0;
+  function nextRound(){
+    if(round>=maxRound){
+      document.getElementById('re-feedback').textContent='🏁 Terminé ! Score : '+score;
+      document.getElementById('re-grid').style.pointerEvents='none';
+      mgReward(bid,score*80);
+      return;
+    }
+    round++;
+    document.getElementById('re-info').textContent='Cible : '+target+' — Tour '+round+'/'+maxRound;
+    const pool=[...emojis].sort(()=>Math.random()-0.5).slice(0,6);
+    if(!pool.includes(target))pool[Math.floor(Math.random()*6)]=target;
+    pool.sort(()=>Math.random()-0.5);
+    const grid=document.getElementById('re-grid');
+    grid.innerHTML='';
+    tStart=Date.now();
+    pool.forEach(em=>{
+      const btn=document.createElement('button');
+      btn.className='mg-big-btn';btn.style.cssText='width:64px;height:64px;font-size:1.8rem;margin:4px;';
+      btn.textContent=em;
+      btn.onclick=()=>{
+        if(em===target){
+          const ms=Date.now()-tStart;
+          score+=Math.max(1,Math.floor(1000/ms*10));
+          document.getElementById('re-feedback').textContent='✅ +'+(Math.max(1,Math.floor(1000/ms*10)))+' pts ('+ms+'ms)';
+          document.getElementById('re-feedback').style.color='var(--green)';
+        } else {
+          score=Math.max(0,score-5);
+          document.getElementById('re-feedback').textContent='❌ Raté !';
+          document.getElementById('re-feedback').style.color='var(--red)';
+        }
+        setTimeout(nextRound,400);
+        grid.style.pointerEvents='none';
+        setTimeout(()=>grid.style.pointerEvents='',410);
+      };
+      grid.appendChild(btn);
+    });
+  }
+  body.innerHTML=`<div class="minigame-container">
+    <div class="mg-title">⚡ Réaction</div>
+    <div class="mg-desc" id="re-info">Appuie sur Commencer</div>
+    <div id="re-grid" style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px;min-height:160px;align-items:center;"></div>
+    <div class="mg-feedback" id="re-feedback" style="min-height:1.5rem;"></div>
+    <button class="mg-start-btn" id="re-start" onclick="this.style.display='none';nextRound()">▶ Commencer</button>
+  </div>`;
+  window._reNextRound=nextRound;
+}
+
+// --- MATH ---
+function renderMath(body,bid){
+  let score=0,round=0,maxRound=8;
+  function nextQ(){
+    if(round>=maxRound){
+      document.getElementById('mth-feedback').textContent='🏁 Score : '+score+'/'+maxRound;
+      document.getElementById('mth-input').disabled=true;
+      document.getElementById('mth-btn').disabled=true;
+      mgReward(bid,score*120);
+      return;
+    }
+    round++;
+    const ops=['+','-','×'];
+    const op=ops[Math.floor(Math.random()*ops.length)];
+    let a,b,ans;
+    if(op==='+'){a=Math.floor(Math.random()*50)+1;b=Math.floor(Math.random()*50)+1;ans=a+b;}
+    else if(op==='-'){a=Math.floor(Math.random()*50)+20;b=Math.floor(Math.random()*20)+1;ans=a-b;}
+    else{a=Math.floor(Math.random()*12)+1;b=Math.floor(Math.random()*12)+1;ans=a*b;}
+    window._mthState={ans,score,round,maxRound,bid,nextQ};
+    document.getElementById('mth-question').textContent=a+' '+op+' '+b+' = ?';
+    document.getElementById('mth-round').textContent='Question '+round+'/'+maxRound;
+    document.getElementById('mth-input').value='';
+    document.getElementById('mth-input').focus();
+    document.getElementById('mth-feedback').textContent='';
+  }
+  body.innerHTML=`<div class="minigame-container mg-guess">
+    <div class="mg-title">🧮 Calcul Mental</div>
+    <div class="mg-desc" id="mth-round">Prêt ?</div>
+    <div style="font-size:2rem;font-weight:800;font-family:'Space Mono',monospace;color:var(--accent3);margin:1rem 0;" id="mth-question">?</div>
+    <input type="number" id="mth-input" class="mg-number-input" placeholder="Réponse..." onkeydown="if(event.key==='Enter')mthGuess()">
+    <div class="mg-feedback" id="mth-feedback"></div>
+    <div style="display:flex;gap:0.5rem;margin-top:0.75rem;">
+      <button class="mg-start-btn" id="mth-btn" onclick="mthGuess()">Valider →</button>
+      <button class="mg-start-btn" style="background:var(--surface);border:1px solid var(--border);" onclick="renderMath(document.getElementById('mg-body'),'${bid}')">↺</button>
+    </div>
+  </div>`;
+  window._mthState={ans:0,bid,nextQ};
+  nextQ();
+}
+window.mthGuess=function(){
+  const s=window._mthState;if(!s)return;
+  const val=parseInt(document.getElementById('mth-input').value);
+  if(isNaN(val)){return;}
+  if(val===s.ans){
+    s.score=(s.score||0)+1;
+    document.getElementById('mth-feedback').textContent='✅ Correct !';
+    document.getElementById('mth-feedback').style.color='var(--green)';
+  } else {
+    document.getElementById('mth-feedback').textContent='❌ C'était '+s.ans;
+    document.getElementById('mth-feedback').style.color='var(--red)';
+  }
+  window._mthState.score=s.score;
+  setTimeout(s.nextQ,600);
+};
+
 window.snakeDraw=function(){
   const s=window._snakeState;const cvs=document.getElementById('snake-canvas');if(!cvs||!s)return;
   const ctx=cvs.getContext('2d');const{size:SZ,cell:C}=s;
