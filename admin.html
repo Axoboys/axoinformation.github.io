@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Axoboys</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0a0a0f;--surface:#111118;--border:#1e1e2e;--accent:#7c3aed;--accent2:#06b6d4;--accent3:#f59e0b;--text:#e2e8f0;--muted:#64748b;--red:#ef4444;--green:#22c55e;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(124,58,237,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(124,58,237,0.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+    nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:60px;background:rgba(10,10,15,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+    .nav-logo{font-size:1.1rem;font-weight:800;letter-spacing:0.1em;color:var(--text);text-decoration:none;}
+    .nav-logo span{color:var(--accent);}
+    .nav-badge{font-family:'Space Mono',monospace;font-size:0.7rem;padding:0.25rem 0.75rem;border:1px solid var(--red);border-radius:999px;color:var(--red);}
+    /* AUTH GATE */
+    .auth-gate{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:var(--bg);}
+    .auth-gate-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2.5rem;width:min(400px,92vw);text-align:center;}
+    .auth-gate-icon{font-size:3rem;margin-bottom:1rem;}
+    .auth-gate-title{font-size:1.6rem;font-weight:800;margin-bottom:0.5rem;}
+    .auth-gate-sub{font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--muted);margin-bottom:2rem;}
+    .auth-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.75rem 1rem;color:var(--text);font-family:'Space Mono',monospace;font-size:0.9rem;outline:none;transition:border-color 0.2s;text-align:center;letter-spacing:0.1em;}
+    .auth-input:focus{border-color:var(--accent);}
+    .auth-btn{width:100%;margin-top:1rem;padding:0.85rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.88rem;font-weight:700;cursor:pointer;transition:all 0.2s;}
+    .auth-btn:hover{background:#6d28d9;}
+    .auth-err{font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--red);margin-top:0.75rem;display:none;}
+    /* MAIN */
+    main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:2rem;}
+    .page-label{font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--red);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.5rem;}
+    .page-title{font-size:2.5rem;font-weight:800;margin-bottom:2rem;}
+    /* STATS ROW */
+    .stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem;margin-bottom:2rem;}
+    .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;}
+    .stat-label{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.4rem;}
+    .stat-val{font-size:1.6rem;font-weight:800;color:var(--accent3);}
+    /* TABS */
+    .tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:1.5rem;}
+    .tab-btn{padding:0.65rem 1.25rem;font-family:'Space Mono',monospace;font-size:0.75rem;cursor:pointer;color:var(--muted);border:none;background:transparent;transition:all 0.2s;border-bottom:2px solid transparent;}
+    .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+    .tab-panel{display:none;}
+    .tab-panel.active{display:block;}
+    /* TABLE */
+    .table-wrap{overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;}
+    th{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;padding:0.6rem 0.75rem;text-align:left;border-bottom:1px solid var(--border);}
+    td{padding:0.65rem 0.75rem;border-bottom:1px solid rgba(30,30,46,0.5);font-size:0.82rem;vertical-align:middle;}
+    tr:hover td{background:rgba(255,255,255,0.02);}
+    .badge{display:inline-block;padding:0.18rem 0.55rem;border-radius:999px;font-family:'Space Mono',monospace;font-size:0.62rem;font-weight:700;}
+    .badge-admin{background:rgba(239,68,68,0.15);border:1px solid var(--red);color:var(--red);}
+    .badge-user{background:rgba(100,116,139,0.15);border:1px solid var(--muted);color:var(--muted);}
+    .badge-rb{background:rgba(168,85,247,0.15);border:1px solid #a855f7;color:#a855f7;}
+    /* ACTIONS */
+    .action-row{display:flex;gap:0.4rem;flex-wrap:wrap;}
+    .act-btn{padding:0.3rem 0.7rem;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Space Mono',monospace;font-size:0.62rem;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+    .act-btn:hover{border-color:var(--accent2);color:var(--accent2);}
+    .act-btn.danger{border-color:var(--red);color:var(--red);}
+    .act-btn.primary{border-color:var(--accent);color:var(--accent);}
+    .act-btn.success{border-color:var(--green);color:var(--green);}
+    /* EDIT MODAL */
+    .edit-modal{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);}
+    .edit-modal.open{display:flex;}
+    .edit-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;width:min(500px,95vw);max-height:85vh;overflow-y:auto;padding:2rem;}
+    .edit-title{font-size:1.2rem;font-weight:800;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;}
+    .edit-close{width:30px;height:30px;border-radius:50%;background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.9rem;}
+    .field-group{margin-bottom:1rem;}
+    .field-label{font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--muted);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.1em;}
+    .field-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.65rem 0.9rem;color:var(--text);font-family:'Space Mono',monospace;font-size:0.82rem;outline:none;transition:border-color 0.2s;}
+    .field-input:focus{border-color:var(--accent);}
+    .save-btn{width:100%;padding:0.75rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.85rem;cursor:pointer;margin-top:0.5rem;}
+    /* LOG */
+    .log-box{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);max-height:200px;overflow-y:auto;line-height:1.8;}
+    .log-line{padding:0.15rem 0;border-bottom:1px solid rgba(30,30,46,0.5);}
+    .log-line.ok{color:var(--green);}
+    .log-line.err{color:var(--red);}
+    .log-line.info{color:var(--accent2);}
+    /* TOAST */
+    .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:0.6rem 1.25rem;font-family:'Space Mono',monospace;font-size:0.75rem;z-index:998;transition:transform 0.3s,opacity 0.3s;opacity:0;}
+    .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+    .loading-row{text-align:center;padding:2rem;font-family:'Space Mono',monospace;font-size:0.8rem;color:var(--muted);}
+  </style>
+</head>
+<body>
+
+<!-- AUTH GATE -->
+<div class="auth-gate" id="auth-gate">
+  <div class="auth-gate-box">
+    <div class="auth-gate-icon">🔑</div>
+    <h1 class="auth-gate-title">Panel Admin</h1>
+    <p class="auth-gate-sub">Accès restreint — mot de passe requis</p>
+    <input type="password" class="auth-input" id="admin-pw" placeholder="Mot de passe admin..." onkeydown="if(event.key==='Enter')checkAdmin()">
+    <button class="auth-btn" onclick="checkAdmin()">Accéder →</button>
+    <div class="auth-err" id="auth-err">Mot de passe incorrect.</div>
+    <div style="margin-top:1.5rem;"><a href="index.html" style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);text-decoration:none;">← Retour au Hub</a></div>
+  </div>
+</div>
+
+<nav>
+  <a href="index.html" class="nav-logo">AXO<span>BOYS</span></a>
+  <span class="nav-badge">⚠ PANEL ADMIN</span>
+</nav>
+
+<main id="main-content" style="display:none;">
+  <div class="page-label">// accès restreint</div>
+  <h1 class="page-title">Panel Admin</h1>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-label">Joueurs</div><div class="stat-val" id="s-players">—</div></div>
+    <div class="stat-card"><div class="stat-label">Total Cookies</div><div class="stat-val" id="s-cookies">—</div></div>
+    <div class="stat-card"><div class="stat-label">Total Rebirths</div><div class="stat-val" id="s-rebirths">—</div></div>
+    <div class="stat-card"><div class="stat-label">Actif (24h)</div><div class="stat-val" id="s-active">—</div></div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('accounts')">👥 Comptes</button>
+    <button class="tab-btn" onclick="switchTab('saves')">💾 Sauvegardes</button>
+    <button class="tab-btn" onclick="switchTab('logs')">📋 Logs</button>
+    <button class="tab-btn" onclick="switchTab('settings')">⚙️ Paramètres</button>
+  </div>
+
+  <!-- ACCOUNTS -->
+  <div class="tab-panel active" id="panel-accounts">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+      <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);" id="acc-count">Chargement...</div>
+      <button class="act-btn primary" onclick="loadData()">↻ Rafraîchir</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Utilisateur</th><th>Rôle</th><th>Inscription</th><th>Cookies</th><th>Rebirths</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="acc-tbody"><tr><td colspan="6" class="loading-row">⏳ Chargement...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SAVES -->
+  <div class="tab-panel" id="panel-saves">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+      <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);" id="save-count">Chargement...</div>
+      <button class="act-btn primary" onclick="loadSaves()">↻ Rafraîchir</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Joueur</th><th>Cookies actuels</th><th>Total cookies</th><th>CPS</th><th>Rebirths</th><th>Pts rebirth</th><th>Dernière sauvegarde</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="saves-tbody"><tr><td colspan="8" class="loading-row">⏳ Chargement...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- LOGS -->
+  <div class="tab-panel" id="panel-logs">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+      <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);">Historique des actions admin</div>
+      <button class="act-btn danger" onclick="clearLogs()">🗑 Vider</button>
+    </div>
+    <div class="log-box" id="log-box"><div style="color:var(--muted);">Aucune action enregistrée.</div></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="tab-panel" id="panel-settings">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;">
+        <div style="font-weight:700;margin-bottom:0.75rem;">🔑 Changer le mot de passe admin</div>
+        <div class="field-group">
+          <div class="field-label">Nouveau mot de passe</div>
+          <input type="password" class="field-input" id="new-admin-pw" placeholder="Nouveau mot de passe...">
+        </div>
+        <button class="act-btn primary" style="width:100%;padding:0.65rem;" onclick="changeAdminPw()">Changer le mot de passe</button>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;">
+        <div style="font-weight:700;margin-bottom:0.75rem;">📊 Infos système</div>
+        <div id="sys-info" style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);line-height:2;"></div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;">
+        <div style="font-weight:700;margin-bottom:0.75rem;color:var(--red);">⚠️ Zone dangereuse</div>
+        <button class="act-btn danger" style="width:100%;padding:0.65rem;margin-bottom:0.5rem;" onclick="purgeAllScores()">Purger tous les scores</button>
+        <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--muted);">Supprime uniquement les entrées de classement, pas les sauvegardes.</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- EDIT MODAL -->
+<div class="edit-modal" id="edit-modal">
+  <div class="edit-box" id="edit-box"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ====================================================
+// STORAGE HELPERS
+// ====================================================
+async function dbGet(key){try{const r=await window.storage.get(key,true);return r?JSON.parse(r.value):null;}catch(e){return null;}}
+async function dbSet(key,val){try{await window.storage.set(key,JSON.stringify(val),true);return true;}catch(e){return false;}}
+async function dbDel(key){try{await window.storage.delete(key,true);return true;}catch(e){return false;}}
+async function dbList(prefix){try{const r=await window.storage.list(prefix,true);return r&&r.keys?r.keys:[];}catch(e){return[];}}
+
+function formatNum(n){
+  n=Math.floor(n||0);
+  if(n>=1e12)return(n/1e12).toFixed(2)+' T';
+  if(n>=1e9)return(n/1e9).toFixed(2)+' B';
+  if(n>=1e6)return(n/1e6).toFixed(2)+' M';
+  if(n>=1e3)return(n/1e3).toFixed(1)+' K';
+  return n.toString();
+}
+
+function formatDate(ts){if(!ts)return'—';return new Date(ts).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});}
+
+// ====================================================
+// ADMIN AUTH
+// ====================================================
+const ADMIN_PW_KEY = 'axo_admin_pw';
+const DEFAULT_PW = 'axoboys2026';
+
+function getAdminPw(){ return localStorage.getItem(ADMIN_PW_KEY) || DEFAULT_PW; }
+
+function checkAdmin(){
+  const pw = document.getElementById('admin-pw').value;
+  if (pw === getAdminPw()) {
+    document.getElementById('auth-gate').style.display='none';
+    document.getElementById('main-content').style.display='block';
+    loadData();
+    loadSaves();
+    loadSysInfo();
+    addLog('info','Connexion admin réussie.');
+  } else {
+    document.getElementById('auth-err').style.display='block';
+    addLog('err','Tentative de connexion admin échouée.');
+  }
+}
+document.getElementById('admin-pw').addEventListener('keydown',e=>{if(e.key==='Enter')checkAdmin();});
+
+function changeAdminPw(){
+  const np=document.getElementById('new-admin-pw').value;
+  if(!np||np.length<4){showToast('❌ Mot de passe trop court (min 4 car.)');return;}
+  localStorage.setItem(ADMIN_PW_KEY,np);
+  showToast('✓ Mot de passe admin changé !');
+  addLog('ok','Mot de passe admin modifié.');
+}
+
+// ====================================================
+// TABS
+// ====================================================
+function switchTab(id){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ====================================================
+// LOAD ACCOUNTS
+// ====================================================
+let allUsers=[], allSaves={};
+
+async function loadData(){
+  document.getElementById('acc-tbody').innerHTML='<tr><td colspan="6" class="loading-row">⏳ Chargement...</td></tr>';
+  const keys=await dbList('user:');
+  allUsers=[];
+  for(const k of keys){
+    const u=await dbGet(k);
+    if(u)allUsers.push({key:k.replace('user:',''),...u});
+  }
+  renderAccounts();
+  updateStats();
+}
+
+function renderAccounts(){
+  const tbody=document.getElementById('acc-tbody');
+  document.getElementById('acc-count').textContent=allUsers.length+' compte(s)';
+  if(allUsers.length===0){tbody.innerHTML='<tr><td colspan="6" class="loading-row">Aucun compte trouvé.</td></tr>';return;}
+  tbody.innerHTML=allUsers.map(u=>`
+    <tr>
+      <td><strong>${u.username}</strong></td>
+      <td><span class="badge ${u.isAdmin?'badge-admin':'badge-user'}">${u.isAdmin?'Admin':'Joueur'}</span></td>
+      <td style="font-family:'Space Mono',monospace;font-size:0.7rem;">${formatDate(u.createdAt)}</td>
+      <td id="acc-cookies-${u.key}">—</td>
+      <td id="acc-rb-${u.key}">—</td>
+      <td>
+        <div class="action-row">
+          <button class="act-btn primary" onclick="editUser('${u.key}')">✏️ Modifier</button>
+          <button class="act-btn ${u.isAdmin?'danger':'success'}" onclick="toggleAdmin('${u.key}')">${u.isAdmin?'Rétrograder':'Promouvoir'}</button>
+          <button class="act-btn danger" onclick="deleteUser('${u.key}')">🗑 Supprimer</button>
+        </div>
+      </td>
+    </tr>`).join('');
+  // Load save data async for each user
+  allUsers.forEach(async u=>{
+    const s=await dbGet('save:'+u.key);
+    if(s){
+      const el=document.getElementById('acc-cookies-'+u.key);
+      const rb=document.getElementById('acc-rb-'+u.key);
+      if(el)el.textContent='🍪 '+formatNum(s.totalCookies);
+      if(rb)rb.innerHTML=`<span class="badge badge-rb">🌀 ${s.rebirths||0}</span>`;
+    }
+  });
+}
+
+async function loadStats(){
+  let totalCookies=0,totalRebirths=0,active24=0;
+  const saves=await dbList('save:');
+  for(const k of saves){
+    const s=await dbGet(k);
+    if(!s)continue;
+    totalCookies+=(s.totalCookies||0);
+    totalRebirths+=(s.rebirths||0);
+    if(s.lastSave&&Date.now()-s.lastSave<86400000)active24++;
+  }
+  return{totalCookies,totalRebirths,active24};
+}
+
+async function updateStats(){
+  document.getElementById('s-players').textContent=allUsers.length;
+  const {totalCookies,totalRebirths,active24}=await loadStats();
+  document.getElementById('s-cookies').textContent=formatNum(totalCookies);
+  document.getElementById('s-rebirths').textContent=totalRebirths;
+  document.getElementById('s-active').textContent=active24;
+}
+
+// ====================================================
+// LOAD SAVES
+// ====================================================
+async function loadSaves(){
+  document.getElementById('saves-tbody').innerHTML='<tr><td colspan="8" class="loading-row">⏳ Chargement...</td></tr>';
+  const keys=await dbList('save:');
+  const saves=[];
+  for(const k of keys){const s=await dbGet(k);if(s)saves.push({key:k.replace('save:',''),...s});}
+  saves.sort((a,b)=>(b.totalCookies||0)-(a.totalCookies||0));
+  document.getElementById('save-count').textContent=saves.length+' sauvegarde(s)';
+  if(saves.length===0){document.getElementById('saves-tbody').innerHTML='<tr><td colspan="8" class="loading-row">Aucune sauvegarde.</td></tr>';return;}
+  document.getElementById('saves-tbody').innerHTML=saves.map(s=>`
+    <tr>
+      <td><strong>${s.username||s.key}</strong></td>
+      <td style="color:var(--accent3);">🍪 ${formatNum(s.cookies)}</td>
+      <td>🍪 ${formatNum(s.totalCookies)}</td>
+      <td style="color:var(--accent2);">⚡ ${formatNum(s.cps)}/s</td>
+      <td><span class="badge badge-rb">🌀 ${s.rebirths||0}</span></td>
+      <td style="color:#a855f7;">${s.rebirthPoints||0} pts</td>
+      <td style="font-family:'Space Mono',monospace;font-size:0.65rem;">${formatDate(s.lastSave)}</td>
+      <td>
+        <div class="action-row">
+          <button class="act-btn primary" onclick="editSave('${s.key}')">✏️ Éditer</button>
+          <button class="act-btn success" onclick="giveCoins('${s.key}')">🍪 Donner</button>
+          <button class="act-btn danger" onclick="resetSave('${s.key}')">🗑 Reset</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+// ====================================================
+// ACTIONS — USERS
+// ====================================================
+async function toggleAdmin(key){
+  const u=await dbGet('user:'+key);if(!u)return;
+  u.isAdmin=!u.isAdmin;
+  await dbSet('user:'+key,u);
+  addLog(u.isAdmin?'ok':'info',(u.isAdmin?'Promotion':'Rétrogradation')+' de '+u.username);
+  showToast(u.isAdmin?'✓ '+u.username+' est maintenant admin':'✓ '+u.username+' est maintenant joueur');
+  loadData();
+}
+
+async function deleteUser(key){
+  const u=await dbGet('user:'+key);
+  if(!confirm('⚠️ Supprimer le compte de '+(u?u.username:key)+' ? Irréversible !'))return;
+  await dbDel('user:'+key);
+  await dbDel('save:'+key);
+  await dbDel('score:'+key);
+  addLog('err','Suppression du compte : '+(u?u.username:key));
+  showToast('🗑 Compte supprimé.');
+  loadData();loadSaves();
+}
+
+function editUser(key){
+  dbGet('user:'+key).then(u=>{
+    if(!u)return;
+    const box=document.getElementById('edit-box');
+    box.innerHTML=`
+      <div class="edit-title">✏️ Modifier ${u.username} <button class="edit-close" onclick="closeEdit()">✕</button></div>
+      <div class="field-group"><div class="field-label">Nouveau pseudo</div><input class="field-input" id="eu-name" value="${u.username}"></div>
+      <div class="field-group"><div class="field-label">Nouveau mot de passe (laisser vide = inchangé)</div><input type="password" class="field-input" id="eu-pw" placeholder="Nouveau mdp..."></div>
+      <button class="save-btn" onclick="saveUserEdit('${key}')">💾 Enregistrer</button>`;
+    document.getElementById('edit-modal').classList.add('open');
+  });
+}
+
+async function saveUserEdit(key){
+  const u=await dbGet('user:'+key);if(!u)return;
+  const newName=document.getElementById('eu-name').value.trim();
+  const newPw=document.getElementById('eu-pw').value;
+  if(newName&&newName!==u.username)u.username=newName;
+  if(newPw&&newPw.length>=4){
+    let h=5381;for(let i=0;i<newPw.length;i++)h=((h<<5)+h)^newPw.charCodeAt(i);
+    u.password=(h>>>0).toString(16);
+  }
+  await dbSet('user:'+key,u);
+  addLog('ok','Modification compte : '+u.username);
+  showToast('✓ Compte mis à jour.');closeEdit();loadData();
+}
+
+// ====================================================
+// ACTIONS — SAVES
+// ====================================================
+async function editSave(key){
+  const s=await dbGet('save:'+key);if(!s)return;
+  const box=document.getElementById('edit-box');
+  box.innerHTML=`
+    <div class="edit-title">✏️ Sauvegarde de ${s.username||key} <button class="edit-close" onclick="closeEdit()">✕</button></div>
+    <div class="field-group"><div class="field-label">Cookies actuels</div><input class="field-input" id="es-cookies" type="number" value="${Math.floor(s.cookies||0)}"></div>
+    <div class="field-group"><div class="field-label">Total cookies (classement)</div><input class="field-input" id="es-total" type="number" value="${Math.floor(s.totalCookies||0)}"></div>
+    <div class="field-group"><div class="field-label">Nombre de Rebirths</div><input class="field-input" id="es-rb" type="number" value="${s.rebirths||0}"></div>
+    <div class="field-group"><div class="field-label">Points Rebirth</div><input class="field-input" id="es-rbpts" type="number" value="${s.rebirthPoints||0}"></div>
+    <div class="field-group"><div class="field-label">CPS actuel</div><input class="field-input" id="es-cps" type="number" value="${Math.floor(s.cps||0)}"></div>
+    <button class="save-btn" onclick="saveSaveEdit('${key}')">💾 Enregistrer</button>`;
+  document.getElementById('edit-modal').classList.add('open');
+}
+
+async function saveSaveEdit(key){
+  const s=await dbGet('save:'+key);if(!s)return;
+  s.cookies=parseFloat(document.getElementById('es-cookies').value)||0;
+  s.totalCookies=parseFloat(document.getElementById('es-total').value)||0;
+  s.rebirths=parseInt(document.getElementById('es-rb').value)||0;
+  s.rebirthPoints=parseInt(document.getElementById('es-rbpts').value)||0;
+  s.cps=parseFloat(document.getElementById('es-cps').value)||0;
+  s.lastSave=Date.now();
+  await dbSet('save:'+key,s);
+  addLog('ok','Modification sauvegarde : '+(s.username||key));
+  showToast('✓ Sauvegarde mise à jour.');closeEdit();loadSaves();
+}
+
+async function giveCoins(key){
+  const amount=prompt('Combien de cookies donner à '+key+' ?','1000000');
+  if(!amount)return;
+  const n=parseFloat(amount);if(isNaN(n))return;
+  const s=await dbGet('save:'+key);if(!s)return;
+  s.cookies=(s.cookies||0)+n;s.totalCookies=(s.totalCookies||0)+n;s.lastSave=Date.now();
+  await dbSet('save:'+key,s);
+  addLog('info','Don de '+formatNum(n)+' cookies à '+(s.username||key));
+  showToast('🍪 +'+formatNum(n)+' cookies donnés à '+key);loadSaves();
+}
+
+async function resetSave(key){
+  const s=await dbGet('save:'+key);
+  if(!confirm('⚠️ Reset la sauvegarde de '+(s?s.username:key)+' ? Les rebirths et le shop seront aussi effacés.'))return;
+  const fresh={username:s?s.username:key,cookies:0,totalCookies:0,totalClicks:0,cps:0,buildings:{},upgrades:{},rebirths:0,rebirthPoints:0,rebirthShop:{},minigameUnlocks:{},lastSave:Date.now()};
+  await dbSet('save:'+key,fresh);
+  addLog('err','Reset sauvegarde : '+(s?s.username:key));
+  showToast('🗑 Sauvegarde remise à zéro.');loadSaves();
+}
+
+async function purgeAllScores(){
+  if(!confirm('Purger toutes les entrées de classement ?'))return;
+  const keys=await dbList('score:');
+  for(const k of keys)await dbDel(k);
+  addLog('err','Purge de tous les scores ('+keys.length+' entrées)');
+  showToast('🗑 Scores purgés.');
+}
+
+function closeEdit(){document.getElementById('edit-modal').classList.remove('open');}
+document.getElementById('edit-modal').addEventListener('click',e=>{if(e.target===document.getElementById('edit-modal'))closeEdit();});
+
+// ====================================================
+// LOGS
+// ====================================================
+const LOG_KEY='axo_admin_logs';
+function getLogs(){try{return JSON.parse(localStorage.getItem(LOG_KEY)||'[]');}catch(e){return[];}}
+function addLog(type,msg){
+  const logs=getLogs();
+  logs.unshift({type,msg,ts:Date.now()});
+  if(logs.length>100)logs.pop();
+  localStorage.setItem(LOG_KEY,JSON.stringify(logs));
+  renderLogs();
+}
+function renderLogs(){
+  const logs=getLogs();
+  const box=document.getElementById('log-box');
+  if(logs.length===0){box.innerHTML='<div style="color:var(--muted);">Aucune action.</div>';return;}
+  box.innerHTML=logs.map(l=>`<div class="log-line ${l.type}">[${formatDate(l.ts)}] ${l.msg}</div>`).join('');
+}
+function clearLogs(){localStorage.removeItem(LOG_KEY);renderLogs();showToast('Logs vidés.');}
+
+// ====================================================
+// SYS INFO
+// ====================================================
+function loadSysInfo(){
+  const el=document.getElementById('sys-info');
+  el.innerHTML=`Version : AxoClicker v3.0<br>Stockage : window.storage (partagé)<br>Admin PW : ${getAdminPw()===DEFAULT_PW?'par défaut':'personnalisé'}<br>Heure : ${new Date().toLocaleString('fr-FR')}`;
+}
+
+// ====================================================
+// TOAST
+// ====================================================
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// Init logs display
+renderLogs();
+</script>
+</body>
+</html>

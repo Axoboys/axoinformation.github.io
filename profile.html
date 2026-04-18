@@ -4,105 +4,55 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mon Profil — Axoboys</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg:#0a0a0f; --surface:#111118; --border:#1e1e2e;
-      --accent:#7c3aed; --accent2:#06b6d4; --accent3:#f59e0b;
-      --text:#e2e8f0; --muted:#64748b; --glow:rgba(124,58,237,0.3);
-      --green:#22c55e;
-    }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { background:var(--bg); color:var(--text); font-family:'Syne',sans-serif; min-height:100vh; overflow-x:hidden; }
-    body::before { content:''; position:fixed; inset:0; background-image:linear-gradient(rgba(124,58,237,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(124,58,237,0.04) 1px,transparent 1px); background-size:40px 40px; pointer-events:none; z-index:0; }
-    nav { position:sticky; top:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 2rem; height:60px; background:rgba(10,10,15,0.85); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); }
-    .nav-logo { font-size:1.1rem; font-weight:800; letter-spacing:0.1em; color:var(--text); text-decoration:none; }
-    .nav-logo span { color:var(--accent); }
-    .nav-links { display:flex; gap:1.5rem; list-style:none; }
-    .nav-links a { color:var(--muted); text-decoration:none; font-size:0.85rem; font-family:'Space Mono',monospace; transition:color 0.2s; }
-    .nav-links a:hover { color:var(--accent2); }
-    main { position:relative; z-index:1; max-width:900px; margin:0 auto; padding:3rem 2rem; }
-    .page-label { font-family:'Space Mono',monospace; font-size:0.75rem; color:var(--accent); letter-spacing:0.2em; text-transform:uppercase; margin-bottom:0.75rem; }
-    .page-title { font-size:clamp(2rem,5vw,3.5rem); font-weight:800; line-height:1; margin-bottom:2rem; }
-
-    .profile-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:2rem; }
-    @media(max-width:600px){ .profile-grid{ grid-template-columns:1fr; } }
-
-    .card {
-      background:var(--surface);
-      border:1px solid var(--border);
-      border-radius:16px;
-      padding:1.75rem;
-    }
-    .card-title {
-      font-family:'Space Mono',monospace;
-      font-size:0.72rem;
-      color:var(--muted);
-      letter-spacing:0.15em;
-      text-transform:uppercase;
-      margin-bottom:1rem;
-    }
-
-    .user-display {
-      display:flex;
-      align-items:center;
-      gap:1rem;
-    }
-    .user-avatar {
-      width:60px; height:60px; border-radius:50%;
-      background:linear-gradient(135deg,var(--accent),var(--accent2));
-      display:flex; align-items:center; justify-content:center;
-      font-size:1.5rem; flex-shrink:0;
-      border:2px solid var(--border);
-    }
-    .user-name { font-size:1.4rem; font-weight:800; }
-    .user-since { font-family:'Space Mono',monospace; font-size:0.7rem; color:var(--muted); margin-top:0.2rem; }
-
-    .stat-row { display:flex; align-items:center; justify-content:space-between; padding:0.6rem 0; border-bottom:1px solid var(--border); }
-    .stat-row:last-child { border-bottom:none; }
-    .stat-label { font-family:'Space Mono',monospace; font-size:0.75rem; color:var(--muted); }
-    .stat-value { font-family:'Space Mono',monospace; font-size:0.85rem; font-weight:700; color:var(--accent3); }
-
-    .btn {
-      display:inline-flex; align-items:center; gap:0.5rem;
-      padding:0.7rem 1.5rem; border-radius:8px;
-      font-family:'Space Mono',monospace; font-size:0.82rem;
-      text-decoration:none; cursor:pointer; border:none;
-      transition:all 0.2s; width:100%; justify-content:center;
-      margin-top:0.75rem;
-    }
-    .btn-primary { background:var(--accent); color:#fff; box-shadow:0 0 20px var(--glow); }
-    .btn-primary:hover { background:#6d28d9; transform:translateY(-2px); }
-    .btn-danger { background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.3); }
-    .btn-danger:hover { background:rgba(239,68,68,0.2); }
-    .btn-outline { background:transparent; color:var(--text); border:1px solid var(--border); }
-    .btn-outline:hover { border-color:var(--accent); color:var(--accent); }
-
-    .cookie-preview {
-      display:flex; align-items:center; gap:1rem;
-      padding:1rem; background:var(--bg); border-radius:12px;
-      border:1px solid var(--border); margin-bottom:1rem;
-    }
-    .cookie-big { font-size:2.5rem; }
-    .cookie-count { font-size:1.5rem; font-weight:800; color:var(--accent3); font-family:'Space Mono',monospace; }
-    .cookie-sub { font-family:'Space Mono',monospace; font-size:0.7rem; color:var(--muted); }
-
-    .rank-badge {
-      display:inline-flex; align-items:center; gap:0.5rem;
-      padding:0.4rem 0.9rem; border-radius:999px;
-      font-family:'Space Mono',monospace; font-size:0.72rem;
-      font-weight:700; margin-bottom:1rem;
-    }
-    .rank-0 { background:rgba(100,116,139,0.2); color:var(--muted); border:1px solid var(--muted); }
-    .rank-1 { background:rgba(180,83,9,0.2); color:#b45309; border:1px solid #b45309; }
-    .rank-2 { background:rgba(100,116,139,0.2); color:#94a3b8; border:1px solid #94a3b8; }
-    .rank-3 { background:rgba(234,179,8,0.2); color:#eab308; border:1px solid #eab308; }
-    .rank-4 { background:rgba(6,182,212,0.2); color:var(--accent2); border:1px solid var(--accent2); }
-    .rank-5 { background:rgba(124,58,237,0.2); color:var(--accent); border:1px solid var(--accent); }
-
-    footer { position:relative; z-index:1; border-top:1px solid var(--border); padding:1.5rem; text-align:center; font-family:'Space Mono',monospace; font-size:0.75rem; color:var(--muted); }
-    footer span { color:var(--accent); }
+    :root{--bg:#0a0a0f;--surface:#111118;--border:#1e1e2e;--accent:#7c3aed;--accent2:#06b6d4;--accent3:#f59e0b;--text:#e2e8f0;--muted:#64748b;--green:#22c55e;--red:#ef4444;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden;}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(124,58,237,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(124,58,237,0.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+    nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:60px;background:rgba(10,10,15,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+    .nav-logo{font-size:1.1rem;font-weight:800;letter-spacing:0.1em;color:var(--text);text-decoration:none;}
+    .nav-logo span{color:var(--accent);}
+    .nav-links{display:flex;gap:1.5rem;list-style:none;}
+    .nav-links a{color:var(--muted);text-decoration:none;font-size:0.82rem;font-family:'Space Mono',monospace;transition:color 0.2s;}
+    .nav-links a:hover{color:var(--accent2);}
+    main{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:3rem 2rem;}
+    .page-label{font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--accent);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.75rem;}
+    .page-title{font-size:clamp(2rem,5vw,3.5rem);font-weight:800;line-height:1;margin-bottom:2rem;}
+    .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem;}
+    @media(max-width:600px){.profile-grid{grid-template-columns:1fr;}}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.75rem;}
+    .card-title{font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:1rem;}
+    .user-display{display:flex;align-items:center;gap:1rem;}
+    .user-avatar{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;border:2px solid var(--border);}
+    .user-name{font-size:1.4rem;font-weight:800;}
+    .user-since{font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--muted);margin-top:0.2rem;}
+    .stat-row{display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--border);}
+    .stat-row:last-child{border-bottom:none;}
+    .stat-label{font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--muted);}
+    .stat-value{font-family:'Space Mono',monospace;font-size:0.85rem;font-weight:700;color:var(--accent3);}
+    .btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.7rem 1.5rem;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.82rem;text-decoration:none;cursor:pointer;border:none;transition:all 0.2s;width:100%;justify-content:center;margin-top:0.75rem;}
+    .btn-primary{background:var(--accent);color:#fff;}
+    .btn-primary:hover{background:#6d28d9;transform:translateY(-2px);}
+    .btn-danger{background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.3);}
+    .btn-outline{background:transparent;color:var(--text);border:1px solid var(--border);}
+    .btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+    .cookie-preview{display:flex;align-items:center;gap:1rem;padding:1rem;background:var(--bg);border-radius:12px;border:1px solid var(--border);margin-bottom:1rem;}
+    .cookie-big{font-size:2.5rem;}
+    .cookie-count{font-size:1.5rem;font-weight:800;color:var(--accent3);font-family:'Space Mono',monospace;}
+    .cookie-sub{font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--muted);}
+    .rank-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.4rem 0.9rem;border-radius:999px;font-family:'Space Mono',monospace;font-size:0.72rem;font-weight:700;margin-bottom:0.5rem;}
+    .rank-0{background:rgba(100,116,139,0.2);color:var(--muted);border:1px solid var(--muted);}
+    .rank-1{background:rgba(180,83,9,0.2);color:#b45309;border:1px solid #b45309;}
+    .rank-2{background:rgba(100,116,139,0.2);color:#94a3b8;border:1px solid #94a3b8;}
+    .rank-3{background:rgba(234,179,8,0.2);color:#eab308;border:1px solid #eab308;}
+    .rank-4{background:rgba(6,182,212,0.2);color:var(--accent2);border:1px solid var(--accent2);}
+    .rank-5{background:rgba(124,58,237,0.2);color:var(--accent);border:1px solid var(--accent);}
+    .rebirth-card{background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.3);border-radius:12px;padding:1rem;margin-bottom:0.75rem;display:flex;align-items:center;gap:1rem;}
+    .spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:1.5rem;text-align:center;font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--muted);}
+    footer span{color:var(--accent);}
   </style>
 </head>
 <body>
@@ -119,145 +69,125 @@
 <main>
   <div class="page-label">// mon compte</div>
   <h1 class="page-title">Mon Profil</h1>
-
-  <div class="profile-grid">
-    <!-- User info -->
-    <div class="card">
-      <div class="card-title">Compte</div>
-      <div class="user-display">
-        <div class="user-avatar" id="user-avatar">?</div>
-        <div>
-          <div class="user-name" id="user-name">...</div>
-          <div class="user-since" id="user-since">Chargement...</div>
+  <div id="loading-state" style="text-align:center;padding:3rem;"><div class="spinner"></div></div>
+  <div id="profile-content" style="display:none;">
+    <div class="profile-grid">
+      <div class="card">
+        <div class="card-title">Compte</div>
+        <div class="user-display">
+          <div class="user-avatar" id="user-avatar">?</div>
+          <div>
+            <div class="user-name" id="user-name">...</div>
+            <div class="user-since" id="user-since">...</div>
+          </div>
+        </div>
+        <div style="margin-top:1.25rem;">
+          <div class="stat-row"><span class="stat-label">Statut</span><span class="stat-value" style="color:var(--green);">● Connecté</span></div>
+          <div class="stat-row"><span class="stat-label">Rang</span><span class="rank-badge" id="rank-badge">...</span></div>
+          <div class="stat-row"><span class="stat-label">Admin</span><span class="stat-value" id="admin-status" style="color:var(--muted);">Non</span></div>
         </div>
       </div>
-      <div style="margin-top:1.25rem;">
-        <div class="stat-row">
-          <span class="stat-label">Statut</span>
-          <span class="stat-value" style="color:var(--green);">● Connecté</span>
+      <div class="card">
+        <div class="card-title">Stats Clicker</div>
+        <div class="cookie-preview">
+          <div class="cookie-big">🍪</div>
+          <div>
+            <div class="cookie-count" id="stat-cookies">0</div>
+            <div class="cookie-sub">cookies actuels</div>
+          </div>
         </div>
-        <div class="stat-row">
-          <span class="stat-label">Rang</span>
-          <span class="rank-badge" id="rank-badge">...</span>
-        </div>
+        <div class="stat-row"><span class="stat-label">Total cliqué</span><span class="stat-value" id="stat-total">0</span></div>
+        <div class="stat-row"><span class="stat-label">Cookies/sec</span><span class="stat-value" id="stat-cps">0</span></div>
+        <div class="stat-row"><span class="stat-label">Bâtiments</span><span class="stat-value" id="stat-buildings">0</span></div>
+        <div class="stat-row"><span class="stat-label">Améliorations</span><span class="stat-value" id="stat-upgrades">0</span></div>
       </div>
     </div>
-
-    <!-- Clicker stats -->
-    <div class="card">
-      <div class="card-title">Stats Clicker</div>
-      <div class="cookie-preview">
-        <div class="cookie-big">🍪</div>
-        <div>
-          <div class="cookie-count" id="stat-cookies">0</div>
-          <div class="cookie-sub">cookies actuels</div>
+    <div class="profile-grid">
+      <div class="card">
+        <div class="card-title">Rebirth</div>
+        <div class="rebirth-card">
+          <div style="font-size:2rem;">🌀</div>
+          <div>
+            <div style="font-size:1.3rem;font-weight:800;color:#a855f7;" id="stat-rebirths">0</div>
+            <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--muted);">rebirths effectués</div>
+          </div>
         </div>
+        <div class="stat-row"><span class="stat-label">Points rebirth</span><span class="stat-value" style="color:#a855f7;" id="stat-rb-pts">0</span></div>
+        <div class="stat-row"><span class="stat-label">Bonus actuel</span><span class="stat-value" id="stat-rb-bonus">+0%</span></div>
+        <div class="stat-row"><span class="stat-label">Mini-jeux débloqués</span><span class="stat-value" id="stat-mg">0/10</span></div>
       </div>
-      <div class="stat-row">
-        <span class="stat-label">Total cliqué</span>
-        <span class="stat-value" id="stat-total">0</span>
-      </div>
-      <div class="stat-row">
-        <span class="stat-label">Cookies/sec</span>
-        <span class="stat-value" id="stat-cps">0</span>
-      </div>
-      <div class="stat-row">
-        <span class="stat-label">Bâtiments</span>
-        <span class="stat-value" id="stat-buildings">0</span>
-      </div>
-      <div class="stat-row">
-        <span class="stat-label">Améliorations</span>
-        <span class="stat-value" id="stat-upgrades">0</span>
+      <div class="card">
+        <div class="card-title">Actions</div>
+        <a href="clicker.html" class="btn btn-primary">🍪 Jouer au Clicker</a>
+        <button class="btn btn-outline" onclick="doLogout()">← Se déconnecter</button>
+        <button class="btn btn-danger" onclick="confirmDelete()">🗑 Supprimer mon compte</button>
       </div>
     </div>
   </div>
-
-  <!-- Actions -->
-  <div class="card" style="max-width:400px;">
-    <div class="card-title">Actions</div>
-    <a href="clicker.html" class="btn btn-primary">🍪 Jouer au Clicker</a>
-    <button class="btn btn-outline" onclick="doLogout()">← Se déconnecter</button>
-    <button class="btn btn-danger" onclick="confirmDelete()">🗑 Supprimer mon compte</button>
-  </div>
-
 </main>
 
 <footer><p>© 2026 <span>Axoboys</span> — Tous droits réservés</p></footer>
 
 <script>
-  function getUsers() { try { return JSON.parse(localStorage.getItem('axo_users')||'{}'); } catch(e) { return {}; } }
-  function saveUsers(u) { localStorage.setItem('axo_users', JSON.stringify(u)); }
-  function getCurrentUser() { try { return JSON.parse(localStorage.getItem('axo_user')); } catch(e) { return null; } }
+async function dbGet(key){try{const r=await window.storage.get(key,true);return r?JSON.parse(r.value):null;}catch(e){return null;}}
+async function dbDel(key){try{await window.storage.delete(key,true);}catch(e){}}
 
-  const cur = getCurrentUser();
-  if (!cur) { window.location.href = 'login.html'; }
+function getSession(){try{return JSON.parse(localStorage.getItem('axo_session'));}catch(e){return null;}}
 
-  const users = getUsers();
-  const key = cur.username.toLowerCase();
-  const userData = users[key];
-  if (!userData) { localStorage.removeItem('axo_user'); window.location.href = 'login.html'; }
+function formatNum(n){
+  n=Math.floor(n||0);
+  if(n>=1e12)return(n/1e12).toFixed(2)+' T';
+  if(n>=1e9)return(n/1e9).toFixed(2)+' B';
+  if(n>=1e6)return(n/1e6).toFixed(2)+' M';
+  if(n>=1e3)return(n/1e3).toFixed(1)+' K';
+  return n.toString();
+}
 
-  // Populate UI
-  document.getElementById('user-avatar').textContent = cur.username[0].toUpperCase();
-  document.getElementById('user-name').textContent = userData.username;
-  const d = new Date(userData.createdAt);
-  document.getElementById('user-since').textContent = 'Membre depuis le ' + d.toLocaleDateString('fr-FR');
+const session=getSession();
+if(!session){window.location.href='login.html';}
+const uKey=session.username.toLowerCase();
 
-  const clicker = userData.clicker || {};
-  const cookies = clicker.cookies || 0;
-  const total = clicker.totalCookies || 0;
-  const cps = clicker.cps || 0;
-
-  document.getElementById('stat-cookies').textContent = formatNum(cookies);
-  document.getElementById('stat-total').textContent = formatNum(total);
-  document.getElementById('stat-cps').textContent = formatNum(cps) + '/s';
-
-  // Count buildings & upgrades
-  let bCount = 0;
-  const buildings = clicker.buildings || {};
-  Object.values(buildings).forEach(v => bCount += (v||0));
-  const uCount = Object.values(clicker.upgrades||{}).filter(Boolean).length;
-  document.getElementById('stat-buildings').textContent = bCount;
-  document.getElementById('stat-upgrades').textContent = uCount;
-
-  // Rank based on total cookies
-  const ranks = [
-    {min:0,       label:'🥄 Débutant',   cls:'rank-0'},
-    {min:1000,    label:'🍫 Amateur',    cls:'rank-1'},
-    {min:100000,  label:'⚙️ Artisan',    cls:'rank-2'},
-    {min:10000000,label:'👑 Expert',     cls:'rank-3'},
-    {min:1e9,     label:'💎 Maître',     cls:'rank-4'},
-    {min:1e12,    label:'🌌 Légende',    cls:'rank-5'},
-  ];
-  let rank = ranks[0];
-  for(const r of ranks) { if(total >= r.min) rank = r; }
-  const rb = document.getElementById('rank-badge');
-  rb.textContent = rank.label;
-  rb.className = 'rank-badge ' + rank.cls;
-
-  function formatNum(n) {
-    if(n >= 1e12) return (n/1e12).toFixed(2) + ' T';
-    if(n >= 1e9)  return (n/1e9).toFixed(2) + ' B';
-    if(n >= 1e6)  return (n/1e6).toFixed(2) + ' M';
-    if(n >= 1e3)  return (n/1e3).toFixed(1) + ' K';
-    return Math.floor(n).toString();
+async function init(){
+  const [user,save]=[await dbGet('user:'+uKey),await dbGet('save:'+uKey)];
+  document.getElementById('loading-state').style.display='none';
+  document.getElementById('profile-content').style.display='block';
+  if(!user){doLogout();return;}
+  document.getElementById('user-avatar').textContent=session.username[0].toUpperCase();
+  document.getElementById('user-name').textContent=user.username;
+  document.getElementById('user-since').textContent='Membre depuis le '+new Date(user.createdAt).toLocaleDateString('fr-FR');
+  document.getElementById('admin-status').textContent=user.isAdmin?'✓ Oui':'Non';
+  if(user.isAdmin)document.getElementById('admin-status').style.color='var(--red)';
+  if(save){
+    document.getElementById('stat-cookies').textContent=formatNum(save.cookies||0);
+    document.getElementById('stat-total').textContent=formatNum(save.totalCookies||0);
+    document.getElementById('stat-cps').textContent=formatNum(save.cps||0)+'/s';
+    let bCount=0;Object.values(save.buildings||{}).forEach(v=>bCount+=(v||0));
+    document.getElementById('stat-buildings').textContent=bCount;
+    document.getElementById('stat-upgrades').textContent=Object.values(save.upgrades||{}).filter(Boolean).length;
+    const rb=save.rebirths||0;const rbPts=save.rebirthPoints||0;
+    document.getElementById('stat-rebirths').textContent=rb;
+    document.getElementById('stat-rb-pts').textContent=rbPts+' pts';
+    document.getElementById('stat-rb-bonus').textContent='+'+(rb*50)+'%';
+    const mgCount=Object.values(save.minigameUnlocks||{}).filter(Boolean).length;
+    document.getElementById('stat-mg').textContent=mgCount+'/10';
+    const ranks=[{min:0,label:'🥄 Débutant',cls:'rank-0'},{min:1000,label:'🍫 Amateur',cls:'rank-1'},{min:100000,label:'⚙️ Artisan',cls:'rank-2'},{min:1e7,label:'👑 Expert',cls:'rank-3'},{min:1e9,label:'💎 Maître',cls:'rank-4'},{min:1e12,label:'🌌 Légende',cls:'rank-5'}];
+    let rank=ranks[0];for(const r of ranks){if((save.totalCookies||0)>=r.min)rank=r;}
+    const rb_el=document.getElementById('rank-badge');rb_el.textContent=rank.label;rb_el.className='rank-badge '+rank.cls;
   }
+}
 
-  function doLogout() {
-    localStorage.removeItem('axo_user');
-    window.location.href = 'index.html';
-  }
+function doLogout(){localStorage.removeItem('axo_session');window.location.href='index.html';}
 
-  function confirmDelete() {
-    if(confirm('⚠️ Supprimer ton compte ? Toute ta progression sera perdue. Cette action est irréversible.')) {
-      const users = getUsers();
-      delete users[key];
-      saveUsers(users);
-      localStorage.removeItem('axo_user');
-      window.location.href = 'index.html';
-    }
-  }
+async function confirmDelete(){
+  if(!confirm('⚠️ Supprimer ton compte ? Toute ta progression sera perdue. Irréversible !'))return;
+  await dbDel('user:'+uKey);
+  await dbDel('save:'+uKey);
+  await dbDel('score:'+uKey);
+  localStorage.removeItem('axo_session');
+  window.location.href='index.html';
+}
+
+init();
 </script>
-
 </body>
 </html>
