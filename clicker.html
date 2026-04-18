@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AxoClicker 🍪</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#0a0a0f; --surface:#111118; --border:#1e1e2e;
+      --accent:#7c3aed; --accent2:#06b6d4; --accent3:#f59e0b;
+      --text:#e2e8f0; --muted:#64748b; --glow:rgba(124,58,237,0.3);
+      --green:#22c55e; --red:#ef4444;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html { height:100%; }
+    body {
+      background:var(--bg); color:var(--text);
+      font-family:'Syne',sans-serif;
+      height:100%; overflow:hidden;
+      display:flex; flex-direction:column;
+    }
+    body::before {
+      content:''; position:fixed; inset:0;
+      background-image:linear-gradient(rgba(124,58,237,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(124,58,237,0.04) 1px,transparent 1px);
+      background-size:40px 40px; pointer-events:none; z-index:0;
+    }
+
+    /* NAV */
+    nav {
+      position:relative; z-index:100; display:flex; align-items:center;
+      justify-content:space-between; padding:0 1.5rem; height:52px;
+      background:rgba(10,10,15,0.95); border-bottom:1px solid var(--border);
+      flex-shrink:0;
+    }
+    .nav-logo { font-size:1rem; font-weight:800; letter-spacing:0.1em; color:var(--text); text-decoration:none; }
+    .nav-logo span { color:var(--accent); }
+    .nav-right { display:flex; align-items:center; gap:1.5rem; }
+    .nav-right a { font-family:'Space Mono',monospace; font-size:0.75rem; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+    .nav-right a:hover { color:var(--accent2); }
+    .save-indicator { font-family:'Space Mono',monospace; font-size:0.68rem; color:var(--green); display:none; }
+
+    /* GAME LAYOUT */
+    .game { flex:1; display:grid; grid-template-columns:260px 1fr 280px; overflow:hidden; position:relative; z-index:1; }
+    @media(max-width:900px){ .game{ grid-template-columns:1fr; overflow:auto; } }
+
+    /* LEFT — upgrades */
+    .panel-left {
+      border-right:1px solid var(--border);
+      display:flex; flex-direction:column;
+      overflow:hidden;
+    }
+    .panel-title {
+      padding:0.85rem 1rem;
+      font-family:'Space Mono',monospace;
+      font-size:0.65rem; color:var(--accent);
+      letter-spacing:0.2em; text-transform:uppercase;
+      border-bottom:1px solid var(--border);
+      flex-shrink:0;
+    }
+    .upgrade-list { flex:1; overflow-y:auto; padding:0.5rem; }
+    .upgrade-list::-webkit-scrollbar { width:4px; }
+    .upgrade-list::-webkit-scrollbar-track { background:transparent; }
+    .upgrade-list::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+
+    .upgrade-item {
+      display:flex; align-items:center; gap:0.75rem;
+      padding:0.65rem 0.75rem; border-radius:8px;
+      border:1px solid var(--border); background:var(--surface);
+      margin-bottom:0.4rem; cursor:pointer; transition:all 0.2s;
+      position:relative; overflow:hidden;
+    }
+    .upgrade-item.can-buy { border-color:var(--accent3); }
+    .upgrade-item.can-buy:hover { background:rgba(245,158,11,0.1); transform:translateX(3px); }
+    .upgrade-item.bought { opacity:0.4; cursor:default; }
+    .upgrade-item.bought:hover { transform:none; }
+    .upgrade-emoji { font-size:1.2rem; flex-shrink:0; }
+    .upgrade-info { flex:1; min-width:0; }
+    .upgrade-name { font-size:0.78rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .upgrade-cost { font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--accent3); }
+    .upgrade-desc { font-family:'Space Mono',monospace; font-size:0.6rem; color:var(--muted); margin-top:0.1rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+    /* CENTER — main click area */
+    .panel-center {
+      display:flex; flex-direction:column; align-items:center;
+      justify-content:center; padding:1.5rem; overflow:hidden;
+      position:relative;
+    }
+
+    .cookie-counter-box { text-align:center; margin-bottom:1.5rem; }
+    .cookie-count-main {
+      font-size:clamp(1.8rem,4vw,3rem); font-weight:800;
+      font-family:'Space Mono',monospace; color:var(--accent3);
+      line-height:1;
+    }
+    .cookie-count-sub { font-family:'Space Mono',monospace; font-size:0.7rem; color:var(--muted); margin-top:0.3rem; }
+    .cps-display { font-family:'Space Mono',monospace; font-size:0.75rem; color:var(--accent2); margin-top:0.2rem; }
+
+    /* THE COOKIE */
+    .cookie-wrap { position:relative; margin-bottom:1.5rem; }
+    .cookie-btn {
+      width:160px; height:160px;
+      border-radius:50%;
+      border:none; cursor:pointer;
+      background:radial-gradient(circle at 35% 35%, #d97706, #92400e);
+      box-shadow:0 0 40px rgba(217,119,6,0.4), 0 8px 30px rgba(0,0,0,0.5);
+      font-size:5rem; line-height:1;
+      display:flex; align-items:center; justify-content:center;
+      transition:transform 0.06s, box-shadow 0.06s;
+      user-select:none;
+      position:relative; overflow:hidden;
+    }
+    .cookie-btn::before {
+      content:'';
+      position:absolute; inset:0; border-radius:50%;
+      background:radial-gradient(circle at 30% 25%, rgba(255,255,255,0.15), transparent 60%);
+    }
+    .cookie-btn:active { transform:scale(0.92); box-shadow:0 0 20px rgba(217,119,6,0.3); }
+    .cookie-btn:hover { box-shadow:0 0 60px rgba(217,119,6,0.6), 0 8px 30px rgba(0,0,0,0.5); }
+
+    /* Click particles */
+    .click-particle {
+      position:fixed; pointer-events:none; z-index:999;
+      font-family:'Space Mono',monospace; font-weight:700;
+      font-size:1rem; color:var(--accent3);
+      animation:floatUp 1s ease-out forwards;
+    }
+    @keyframes floatUp {
+      0% { opacity:1; transform:translateY(0) scale(1); }
+      100% { opacity:0; transform:translateY(-80px) scale(0.7); }
+    }
+
+    .click-stats {
+      font-family:'Space Mono',monospace; font-size:0.7rem;
+      color:var(--muted); text-align:center;
+    }
+
+    /* RIGHT — buildings */
+    .panel-right {
+      border-left:1px solid var(--border);
+      display:flex; flex-direction:column; overflow:hidden;
+    }
+    .building-list { flex:1; overflow-y:auto; padding:0.5rem; }
+    .building-list::-webkit-scrollbar { width:4px; }
+    .building-list::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+
+    .building-item {
+      display:flex; align-items:center; gap:0.75rem;
+      padding:0.65rem 0.75rem; border-radius:8px;
+      border:1px solid var(--border); background:var(--surface);
+      margin-bottom:0.4rem; cursor:pointer; transition:all 0.2s;
+    }
+    .building-item.can-buy { border-color:var(--accent); }
+    .building-item.can-buy:hover { background:rgba(124,58,237,0.1); transform:translateX(-3px); }
+    .building-item.too-exp { opacity:0.4; cursor:not-allowed; }
+    .building-emoji { font-size:1.4rem; flex-shrink:0; }
+    .building-info { flex:1; min-width:0; }
+    .building-name { font-size:0.8rem; font-weight:700; }
+    .building-cps { font-family:'Space Mono',monospace; font-size:0.62rem; color:var(--accent2); }
+    .building-cost { font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--accent); }
+    .building-owned {
+      font-family:'Space Mono',monospace; font-size:0.85rem; font-weight:700;
+      color:var(--accent3); min-width:24px; text-align:right;
+    }
+
+    /* TOAST */
+    .toast {
+      position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%) translateY(80px);
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:10px; padding:0.75rem 1.5rem;
+      font-family:'Space Mono',monospace; font-size:0.8rem;
+      z-index:999; transition:transform 0.3s, opacity 0.3s;
+      opacity:0; white-space:nowrap;
+    }
+    .toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+
+    /* LOGIN OVERLAY */
+    .login-banner {
+      position:sticky; bottom:0; z-index:50;
+      background:linear-gradient(135deg,rgba(124,58,237,0.9),rgba(6,182,212,0.9));
+      backdrop-filter:blur(10px); padding:0.75rem 1.5rem;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:1rem; flex-shrink:0;
+    }
+    .login-banner p { font-family:'Space Mono',monospace; font-size:0.78rem; }
+    .login-banner a {
+      padding:0.5rem 1.25rem; background:#fff; color:#111;
+      border-radius:6px; font-family:'Space Mono',monospace;
+      font-size:0.78rem; font-weight:700; text-decoration:none;
+      white-space:nowrap; flex-shrink:0;
+    }
+    .login-banner a:hover { background:#e2e8f0; }
+    #login-banner-wrap { flex-shrink:0; }
+
+    /* Golden cookie */
+    .golden-cookie {
+      position:fixed; cursor:pointer; z-index:200;
+      font-size:2.5rem; animation:goldenFloat 10s ease-in-out forwards;
+      filter:drop-shadow(0 0 15px gold);
+      display:none;
+    }
+    @keyframes goldenFloat {
+      0% { opacity:0; transform:scale(0); }
+      10% { opacity:1; transform:scale(1) rotate(-10deg); }
+      90% { opacity:1; transform:scale(1) rotate(10deg); }
+      100% { opacity:0; transform:scale(0); }
+    }
+
+    /* Prestige glow */
+    body.prestige .cookie-btn { animation:prestigeGlow 2s ease infinite; }
+    @keyframes prestigeGlow {
+      0%,100% { box-shadow:0 0 40px rgba(217,119,6,0.4); }
+      50% { box-shadow:0 0 80px rgba(217,119,6,0.9),0 0 120px rgba(124,58,237,0.5); }
+    }
+
+    footer { display:none; }
+
+    .modal-overlay {
+      position:fixed; inset:0; z-index:500;
+      background:rgba(0,0,0,0.75);
+      backdrop-filter:blur(8px);
+      display:flex; align-items:center; justify-content:center;
+      opacity:0; pointer-events:none;
+      transition:opacity 0.25s;
+    }
+    .modal-overlay.open { opacity:1; pointer-events:all; }
+    .modal {
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:20px;
+      width:min(620px, 96vw);
+      max-height:85vh;
+      display:flex; flex-direction:column;
+      overflow:hidden;
+      transform:translateY(30px) scale(0.97);
+      transition:transform 0.25s;
+    }
+    .modal-overlay.open .modal { transform:translateY(0) scale(1); }
+    .modal-header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:1.5rem 2rem 1rem;
+      border-bottom:1px solid var(--border);
+      flex-shrink:0;
+    }
+    .modal-title { font-size:1.4rem; font-weight:800; display:flex; align-items:center; gap:0.75rem; }
+    .modal-close {
+      width:34px; height:34px; border-radius:50%;
+      background:transparent; border:1px solid var(--border);
+      color:var(--muted); font-size:1.1rem; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      transition:all 0.2s;
+    }
+    .modal-close:hover { background:var(--border); color:var(--text); }
+    .modal-tabs {
+      display:flex; border-bottom:1px solid var(--border); flex-shrink:0;
+    }
+    .modal-tab {
+      flex:1; padding:0.65rem; text-align:center;
+      font-family:'Space Mono',monospace; font-size:0.72rem;
+      cursor:pointer; color:var(--muted); border:none;
+      background:transparent; transition:all 0.2s; letter-spacing:0.05em;
+    }
+    .modal-tab.active { color:var(--accent3); border-bottom:2px solid var(--accent3); }
+    .modal-tab:hover:not(.active) { color:var(--text); }
+    .modal-body { overflow-y:auto; flex:1; padding:1rem 1.5rem 1.5rem; }
+    .modal-body::-webkit-scrollbar { width:4px; }
+    .modal-body::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+    .lb-row {
+      display:grid;
+      grid-template-columns:36px 1fr 130px 110px;
+      align-items:center; gap:0.75rem;
+      padding:0.75rem;
+      border-radius:10px;
+      margin-bottom:0.35rem;
+      transition:background 0.15s;
+    }
+    .lb-row:hover { background:rgba(255,255,255,0.03); }
+    .lb-row.lb-me { background:rgba(124,58,237,0.12); border:1px solid rgba(124,58,237,0.25); }
+    .lb-row.lb-header {
+      color:var(--muted); font-family:'Space Mono',monospace;
+      font-size:0.62rem; letter-spacing:0.15em; text-transform:uppercase;
+      padding-bottom:0.5rem; margin-bottom:0.25rem;
+      border-bottom:1px solid var(--border);
+    }
+    .lb-rank { font-family:'Space Mono',monospace; font-size:0.85rem; font-weight:700; text-align:center; }
+    .lb-rank-1 { color:#eab308; }
+    .lb-rank-2 { color:#94a3b8; }
+    .lb-rank-3 { color:#b45309; }
+    .lb-user { display:flex; align-items:center; gap:0.6rem; min-width:0; }
+    .lb-avatar {
+      width:30px; height:30px; border-radius:50%; flex-shrink:0;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      display:flex; align-items:center; justify-content:center;
+      font-size:0.75rem; font-weight:700;
+    }
+    .lb-username { font-weight:700; font-size:0.85rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .lb-you { font-family:'Space Mono',monospace; font-size:0.6rem; color:var(--accent); margin-left:0.3rem; }
+    .lb-val { font-family:'Space Mono',monospace; font-size:0.8rem; color:var(--accent3); text-align:right; }
+    .lb-val-sec { font-family:'Space Mono',monospace; font-size:0.8rem; color:var(--accent2); text-align:right; }
+    .lb-empty { text-align:center; padding:3rem 1rem; font-family:'Space Mono',monospace; font-size:0.8rem; color:var(--muted); }
+    .lb-meta {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:0.6rem 0.75rem 0;
+      font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--muted);
+    }
+    .lb-refresh-btn {
+      background:transparent; border:1px solid var(--border);
+      border-radius:6px; padding:0.3rem 0.75rem;
+      color:var(--muted); font-family:'Space Mono',monospace;
+      font-size:0.65rem; cursor:pointer; transition:all 0.2s;
+    }
+    .lb-refresh-btn:hover { color:var(--accent2); border-color:var(--accent2); }
+  </style></head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">AXO<span>BOYS</span></a>
+  <div class="nav-right">
+    <span class="save-indicator" id="save-indicator">✓ Sauvegardé</span>
+    <a href="profile.html" id="nav-user-link">Mon profil</a>
+    <a href="index.html">Hub</a>
+  </div>
+</nav>
+
+<div class="game">
+
+  <!-- LEFT: UPGRADES -->
+  <div class="panel-left">
+    <div class="panel-title">// Améliorations</div>
+    <div class="upgrade-list" id="upgrade-list"></div>
+  </div>
+
+  <!-- CENTER: CLICK -->
+  <div class="panel-center">
+    <div class="cookie-counter-box">
+      <div class="cookie-count-main" id="cookie-count">0</div>
+      <div class="cookie-count-sub">🍪 cookies</div>
+      <div class="cps-display" id="cps-display">0 cookies/sec</div>
+    </div>
+
+    <div class="cookie-wrap">
+      <button class="cookie-btn" id="cookie-btn" onclick="clickCookie(event)">🍪</button>
+    </div>
+
+    <div class="click-stats" id="click-stats">Clique pour commencer !</div>
+
+    <div style="margin-top:1rem;display:flex;gap:0.75rem;flex-wrap:wrap;justify-content:center;">
+      <button onclick="saveGame()" style="padding:0.4rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-family:'Space Mono',monospace;font-size:0.7rem;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.color='var(--accent2)'" onmouseout="this.style.color='var(--muted)'">💾 Sauvegarder</button>
+      <button onclick="openLeaderboard()" style="padding:0.4rem 1rem;background:var(--surface);border:1px solid var(--accent3);border-radius:6px;color:var(--accent3);font-family:'Space Mono',monospace;font-size:0.7rem;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(245,158,11,0.1)'" onmouseout="this.style.background='var(--surface)'">🏆 Classement</button>
+      <button onclick="confirmReset()" style="padding:0.4rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-family:'Space Mono',monospace;font-size:0.7rem;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--muted)'">🗑 Reset</button>
+    </div>
+  </div>
+
+  <!-- RIGHT: BUILDINGS -->
+  <div class="panel-right">
+    <div class="panel-title">// Bâtiments</div>
+    <div class="building-list" id="building-list"></div>
+  </div>
+
+</div>
+
+<div id="login-banner-wrap"></div>
+<div class="golden-cookie" id="golden-cookie" onclick="goldenClick()">✨</div>
+<div class="toast" id="toast"></div>
+
+<!-- ===== LEADERBOARD MODAL ===== -->
+<div class="modal-overlay" id="lb-overlay" onclick="closeLbIfOutside(event)">
+  <div class="modal" id="lb-modal">
+    <div class="modal-header">
+      <div class="modal-title">🏆 Classement Global</div>
+      <button class="modal-close" onclick="closeLeaderboard()">✕</button>
+    </div>
+    <div class="modal-tabs">
+      <button class="modal-tab active" id="tab-cookies" onclick="switchLbTab('cookies')">🍪 Cookies totaux</button>
+      <button class="modal-tab" id="tab-cps" onclick="switchLbTab('cps')">⚡ Cookies/sec</button>
+      <button class="modal-tab" id="tab-clicks" onclick="switchLbTab('clicks')">🖱 Total clics</button>
+    </div>
+    <div class="modal-body" id="lb-body">
+      <div class="lb-empty">Chargement...</div>
+    </div>
+    <div class="lb-meta">
+      <span id="lb-count">0 joueurs inscrits</span>
+      <button class="lb-refresh-btn" onclick="renderLeaderboard()">↻ Actualiser</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// GAME DATA
+// ============================================================
+const BUILDINGS = [
+  { id:'cursor',    emoji:'🖱',  name:'Curseur',        baseCost:15,      baseCps:1,    desc:'Clique tout seul...' },
+  { id:'grandma',  emoji:'👵',  name:'Grand-mère',     baseCost:100,     baseCps:5,    desc:'Fait des cookies avec amour' },
+  { id:'farm',     emoji:'🌾',  name:'Ferme',          baseCost:1100,    baseCps:20,   desc:'Cultive des cookies' },
+  { id:'mine',     emoji:'⛏',   name:'Mine',           baseCost:12000,   baseCps:80,   desc:'Extrait des pépites de cookies' },
+  { id:'factory',  emoji:'🏭',  name:'Usine',          baseCost:130000,  baseCps:300,  desc:'Produit des cookies en masse' },
+  { id:'bank',     emoji:'🏦',  name:'Banque',         baseCost:1.4e6,   baseCps:1000, desc:'Génère des intérêts en cookies' },
+  { id:'temple',   emoji:'⛩',   name:'Temple',         baseCost:2e7,     baseCps:4000, desc:'Cookies bénis par les dieux' },
+  { id:'wizard',   emoji:'🧙',  name:'Tour de mage',   baseCost:3.3e8,   baseCps:16000,desc:'Conjure des cookies magiques' },
+  { id:'ship',     emoji:'🚀',  name:'Vaisseau',       baseCost:5.1e9,   baseCps:65000,desc:'Mine des planètes-cookies' },
+  { id:'lab',      emoji:'🔬',  name:'Labo temporel',  baseCost:7.5e10,  baseCps:280000,desc:'Vole des cookies dans le passé' },
+];
+
+const UPGRADES = [
+  // Click upgrades
+  { id:'click1',    emoji:'👆', name:'Doigt d\'acier',   cost:100,      desc:'×2 cookies/clic',    effect:'click', mult:2 },
+  { id:'click2',    emoji:'👊', name:'Poing de fer',     cost:1000,     desc:'×2 cookies/clic',    effect:'click', mult:2 },
+  { id:'click3',    emoji:'🤛', name:'Frappe divine',    cost:10000,    desc:'×2 cookies/clic',    effect:'click', mult:2 },
+  { id:'click4',    emoji:'⚡', name:'Éclair de clic',   cost:200000,   desc:'×3 cookies/clic',    effect:'click', mult:3 },
+  { id:'click5',    emoji:'🌩', name:'Tonnerre de doigt',cost:5e6,      desc:'×5 cookies/clic',    effect:'click', mult:5 },
+  // Cursor
+  { id:'cur1',      emoji:'🖱', name:'Souris rapide',    cost:500,      desc:'Curseurs ×2',         effect:'building', bid:'cursor', mult:2 },
+  { id:'cur2',      emoji:'🖱', name:'Souris optique',   cost:5000,     desc:'Curseurs ×2',         effect:'building', bid:'cursor', mult:2 },
+  // Grandma
+  { id:'gma1',      emoji:'👵', name:'Tablier brodé',    cost:2000,     desc:'Grand-mères ×2',      effect:'building', bid:'grandma', mult:2 },
+  { id:'gma2',      emoji:'👵', name:'Lunettes magiques',cost:20000,    desc:'Grand-mères ×2',      effect:'building', bid:'grandma', mult:2 },
+  { id:'gma3',      emoji:'👵', name:'Prothèses turbo',  cost:200000,   desc:'Grand-mères ×2',      effect:'building', bid:'grandma', mult:2 },
+  // Farm
+  { id:'frm1',      emoji:'🌾', name:'Engrais ultra',    cost:50000,    desc:'Fermes ×2',           effect:'building', bid:'farm', mult:2 },
+  { id:'frm2',      emoji:'🌾', name:'OGM Cookies',      cost:500000,   desc:'Fermes ×2',           effect:'building', bid:'farm', mult:2 },
+  // Mine
+  { id:'min1',      emoji:'⛏', name:'Dynamite cookies', cost:600000,   desc:'Mines ×2',            effect:'building', bid:'mine', mult:2 },
+  { id:'min2',      emoji:'⛏', name:'Laser mineur',     cost:6e6,      desc:'Mines ×2',            effect:'building', bid:'mine', mult:2 },
+  // Global
+  { id:'glob1',     emoji:'✨', name:'Magie des cookies',cost:1e7,      desc:'Production ×2',       effect:'global', mult:2 },
+  { id:'glob2',     emoji:'🌟', name:'Frappe cosmique',  cost:1e9,      desc:'Production ×2',       effect:'global', mult:2 },
+  { id:'glob3',     emoji:'🌌', name:'Singularité',      cost:1e12,     desc:'Production ×3',       effect:'global', mult:3 },
+  // Special
+  { id:'golden1',   emoji:'🌕', name:'Cookie doré',      cost:5e5,      desc:'Doublons rares +',    effect:'golden' },
+  { id:'axo1',      emoji:'🦎', name:'Bénédiction d\'Axo',cost:1e8,     desc:'Tout ×1.5',           effect:'global', mult:1.5 },
+];
+
+// ============================================================
+// GAME STATE
+// ============================================================
+let state = {
+  cookies: 0,
+  totalCookies: 0,
+  totalClicks: 0,
+  clickPower: 1,
+  cps: 0,
+  buildings: {},  // {id: count}
+  upgrades: {},   // {id: true}
+  // multipliers (computed)
+  clickMult: 1,
+  globalMult: 1,
+  buildingMult: {}, // {bid: mult}
+};
+
+// Init buildings
+BUILDINGS.forEach(b => { state.buildings[b.id] = 0; state.buildingMult[b.id] = 1; });
+
+// ============================================================
+// AUTH / SAVE / LOAD
+// ============================================================
+function getUsers() { try { return JSON.parse(localStorage.getItem('axo_users')||'{}'); } catch(e) { return {}; } }
+function saveUsers(u) { localStorage.setItem('axo_users', JSON.stringify(u)); }
+function getCurrentUser() { try { return JSON.parse(localStorage.getItem('axo_user')); } catch(e) { return null; } }
+
+const currentUser = getCurrentUser();
+let userKey = currentUser ? currentUser.username.toLowerCase() : null;
+
+// Show login banner if not logged in
+if (!currentUser) {
+  document.getElementById('login-banner-wrap').innerHTML = `
+    <div class="login-banner">
+      <p>🔐 Connecte-toi pour sauvegarder ta progression !</p>
+      <a href="login.html">Se connecter →</a>
+    </div>`;
+} else {
+  document.getElementById('nav-user-link').textContent = '👤 ' + currentUser.username;
+  loadGame();
+}
+
+function saveGame() {
+  if (!currentUser) {
+    // Save locally for guest
+    localStorage.setItem('axo_clicker_guest', JSON.stringify(getStateToSave()));
+    showToast('💾 Sauvegardé localement (connecte-toi pour sauvegarder sur ton compte)');
+    return;
+  }
+  const users = getUsers();
+  if (!users[userKey]) return;
+  users[userKey].clicker = getStateToSave();
+  saveUsers(users);
+  const ind = document.getElementById('save-indicator');
+  ind.style.display = 'inline';
+  setTimeout(() => ind.style.display = 'none', 2000);
+  showToast('✓ Progression sauvegardée !');
+}
+
+function getStateToSave() {
+  return {
+    cookies: state.cookies,
+    totalCookies: state.totalCookies,
+    totalClicks: state.totalClicks,
+    cps: computeCps(),
+    buildings: {...state.buildings},
+    upgrades: {...state.upgrades},
+  };
+}
+
+function loadGame() {
+  let saved = null;
+  if (currentUser) {
+    const users = getUsers();
+    saved = users[userKey]?.clicker;
+  } else {
+    try { saved = JSON.parse(localStorage.getItem('axo_clicker_guest')); } catch(e) {}
+  }
+  if (!saved) return;
+  state.cookies = saved.cookies || 0;
+  state.totalCookies = saved.totalCookies || 0;
+  state.totalClicks = saved.totalClicks || 0;
+  if (saved.buildings) Object.assign(state.buildings, saved.buildings);
+  if (saved.upgrades) Object.assign(state.upgrades, saved.upgrades);
+  recomputeMultipliers();
+}
+
+// Auto-save every 30s
+setInterval(saveGame, 30000);
+
+// ============================================================
+// GAME LOGIC
+// ============================================================
+function recomputeMultipliers() {
+  state.clickMult = 1;
+  state.globalMult = 1;
+  BUILDINGS.forEach(b => state.buildingMult[b.id] = 1);
+
+  UPGRADES.forEach(u => {
+    if (!state.upgrades[u.id]) return;
+    if (u.effect === 'click') state.clickMult *= u.mult;
+    if (u.effect === 'global') state.globalMult *= u.mult;
+    if (u.effect === 'building') state.buildingMult[u.bid] = (state.buildingMult[u.bid]||1) * u.mult;
+  });
+}
+
+function getBuildingCost(b) {
+  return Math.ceil(b.baseCost * Math.pow(1.15, state.buildings[b.id] || 0));
+}
+
+function computeCps() {
+  let cps = 0;
+  BUILDINGS.forEach(b => {
+    const count = state.buildings[b.id] || 0;
+    const bMult = state.buildingMult[b.id] || 1;
+    cps += count * b.baseCps * bMult;
+  });
+  return cps * state.globalMult;
+}
+
+function getClickValue() {
+  const cps = computeCps();
+  // Click = max(1, cps * 0.01) * clickMult * globalMult (minimum 1 always)
+  const base = Math.max(1, cps * 0.01);
+  return base * state.clickMult * state.globalMult;
+}
+
+// ============================================================
+// CLICK
+// ============================================================
+function clickCookie(event) {
+  const val = getClickValue();
+  state.cookies += val;
+  state.totalCookies += val;
+  state.totalClicks++;
+
+  // Particle
+  spawnParticle(event.clientX, event.clientY, '+' + formatNum(val));
+  updateDisplay();
+}
+
+function spawnParticle(x, y, text) {
+  const el = document.createElement('div');
+  el.className = 'click-particle';
+  el.textContent = text;
+  el.style.left = (x - 15 + (Math.random()-0.5)*40) + 'px';
+  el.style.top = (y - 15) + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+// ============================================================
+// BUILDINGS
+// ============================================================
+function buyBuilding(id) {
+  const b = BUILDINGS.find(x => x.id === id);
+  if (!b) return;
+  const cost = getBuildingCost(b);
+  if (state.cookies < cost) return;
+  state.cookies -= cost;
+  state.buildings[id] = (state.buildings[id] || 0) + 1;
+  showToast(`${b.emoji} ${b.name} acheté !`);
+  updateDisplay();
+}
+
+// ============================================================
+// UPGRADES
+// ============================================================
+function buyUpgrade(id) {
+  const u = UPGRADES.find(x => x.id === id);
+  if (!u || state.upgrades[id]) return;
+  if (state.cookies < u.cost) return;
+  state.cookies -= u.cost;
+  state.upgrades[id] = true;
+  recomputeMultipliers();
+  showToast(`${u.emoji} ${u.name} débloqué !`);
+  updateDisplay();
+}
+
+// ============================================================
+// GOLDEN COOKIE
+// ============================================================
+let goldenTimer = null;
+function scheduleGoldenCookie() {
+  const delay = 60000 + Math.random() * 120000; // 1-3 min
+  clearTimeout(goldenTimer);
+  goldenTimer = setTimeout(showGoldenCookie, delay);
+}
+
+function showGoldenCookie() {
+  const gc = document.getElementById('golden-cookie');
+  gc.style.display = 'block';
+  gc.style.left = (60 + Math.random() * (window.innerWidth - 160)) + 'px';
+  gc.style.top = (80 + Math.random() * (window.innerHeight - 200)) + 'px';
+  gc.style.animation = 'none';
+  gc.offsetHeight; // reflow
+  gc.style.animation = 'goldenFloat 10s ease-in-out forwards';
+  setTimeout(() => { gc.style.display = 'none'; scheduleGoldenCookie(); }, 10000);
+}
+
+function goldenClick() {
+  const cps = computeCps();
+  const bonus = Math.max(13, cps * 77);
+  state.cookies += bonus;
+  state.totalCookies += bonus;
+  document.getElementById('golden-cookie').style.display = 'none';
+  spawnParticle(window.innerWidth/2, window.innerHeight/2, '✨ +' + formatNum(bonus));
+  showToast('✨ Cookie doré ! +' + formatNum(bonus) + ' cookies !');
+  scheduleGoldenCookie();
+  updateDisplay();
+}
+
+scheduleGoldenCookie();
+
+// ============================================================
+// CPS TICK
+// ============================================================
+let lastTick = Date.now();
+setInterval(() => {
+  const now = Date.now();
+  const dt = (now - lastTick) / 1000;
+  lastTick = now;
+  const cps = computeCps();
+  state.cookies += cps * dt;
+  state.totalCookies += cps * dt;
+  updateDisplay();
+}, 50);
+
+// ============================================================
+// DISPLAY
+// ============================================================
+function formatNum(n) {
+  if (n >= 1e15) return (n/1e15).toFixed(2) + ' Qa';
+  if (n >= 1e12) return (n/1e12).toFixed(2) + ' T';
+  if (n >= 1e9)  return (n/1e9).toFixed(2) + ' B';
+  if (n >= 1e6)  return (n/1e6).toFixed(2) + ' M';
+  if (n >= 1e3)  return (n/1e3).toFixed(1) + ' K';
+  return Math.floor(n).toString();
+}
+
+function updateDisplay() {
+  const cps = computeCps();
+  document.getElementById('cookie-count').textContent = formatNum(state.cookies);
+  document.getElementById('cps-display').textContent = formatNum(cps) + ' cookies/sec';
+  document.getElementById('click-stats').textContent =
+    '🖱 ' + state.totalClicks.toLocaleString() + ' clics  •  ⚡ +' + formatNum(getClickValue()) + '/clic';
+  renderBuildings();
+  renderUpgrades();
+}
+
+// Build DOM once, then only update text/classes on tick
+let buildingsBuilt = false;
+let upgradesBuilt = false;
+
+function buildBuildingDOM() {
+  const list = document.getElementById('building-list');
+  list.innerHTML = '';
+  BUILDINGS.forEach(b => {
+    const el = document.createElement('div');
+    el.className = 'building-item too-exp';
+    el.id = 'bld-' + b.id;
+    el.innerHTML = `
+      <div class="building-emoji">${b.emoji}</div>
+      <div class="building-info">
+        <div class="building-name">${b.name}</div>
+        <div class="building-cps" id="bld-cps-${b.id}">…</div>
+        <div class="building-cost" id="bld-cost-${b.id}">🍪 …</div>
+      </div>
+      <div class="building-owned" id="bld-count-${b.id}">0</div>
+    `;
+    // Single permanent click handler
+    el.addEventListener('click', () => {
+      const cost = getBuildingCost(b);
+      if (state.cookies >= cost) buyBuilding(b.id);
+    });
+    list.appendChild(el);
+  });
+  buildingsBuilt = true;
+}
+
+function buildUpgradeDOM() {
+  const list = document.getElementById('upgrade-list');
+  list.innerHTML = '';
+  UPGRADES.forEach(u => {
+    const el = document.createElement('div');
+    el.className = 'upgrade-item';
+    el.id = 'upg-' + u.id;
+    el.innerHTML = `
+      <div class="upgrade-emoji">${u.emoji}</div>
+      <div class="upgrade-info">
+        <div class="upgrade-name">${u.name}</div>
+        <div class="upgrade-desc">${u.desc}</div>
+        <div class="upgrade-cost" id="upg-cost-${u.id}">🍪 ${formatNum(u.cost)}</div>
+      </div>
+    `;
+    el.addEventListener('click', () => {
+      if (!state.upgrades[u.id] && state.cookies >= u.cost) buyUpgrade(u.id);
+    });
+    list.appendChild(el);
+  });
+  upgradesBuilt = true;
+}
+
+function renderBuildings() {
+  if (!buildingsBuilt) buildBuildingDOM();
+  BUILDINGS.forEach(b => {
+    const count = state.buildings[b.id] || 0;
+    const cost = getBuildingCost(b);
+    const canBuy = state.cookies >= cost;
+    const bMult = state.buildingMult[b.id] || 1;
+    const realCps = b.baseCps * bMult * state.globalMult;
+
+    const el = document.getElementById('bld-' + b.id);
+    if (!el) return;
+    el.className = 'building-item ' + (canBuy ? 'can-buy' : 'too-exp');
+    document.getElementById('bld-cps-' + b.id).textContent = formatNum(realCps) + '/sec chacun';
+    document.getElementById('bld-cost-' + b.id).textContent = '🍪 ' + formatNum(cost);
+    document.getElementById('bld-count-' + b.id).textContent = count;
+  });
+}
+
+function renderUpgrades() {
+  if (!upgradesBuilt) buildUpgradeDOM();
+  UPGRADES.forEach(u => {
+    const bought = !!state.upgrades[u.id];
+    const canBuy = !bought && state.cookies >= u.cost;
+    const el = document.getElementById('upg-' + u.id);
+    if (!el) return;
+    el.className = 'upgrade-item' + (bought ? ' bought' : canBuy ? ' can-buy' : '');
+    const costEl = document.getElementById('upg-cost-' + u.id);
+    if (costEl) costEl.textContent = bought ? '✓ Acheté' : '🍪 ' + formatNum(u.cost);
+  });
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ============================================================
+// RESET
+// ============================================================
+function confirmReset() {
+  if (confirm('🗑 Remettre ta progression à zéro ? Cette action est irréversible !')) {
+    state.cookies = 0;
+    state.totalCookies = 0;
+    state.totalClicks = 0;
+    BUILDINGS.forEach(b => state.buildings[b.id] = 0);
+    state.upgrades = {};
+    recomputeMultipliers();
+    saveGame();
+    updateDisplay();
+    showToast('Progression remise à zéro.');
+  }
+}
+
+// ============================================================
+// KEYBOARD SHORTCUT
+// ============================================================
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' && e.target.tagName !== 'INPUT') {
+    e.preventDefault();
+    const btn = document.getElementById('cookie-btn');
+    btn.dispatchEvent(new MouseEvent('click', {clientX: btn.getBoundingClientRect().left+80, clientY: btn.getBoundingClientRect().top+80}));
+  }
+  if (e.key === 's' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); saveGame(); }
+});
+
+// ============================================================
+// LEADERBOARD — STOCKAGE PARTAGÉ GLOBAL
+// ============================================================
+let lbCurrentTab = 'cookies';
+
+// Pousse les stats du joueur connecté dans le storage partagé
+async function pushScoreToGlobal() {
+  if (!currentUser) return;
+  const score = {
+    username: currentUser.username,
+    cookies:  Math.floor(state.totalCookies),
+    cps:      Math.round(computeCps() * 100) / 100,
+    clicks:   state.totalClicks,
+    updatedAt: Date.now(),
+  };
+  try {
+    await window.storage.set('lb:' + userKey, JSON.stringify(score), true);
+  } catch(e) { /* storage non dispo */ }
+}
+
+// Récupère tous les scores depuis le storage partagé
+async function fetchGlobalScores() {
+  try {
+    const result = await window.storage.list('lb:', true);
+    if (!result || !result.keys) return [];
+    const scores = [];
+    for (const key of result.keys) {
+      try {
+        const r = await window.storage.get(key, true);
+        if (r && r.value) scores.push(JSON.parse(r.value));
+      } catch(e) {}
+    }
+    return scores;
+  } catch(e) { return []; }
+}
+
+function openLeaderboard() {
+  saveGame();
+  document.getElementById('lb-overlay').classList.add('open');
+  renderLeaderboard();
+}
+
+function closeLeaderboard() {
+  document.getElementById('lb-overlay').classList.remove('open');
+}
+
+function closeLbIfOutside(e) {
+  if (e.target === document.getElementById('lb-overlay')) closeLeaderboard();
+}
+
+function switchLbTab(tab) {
+  lbCurrentTab = tab;
+  document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  renderLeaderboard();
+}
+
+async function renderLeaderboard() {
+  const body = document.getElementById('lb-body');
+  body.innerHTML = '<div class="lb-empty">⏳ Chargement du classement global...</div>';
+
+  // Pousse d'abord les stats actuelles si connecté
+  await pushScoreToGlobal();
+
+  // Récupère tous les scores
+  let entries = await fetchGlobalScores();
+
+  // Fallback : si storage partagé non dispo, on prend le localStorage local
+  if (entries.length === 0) {
+    const users = getUsers();
+    Object.values(users).forEach(u => {
+      if (!u.username) return;
+      const c = u.clicker || {};
+      entries.push({
+        username: u.username,
+        cookies:  Math.floor(c.totalCookies || 0),
+        cps:      c.cps || 0,
+        clicks:   c.totalClicks || 0,
+      });
+    });
+  }
+
+  document.getElementById('lb-count').textContent =
+    entries.length + ' joueur' + (entries.length !== 1 ? 's' : '') +
+    ' inscrit' + (entries.length !== 1 ? 's' : '');
+
+  if (entries.length === 0) {
+    body.innerHTML = '<div class="lb-empty">Aucun joueur pour l\'instant.<br>Crée un compte et joue pour apparaître ici !</div>';
+    return;
+  }
+
+  const sortKey = lbCurrentTab === 'cookies' ? 'cookies' : lbCurrentTab === 'cps' ? 'cps' : 'clicks';
+  entries.sort((a, b) => b[sortKey] - a[sortKey]);
+
+  const meKey = currentUser ? currentUser.username.toLowerCase() : null;
+  const rankEmojis = ['🥇','🥈','🥉'];
+
+  let html = `<div class="lb-row lb-header">
+    <div style="text-align:center">#</div>
+    <div>Joueur</div>
+    <div style="text-align:right">${lbCurrentTab === 'cookies' ? 'Cookies totaux' : lbCurrentTab === 'cps' ? 'Cookies/sec' : 'Total clics'}</div>
+    <div style="text-align:right">${lbCurrentTab === 'cookies' ? 'Cookies/sec' : 'Cookies totaux'}</div>
+  </div>`;
+
+  entries.forEach((e, i) => {
+    const rank = i + 1;
+    const isMe = meKey && e.username.toLowerCase() === meKey;
+    const rankLabel = rank <= 3
+      ? `<span class="lb-rank-${rank}">${rankEmojis[i]}</span>`
+      : `<span style="color:var(--muted)">${rank}</span>`;
+    const mainVal = lbCurrentTab === 'cps'
+      ? formatNum(e.cps) + '/s'
+      : lbCurrentTab === 'clicks'
+        ? formatNum(e.clicks)
+        : formatNum(e.cookies);
+    const secVal = lbCurrentTab === 'cookies'
+      ? formatNum(e.cps) + '/s'
+      : formatNum(e.cookies);
+
+    html += `<div class="lb-row${isMe ? ' lb-me' : ''}">
+      <div class="lb-rank">${rankLabel}</div>
+      <div class="lb-user">
+        <div class="lb-avatar">${e.username[0].toUpperCase()}</div>
+        <div class="lb-username">${e.username}${isMe ? '<span class="lb-you">(toi)</span>' : ''}</div>
+      </div>
+      <div class="lb-val">${mainVal}</div>
+      <div class="lb-val-sec">${secVal}</div>
+    </div>`;
+  });
+
+  body.innerHTML = html;
+}
+
+// Pousse les scores dans le global toutes les 60s si connecté
+if (currentUser) setInterval(pushScoreToGlobal, 60000);
+
+// Close modal with Escape key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeLeaderboard();
+});
+
+// ============================================================
+// INIT
+// ============================================================
+updateDisplay();
+</script>
+
+</body>
+</html>

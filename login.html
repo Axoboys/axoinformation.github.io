@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion — Axoboys</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --border: #1e1e2e;
+      --accent: #7c3aed;
+      --accent2: #06b6d4;
+      --accent3: #f59e0b;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --glow: rgba(124,58,237,0.3);
+      --red: #ef4444;
+      --green: #22c55e;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+    body::before {
+      content:'';
+      position:fixed;
+      inset:0;
+      background-image:
+        linear-gradient(rgba(124,58,237,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,58,237,0.04) 1px, transparent 1px);
+      background-size:40px 40px;
+      pointer-events:none;
+      z-index:0;
+    }
+    nav {
+      position:sticky;
+      top:0;
+      z-index:100;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 2rem;
+      height:60px;
+      background:rgba(10,10,15,0.85);
+      backdrop-filter:blur(20px);
+      border-bottom:1px solid var(--border);
+    }
+    .nav-logo { font-size:1.1rem; font-weight:800; letter-spacing:0.1em; color:var(--text); text-decoration:none; }
+    .nav-logo span { color:var(--accent); }
+    .nav-back { font-family:'Space Mono',monospace; font-size:0.8rem; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+    .nav-back:hover { color:var(--accent2); }
+
+    main {
+      position:relative;
+      z-index:1;
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:3rem 1.5rem;
+    }
+
+    .auth-box {
+      width:100%;
+      max-width:420px;
+    }
+
+    .auth-header {
+      text-align:center;
+      margin-bottom:2.5rem;
+    }
+    .auth-icon {
+      font-size:3rem;
+      margin-bottom:1rem;
+    }
+    .auth-title {
+      font-size:2rem;
+      font-weight:800;
+      margin-bottom:0.5rem;
+    }
+    .auth-sub {
+      font-family:'Space Mono',monospace;
+      font-size:0.75rem;
+      color:var(--muted);
+    }
+
+    /* Tabs */
+    .tabs {
+      display:flex;
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:12px 12px 0 0;
+      overflow:hidden;
+    }
+    .tab {
+      flex:1;
+      padding:0.85rem;
+      text-align:center;
+      font-family:'Space Mono',monospace;
+      font-size:0.8rem;
+      cursor:pointer;
+      color:var(--muted);
+      transition:all 0.2s;
+      border:none;
+      background:transparent;
+    }
+    .tab.active {
+      background:var(--accent);
+      color:#fff;
+    }
+    .tab:hover:not(.active) { color:var(--text); }
+
+    /* Form card */
+    .form-card {
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-top:none;
+      border-radius:0 0 16px 16px;
+      padding:2rem;
+    }
+
+    .form-group {
+      margin-bottom:1.25rem;
+    }
+    .form-label {
+      display:block;
+      font-family:'Space Mono',monospace;
+      font-size:0.72rem;
+      color:var(--muted);
+      letter-spacing:0.1em;
+      text-transform:uppercase;
+      margin-bottom:0.5rem;
+    }
+    .form-input {
+      width:100%;
+      background:var(--bg);
+      border:1px solid var(--border);
+      border-radius:8px;
+      padding:0.75rem 1rem;
+      color:var(--text);
+      font-family:'Space Mono',monospace;
+      font-size:0.85rem;
+      outline:none;
+      transition:border-color 0.2s;
+    }
+    .form-input:focus { border-color:var(--accent); }
+    .form-input::placeholder { color:var(--muted); }
+
+    .btn-submit {
+      width:100%;
+      padding:0.9rem;
+      background:var(--accent);
+      color:#fff;
+      border:none;
+      border-radius:8px;
+      font-family:'Space Mono',monospace;
+      font-size:0.9rem;
+      font-weight:700;
+      cursor:pointer;
+      transition:all 0.2s;
+      box-shadow:0 0 30px var(--glow);
+      margin-top:0.5rem;
+    }
+    .btn-submit:hover { background:#6d28d9; transform:translateY(-2px); }
+    .btn-submit:active { transform:translateY(0); }
+
+    .msg {
+      margin-top:1rem;
+      padding:0.75rem 1rem;
+      border-radius:8px;
+      font-family:'Space Mono',monospace;
+      font-size:0.78rem;
+      display:none;
+    }
+    .msg.error { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:var(--red); display:block; }
+    .msg.success { background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); color:var(--green); display:block; }
+
+    .form-section { display:none; }
+    .form-section.active { display:block; }
+
+    .password-hint {
+      font-family:'Space Mono',monospace;
+      font-size:0.68rem;
+      color:var(--muted);
+      margin-top:0.4rem;
+    }
+    .strength-bar {
+      height:3px;
+      background:var(--border);
+      border-radius:2px;
+      margin-top:0.5rem;
+      overflow:hidden;
+    }
+    .strength-fill {
+      height:100%;
+      border-radius:2px;
+      transition:all 0.3s;
+      width:0;
+    }
+
+    footer {
+      position:relative;
+      z-index:1;
+      border-top:1px solid var(--border);
+      padding:1.5rem;
+      text-align:center;
+      font-family:'Space Mono',monospace;
+      font-size:0.75rem;
+      color:var(--muted);
+    }
+    footer span { color:var(--accent); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">AXO<span>BOYS</span></a>
+  <a href="index.html" class="nav-back">← Hub</a>
+</nav>
+
+<main>
+  <div class="auth-box">
+    <div class="auth-header">
+      <div class="auth-icon">🔐</div>
+      <h1 class="auth-title">Bienvenue</h1>
+      <p class="auth-sub">Connecte-toi pour sauvegarder ta progression</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('login')">Connexion</button>
+      <button class="tab" onclick="switchTab('register')">Créer un compte</button>
+    </div>
+
+    <div class="form-card">
+
+      <!-- LOGIN -->
+      <div class="form-section active" id="section-login">
+        <div class="form-group">
+          <label class="form-label">Nom d'utilisateur</label>
+          <input type="text" class="form-input" id="login-username" placeholder="Ton pseudo..." autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mot de passe</label>
+          <input type="password" class="form-input" id="login-password" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <button class="btn-submit" onclick="doLogin()">Se connecter →</button>
+        <div class="msg" id="login-msg"></div>
+      </div>
+
+      <!-- REGISTER -->
+      <div class="form-section" id="section-register">
+        <div class="form-group">
+          <label class="form-label">Nom d'utilisateur</label>
+          <input type="text" class="form-input" id="reg-username" placeholder="Choisis un pseudo..." autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mot de passe</label>
+          <input type="password" class="form-input" id="reg-password" placeholder="••••••••" autocomplete="new-password" oninput="checkStrength(this.value)">
+          <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+          <div class="password-hint" id="strength-label">Min. 6 caractères</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirmer le mot de passe</label>
+          <input type="password" class="form-input" id="reg-confirm" placeholder="••••••••" autocomplete="new-password">
+        </div>
+        <button class="btn-submit" onclick="doRegister()">Créer mon compte →</button>
+        <div class="msg" id="register-msg"></div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer><p>© 2026 <span>Axoboys</span> — Tous droits réservés</p></footer>
+
+<script>
+  // ============ STORAGE HELPERS ============
+  // Users are stored in localStorage as axo_users: {username: {password, clicker}}
+  function getUsers() {
+    try { return JSON.parse(localStorage.getItem('axo_users') || '{}'); } catch(e) { return {}; }
+  }
+  function saveUsers(users) {
+    localStorage.setItem('axo_users', JSON.stringify(users));
+  }
+  function setCurrentUser(username) {
+    localStorage.setItem('axo_user', JSON.stringify({username}));
+  }
+  function getCurrentUser() {
+    try { return JSON.parse(localStorage.getItem('axo_user')); } catch(e) { return null; }
+  }
+
+  // Redirect if already logged in
+  if (getCurrentUser()) {
+    window.location.href = 'profile.html';
+  }
+
+  // ============ TAB SWITCH ============
+  function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+    document.querySelector(`#section-${tab}`).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  // ============ PASSWORD STRENGTH ============
+  function checkStrength(pw) {
+    const fill = document.getElementById('strength-fill');
+    const label = document.getElementById('strength-label');
+    let score = 0;
+    if (pw.length >= 6) score++;
+    if (pw.length >= 10) score++;
+    if (/[A-Z]/.test(pw)) score++;
+    if (/[0-9]/.test(pw)) score++;
+    if (/[^A-Za-z0-9]/.test(pw)) score++;
+    const levels = [
+      {w:'0%', c:'transparent', t:'Min. 6 caractères'},
+      {w:'20%', c:'#ef4444', t:'Très faible'},
+      {w:'40%', c:'#f97316', t:'Faible'},
+      {w:'60%', c:'#eab308', t:'Moyen'},
+      {w:'80%', c:'#22c55e', t:'Fort'},
+      {w:'100%', c:'#06b6d4', t:'Excellent !'},
+    ];
+    fill.style.width = levels[score].w;
+    fill.style.background = levels[score].c;
+    label.textContent = levels[score].t;
+  }
+
+  // ============ SIMPLE HASH (not crypto — client-side demo) ============
+  function simpleHash(str) {
+    let hash = 5381;
+    for (let i = 0; i < str.length; i++) {
+      hash = ((hash << 5) + hash) ^ str.charCodeAt(i);
+    }
+    return (hash >>> 0).toString(16);
+  }
+
+  // ============ LOGIN ============
+  function showMsg(id, type, text) {
+    const el = document.getElementById(id);
+    el.className = 'msg ' + type;
+    el.textContent = text;
+  }
+
+  function doLogin() {
+    const username = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value;
+    if (!username || !password) { showMsg('login-msg','error','Remplis tous les champs.'); return; }
+    const users = getUsers();
+    const key = username.toLowerCase();
+    if (!users[key]) { showMsg('login-msg','error','Ce compte n\'existe pas.'); return; }
+    if (users[key].password !== simpleHash(password)) { showMsg('login-msg','error','Mot de passe incorrect.'); return; }
+    setCurrentUser(username);
+    showMsg('login-msg','success','Connexion réussie ! Redirection...');
+    setTimeout(() => { window.location.href = 'profile.html'; }, 800);
+  }
+
+  // ============ REGISTER ============
+  function doRegister() {
+    const username = document.getElementById('reg-username').value.trim();
+    const password = document.getElementById('reg-password').value;
+    const confirm = document.getElementById('reg-confirm').value;
+    if (!username || !password || !confirm) { showMsg('register-msg','error','Remplis tous les champs.'); return; }
+    if (username.length < 3) { showMsg('register-msg','error','Le pseudo doit faire au moins 3 caractères.'); return; }
+    if (password.length < 6) { showMsg('register-msg','error','Le mot de passe doit faire au moins 6 caractères.'); return; }
+    if (password !== confirm) { showMsg('register-msg','error','Les mots de passe ne correspondent pas.'); return; }
+    const users = getUsers();
+    const key = username.toLowerCase();
+    if (users[key]) { showMsg('register-msg','error','Ce pseudo est déjà pris.'); return; }
+    users[key] = {
+      username: username,
+      password: simpleHash(password),
+      createdAt: Date.now(),
+      clicker: { cookies: 0, totalCookies: 0, cps: 0, upgrades: {}, buildings: {} }
+    };
+    saveUsers(users);
+    setCurrentUser(username);
+    showMsg('register-msg','success','Compte créé ! Redirection...');
+    setTimeout(() => { window.location.href = 'clicker.html'; }, 800);
+  }
+
+  // Enter key support
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const loginActive = document.getElementById('section-login').classList.contains('active');
+      if (loginActive) doLogin(); else doRegister();
+    }
+  });
+</script>
+
+</body>
+</html>
