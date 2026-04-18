@@ -41,7 +41,7 @@
     .cookie-big{font-size:2.5rem;}
     .cookie-count{font-size:1.5rem;font-weight:800;color:var(--accent3);font-family:'Space Mono',monospace;}
     .cookie-sub{font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--muted);}
-    .rank-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.4rem 0.9rem;border-radius:999px;font-family:'Space Mono',monospace;font-size:0.72rem;font-weight:700;margin-bottom:0.5rem;}
+    .rank-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.4rem 0.9rem;border-radius:999px;font-family:'Space Mono',monospace;font-size:0.72rem;font-weight:700;}
     .rank-0{background:rgba(100,116,139,0.2);color:var(--muted);border:1px solid var(--muted);}
     .rank-1{background:rgba(180,83,9,0.2);color:#b45309;border:1px solid #b45309;}
     .rank-2{background:rgba(100,116,139,0.2);color:#94a3b8;border:1px solid #94a3b8;}
@@ -49,37 +49,35 @@
     .rank-4{background:rgba(6,182,212,0.2);color:var(--accent2);border:1px solid var(--accent2);}
     .rank-5{background:rgba(124,58,237,0.2);color:var(--accent);border:1px solid var(--accent);}
     .rebirth-card{background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.3);border-radius:12px;padding:1rem;margin-bottom:0.75rem;display:flex;align-items:center;gap:1rem;}
-    .spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
+    .spinner{display:inline-block;width:24px;height:24px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
     @keyframes spin{to{transform:rotate(360deg)}}
     footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:1.5rem;text-align:center;font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--muted);}
     footer span{color:var(--accent);}
   </style>
 </head>
 <body>
-
 <nav>
   <a href="index.html" class="nav-logo">AXO<span>BOYS</span></a>
   <ul class="nav-links">
     <li><a href="index.html">Hub</a></li>
     <li><a href="clicker.html" style="color:var(--accent3);">🍪 Clicker</a></li>
-    <li><a href="#" onclick="doLogout()">Déconnexion</a></li>
+    <li><a href="#" id="logout-btn">Déconnexion</a></li>
   </ul>
 </nav>
-
 <main>
   <div class="page-label">// mon compte</div>
   <h1 class="page-title">Mon Profil</h1>
-  <div id="loading-state" style="text-align:center;padding:3rem;"><div class="spinner"></div><p style="font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--muted);margin-top:1rem;">Chargement du profil...</p></div>
+  <div id="loading-state" style="text-align:center;padding:4rem;">
+    <div class="spinner"></div>
+    <p style="font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--muted);margin-top:1rem;">Chargement...</p>
+  </div>
   <div id="profile-content" style="display:none;">
     <div class="profile-grid">
       <div class="card">
         <div class="card-title">Compte</div>
         <div class="user-display">
           <div class="user-avatar" id="user-avatar">?</div>
-          <div>
-            <div class="user-name" id="user-name">...</div>
-            <div class="user-since" id="user-since">...</div>
-          </div>
+          <div><div class="user-name" id="user-name">...</div><div class="user-since" id="user-since">...</div></div>
         </div>
         <div style="margin-top:1.25rem;">
           <div class="stat-row"><span class="stat-label">Statut</span><span class="stat-value" style="color:var(--green);">● Connecté</span></div>
@@ -91,10 +89,7 @@
         <div class="card-title">Stats Clicker</div>
         <div class="cookie-preview">
           <div class="cookie-big">🍪</div>
-          <div>
-            <div class="cookie-count" id="stat-cookies">0</div>
-            <div class="cookie-sub">cookies actuels</div>
-          </div>
+          <div><div class="cookie-count" id="stat-cookies">0</div><div class="cookie-sub">cookies actuels</div></div>
         </div>
         <div class="stat-row"><span class="stat-label">Total cliqué</span><span class="stat-value" id="stat-total">0</span></div>
         <div class="stat-row"><span class="stat-label">Cookies/sec</span><span class="stat-value" id="stat-cps">0</span></div>
@@ -119,109 +114,116 @@
       <div class="card">
         <div class="card-title">Actions</div>
         <a href="clicker.html" class="btn btn-primary">🍪 Jouer au Clicker</a>
-        <button class="btn btn-outline" onclick="doLogout()">← Se déconnecter</button>
-        <button class="btn btn-danger" onclick="confirmDelete()">🗑 Supprimer mon compte</button>
+        <button class="btn btn-outline" id="logout-btn2">← Se déconnecter</button>
+        <button class="btn btn-danger" id="delete-btn">🗑 Supprimer mon compte</button>
       </div>
     </div>
   </div>
-  <div id="error-state" style="display:none;text-align:center;padding:3rem;">
+  <div id="error-state" style="display:none;text-align:center;padding:4rem;">
     <div style="font-size:3rem;margin-bottom:1rem;">⚠️</div>
     <p style="font-family:'Space Mono',monospace;font-size:0.85rem;color:var(--muted);margin-bottom:1.5rem;">Session expirée ou compte introuvable.</p>
     <a href="login.html" style="font-family:'Space Mono',monospace;font-size:0.82rem;color:var(--accent);text-decoration:none;border:1px solid var(--accent);padding:0.65rem 1.5rem;border-radius:8px;">→ Se reconnecter</a>
   </div>
 </main>
-
 <footer><p>© 2026 <span>Axoboys</span> — Tous droits réservés</p></footer>
 
-<script>
-// ===== STORAGE =====
-async function dbGet(key){try{const r=await window.storage.get(key,true);return r?JSON.parse(r.value):null;}catch(e){return null;}}
-async function dbSet(key,val){try{await window.storage.set(key,JSON.stringify(val),true);return true;}catch(e){return false;}}
-async function dbDel(key){try{await window.storage.delete(key,true);}catch(e){}}
+<script type="module">
+import { initializeApp }                         from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-function getSession(){try{return JSON.parse(localStorage.getItem('axo_session'));}catch(e){return null;}}
-function clearSession(){localStorage.removeItem('axo_session');}
+const FIREBASE_CONFIG = {
+  apiKey:            "REMPLACE_MOI",
+  authDomain:        "REMPLACE_MOI.firebaseapp.com",
+  projectId:         "REMPLACE_MOI",
+  storageBucket:     "REMPLACE_MOI.firebasestorage.app",
+  messagingSenderId: "REMPLACE_MOI",
+  appId:             "REMPLACE_MOI"
+};
 
-function formatNum(n){
+const app = initializeApp(FIREBASE_CONFIG);
+const db  = getFirestore(app);
+
+async function dbGet(col, id) {
+  try { const s = await getDoc(doc(db, col, id)); return s.exists() ? s.data() : null; }
+  catch(e) { return null; }
+}
+async function dbDel(col, id) {
+  try { await deleteDoc(doc(db, col, id)); } catch(e) {}
+}
+
+function getSession()   { try { return JSON.parse(localStorage.getItem('axo_session')); } catch(e) { return null; } }
+function clearSession() { localStorage.removeItem('axo_session'); }
+
+function formatNum(n) {
   n=Math.floor(n||0);
   if(n>=1e12)return(n/1e12).toFixed(2)+' T';
-  if(n>=1e9)return(n/1e9).toFixed(2)+' B';
-  if(n>=1e6)return(n/1e6).toFixed(2)+' M';
-  if(n>=1e3)return(n/1e3).toFixed(1)+' K';
+  if(n>=1e9) return(n/1e9).toFixed(2)+' B';
+  if(n>=1e6) return(n/1e6).toFixed(2)+' M';
+  if(n>=1e3) return(n/1e3).toFixed(1)+' K';
   return n.toString();
 }
 
-async function init(){
+function doLogout() { clearSession(); window.location.href='index.html'; }
+
+document.getElementById('logout-btn').addEventListener('click', e => { e.preventDefault(); doLogout(); });
+document.getElementById('logout-btn2').addEventListener('click', doLogout);
+
+document.getElementById('delete-btn').addEventListener('click', async () => {
+  const session = getSession(); if (!session) return;
+  if (!confirm('⚠️ Supprimer ton compte ? Toute ta progression sera perdue. Irréversible !')) return;
+  const key = session.username.toLowerCase();
+  await dbDel('users', key);
+  await dbDel('saves', key);
+  await dbDel('scores', key);
+  clearSession();
+  window.location.href = 'index.html';
+});
+
+async function init() {
   const session = getSession();
+  if (!session) { window.location.href = 'login.html'; return; }
 
-  // Pas de session locale → redirige vers login
-  if(!session){
-    window.location.href = 'login.html';
-    return;
-  }
+  const key  = session.username.toLowerCase();
+  const user = await dbGet('users', key);
 
-  const uKey = session.username.toLowerCase();
-
-  // Valide la session contre le storage partagé
-  const user = await dbGet('user:' + uKey);
-
-  if(!user){
-    // Compte introuvable dans le storage partagé (supprimé ou mauvais appareil sans compte)
+  if (!user) {
     clearSession();
     document.getElementById('loading-state').style.display = 'none';
-    document.getElementById('error-state').style.display = 'block';
+    document.getElementById('error-state').style.display   = 'block';
     return;
   }
 
-  // Rafraîchit la session locale avec le bon username (au cas où casse différente)
-  // et remet le timestamp pour éviter expiration future
+  // Rafraîchit la session
   localStorage.setItem('axo_session', JSON.stringify({ username: user.username, ts: Date.now() }));
 
-  const save = await dbGet('save:' + uKey);
+  const save = await dbGet('saves', key);
 
-  document.getElementById('loading-state').style.display='none';
-  document.getElementById('profile-content').style.display='block';
+  document.getElementById('loading-state').style.display  = 'none';
+  document.getElementById('profile-content').style.display = 'block';
 
-  document.getElementById('user-avatar').textContent=user.username[0].toUpperCase();
-  document.getElementById('user-name').textContent=user.username;
-  document.getElementById('user-since').textContent='Membre depuis le '+new Date(user.createdAt).toLocaleDateString('fr-FR');
-  document.getElementById('admin-status').textContent=user.isAdmin?'✓ Oui':'Non';
-  if(user.isAdmin)document.getElementById('admin-status').style.color='var(--red)';
+  document.getElementById('user-avatar').textContent = user.username[0].toUpperCase();
+  document.getElementById('user-name').textContent   = user.username;
+  document.getElementById('user-since').textContent  = 'Membre depuis le ' + new Date(user.createdAt).toLocaleDateString('fr-FR');
+  document.getElementById('admin-status').textContent = user.isAdmin ? '✓ Oui' : 'Non';
+  if (user.isAdmin) document.getElementById('admin-status').style.color = 'var(--red)';
 
-  if(save){
-    document.getElementById('stat-cookies').textContent=formatNum(save.cookies||0);
-    document.getElementById('stat-total').textContent=formatNum(save.totalCookies||0);
-    document.getElementById('stat-cps').textContent=formatNum(save.cps||0)+'/s';
-    let bCount=0;Object.values(save.buildings||{}).forEach(v=>bCount+=(v||0));
-    document.getElementById('stat-buildings').textContent=bCount;
-    document.getElementById('stat-upgrades').textContent=Object.values(save.upgrades||{}).filter(Boolean).length;
-    const rb=save.rebirths||0;const rbPts=save.rebirthPoints||0;
-    document.getElementById('stat-rebirths').textContent=rb;
-    document.getElementById('stat-rb-pts').textContent=rbPts+' pts';
-    document.getElementById('stat-rb-bonus').textContent='+'+(rb*50)+'%';
-    const mgCount=Object.values(save.minigameUnlocks||{}).filter(Boolean).length;
-    document.getElementById('stat-mg').textContent=mgCount+'/10';
+  if (save) {
+    document.getElementById('stat-cookies').textContent   = formatNum(save.cookies||0);
+    document.getElementById('stat-total').textContent     = formatNum(save.totalCookies||0);
+    document.getElementById('stat-cps').textContent       = formatNum(save.cps||0)+'/s';
+    let bCount=0; Object.values(save.buildings||{}).forEach(v=>bCount+=(v||0));
+    document.getElementById('stat-buildings').textContent = bCount;
+    document.getElementById('stat-upgrades').textContent  = Object.values(save.upgrades||{}).filter(Boolean).length;
+    const rb=save.rebirths||0, rbPts=save.rebirthPoints||0;
+    document.getElementById('stat-rebirths').textContent  = rb;
+    document.getElementById('stat-rb-pts').textContent    = rbPts+' pts';
+    document.getElementById('stat-rb-bonus').textContent  = '+'+(rb*50)+'%';
+    const mgCount = Object.values(save.minigameUnlocks||{}).filter(Boolean).length;
+    document.getElementById('stat-mg').textContent        = mgCount+'/10';
     const ranks=[{min:0,label:'🥄 Débutant',cls:'rank-0'},{min:1000,label:'🍫 Amateur',cls:'rank-1'},{min:100000,label:'⚙️ Artisan',cls:'rank-2'},{min:1e7,label:'👑 Expert',cls:'rank-3'},{min:1e9,label:'💎 Maître',cls:'rank-4'},{min:1e12,label:'🌌 Légende',cls:'rank-5'}];
-    let rank=ranks[0];for(const r of ranks){if((save.totalCookies||0)>=r.min)rank=r;}
-    const rb_el=document.getElementById('rank-badge');rb_el.textContent=rank.label;rb_el.className='rank-badge '+rank.cls;
+    let rank=ranks[0]; for(const r of ranks){if((save.totalCookies||0)>=r.min)rank=r;}
+    const rb_el=document.getElementById('rank-badge'); rb_el.textContent=rank.label; rb_el.className='rank-badge '+rank.cls;
   }
-}
-
-function doLogout(){
-  clearSession();
-  window.location.href='index.html';
-}
-
-async function confirmDelete(){
-  const session=getSession();
-  if(!session)return;
-  if(!confirm('⚠️ Supprimer ton compte ? Toute ta progression sera perdue. Irréversible !'))return;
-  const uKey=session.username.toLowerCase();
-  await dbDel('user:'+uKey);
-  await dbDel('save:'+uKey);
-  await dbDel('score:'+uKey);
-  clearSession();
-  window.location.href='index.html';
 }
 
 init();

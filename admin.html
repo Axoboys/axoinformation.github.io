@@ -192,132 +192,120 @@
 
 <div class="toast" id="toast"></div>
 
-<script>
-// ====================================================
-// STORAGE HELPERS
-// ====================================================
-async function dbGet(key){try{const r=await window.storage.get(key,true);return r?JSON.parse(r.value):null;}catch(e){return null;}}
-async function dbSet(key,val){try{await window.storage.set(key,JSON.stringify(val),true);return true;}catch(e){return false;}}
-async function dbDel(key){try{await window.storage.delete(key,true);return true;}catch(e){return false;}}
-async function dbList(prefix){try{const r=await window.storage.list(prefix,true);return r&&r.keys?r.keys:[];}catch(e){return[];}}
+<script type="module">
+import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-function formatNum(n){
-  n=Math.floor(n||0);
-  if(n>=1e12)return(n/1e12).toFixed(2)+' T';
-  if(n>=1e9)return(n/1e9).toFixed(2)+' B';
-  if(n>=1e6)return(n/1e6).toFixed(2)+' M';
-  if(n>=1e3)return(n/1e3).toFixed(1)+' K';
-  return n.toString();
+const FIREBASE_CONFIG = {
+  apiKey:            "REMPLACE_MOI",
+  authDomain:        "REMPLACE_MOI.firebaseapp.com",
+  projectId:         "REMPLACE_MOI",
+  storageBucket:     "REMPLACE_MOI.firebasestorage.app",
+  messagingSenderId: "REMPLACE_MOI",
+  appId:             "REMPLACE_MOI"
+};
+
+const _app = initializeApp(FIREBASE_CONFIG);
+const _db  = getFirestore(_app);
+
+async function dbGet(col, id) {
+  try { const s=await getDoc(doc(_db,col,id)); return s.exists()?s.data():null; } catch(e){return null;}
+}
+async function dbSet(col, id, data) {
+  try { await setDoc(doc(_db,col,id),data); return true; } catch(e){return false;}
+}
+async function dbDel(col, id) {
+  try { await deleteDoc(doc(_db,col,id)); return true; } catch(e){return false;}
+}
+async function dbList(col) {
+  try { const snap=await getDocs(collection(_db,col)); return snap.docs.map(d=>({id:d.id,...d.data()})); } catch(e){return[];}
 }
 
+function formatNum(n){n=Math.floor(n||0);if(n>=1e12)return(n/1e12).toFixed(2)+' T';if(n>=1e9)return(n/1e9).toFixed(2)+' B';if(n>=1e6)return(n/1e6).toFixed(2)+' M';if(n>=1e3)return(n/1e3).toFixed(1)+' K';return n.toString();}
 function formatDate(ts){if(!ts)return'—';return new Date(ts).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});}
 
 // ====================================================
 // ADMIN AUTH
 // ====================================================
-const ADMIN_PW_KEY = 'axo_admin_pw';
-const DEFAULT_PW = 'axoboys2026';
+const ADMIN_PW_KEY='axo_admin_pw', DEFAULT_PW='axoboys2026';
+function getAdminPw(){ return localStorage.getItem(ADMIN_PW_KEY)||DEFAULT_PW; }
 
-function getAdminPw(){ return localStorage.getItem(ADMIN_PW_KEY) || DEFAULT_PW; }
-
-function checkAdmin(){
-  const pw = document.getElementById('admin-pw').value;
-  if (pw === getAdminPw()) {
+window.checkAdmin = function() {
+  const pw=document.getElementById('admin-pw').value;
+  if(pw===getAdminPw()){
     document.getElementById('auth-gate').style.display='none';
     document.getElementById('main-content').style.display='block';
-    loadData();
-    loadSaves();
-    loadSysInfo();
+    loadData(); loadSaves(); loadSysInfo();
     addLog('info','Connexion admin réussie.');
   } else {
     document.getElementById('auth-err').style.display='block';
     addLog('err','Tentative de connexion admin échouée.');
   }
-}
-document.getElementById('admin-pw').addEventListener('keydown',e=>{if(e.key==='Enter')checkAdmin();});
+};
+document.getElementById('admin-pw').addEventListener('keydown',e=>{if(e.key==='Enter')window.checkAdmin();});
 
-function changeAdminPw(){
+window.changeAdminPw = function(){
   const np=document.getElementById('new-admin-pw').value;
-  if(!np||np.length<4){showToast('❌ Mot de passe trop court (min 4 car.)');return;}
+  if(!np||np.length<4){showToast('❌ Mot de passe trop court');return;}
   localStorage.setItem(ADMIN_PW_KEY,np);
   showToast('✓ Mot de passe admin changé !');
   addLog('ok','Mot de passe admin modifié.');
-}
+};
 
 // ====================================================
 // TABS
 // ====================================================
-function switchTab(id){
+window.switchTab = function(id){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('panel-'+id).classList.add('active');
   event.target.classList.add('active');
-}
+};
 
 // ====================================================
 // LOAD ACCOUNTS
 // ====================================================
-let allUsers=[], allSaves={};
+let allUsers=[];
 
 async function loadData(){
   document.getElementById('acc-tbody').innerHTML='<tr><td colspan="6" class="loading-row">⏳ Chargement...</td></tr>';
-  const keys=await dbList('user:');
-  allUsers=[];
-  for(const k of keys){
-    const u=await dbGet(k);
-    if(u)allUsers.push({key:k.replace('user:',''),...u});
-  }
-  renderAccounts();
-  updateStats();
+  allUsers = await dbList('users');
+  renderAccounts(); updateStats();
 }
+window.loadData = loadData;
 
 function renderAccounts(){
   const tbody=document.getElementById('acc-tbody');
   document.getElementById('acc-count').textContent=allUsers.length+' compte(s)';
-  if(allUsers.length===0){tbody.innerHTML='<tr><td colspan="6" class="loading-row">Aucun compte trouvé.</td></tr>';return;}
+  if(!allUsers.length){tbody.innerHTML='<tr><td colspan="6" class="loading-row">Aucun compte.</td></tr>';return;}
   tbody.innerHTML=allUsers.map(u=>`
     <tr>
-      <td><strong>${u.username}</strong></td>
+      <td><strong>${u.username||u.id}</strong></td>
       <td><span class="badge ${u.isAdmin?'badge-admin':'badge-user'}">${u.isAdmin?'Admin':'Joueur'}</span></td>
       <td style="font-family:'Space Mono',monospace;font-size:0.7rem;">${formatDate(u.createdAt)}</td>
-      <td id="acc-cookies-${u.key}">—</td>
-      <td id="acc-rb-${u.key}">—</td>
-      <td>
-        <div class="action-row">
-          <button class="act-btn primary" onclick="editUser('${u.key}')">✏️ Modifier</button>
-          <button class="act-btn ${u.isAdmin?'danger':'success'}" onclick="toggleAdmin('${u.key}')">${u.isAdmin?'Rétrograder':'Promouvoir'}</button>
-          <button class="act-btn danger" onclick="deleteUser('${u.key}')">🗑 Supprimer</button>
-        </div>
-      </td>
+      <td id="acc-cookies-${u.id}">—</td>
+      <td id="acc-rb-${u.id}">—</td>
+      <td><div class="action-row">
+        <button class="act-btn primary" onclick="editUser('${u.id}')">✏️ Modifier</button>
+        <button class="act-btn ${u.isAdmin?'danger':'success'}" onclick="toggleAdmin('${u.id}')">${u.isAdmin?'Rétrograder':'Promouvoir'}</button>
+        <button class="act-btn danger" onclick="deleteUser('${u.id}')">🗑 Supprimer</button>
+      </div></td>
     </tr>`).join('');
-  // Load save data async for each user
   allUsers.forEach(async u=>{
-    const s=await dbGet('save:'+u.key);
+    const s=await dbGet('saves',u.id);
     if(s){
-      const el=document.getElementById('acc-cookies-'+u.key);
-      const rb=document.getElementById('acc-rb-'+u.key);
+      const el=document.getElementById('acc-cookies-'+u.id), rb=document.getElementById('acc-rb-'+u.id);
       if(el)el.textContent='🍪 '+formatNum(s.totalCookies);
       if(rb)rb.innerHTML=`<span class="badge badge-rb">🌀 ${s.rebirths||0}</span>`;
     }
   });
 }
 
-async function loadStats(){
-  let totalCookies=0,totalRebirths=0,active24=0;
-  const saves=await dbList('save:');
-  for(const k of saves){
-    const s=await dbGet(k);
-    if(!s)continue;
-    totalCookies+=(s.totalCookies||0);
-    totalRebirths+=(s.rebirths||0);
-    if(s.lastSave&&Date.now()-s.lastSave<86400000)active24++;
-  }
-  return{totalCookies,totalRebirths,active24};
-}
-
 async function updateStats(){
   document.getElementById('s-players').textContent=allUsers.length;
-  const {totalCookies,totalRebirths,active24}=await loadStats();
+  const saves=await dbList('saves');
+  let totalCookies=0,totalRebirths=0,active24=0;
+  saves.forEach(s=>{totalCookies+=(s.totalCookies||0);totalRebirths+=(s.rebirths||0);if(s.lastSave&&Date.now()-s.lastSave<86400000)active24++;});
   document.getElementById('s-cookies').textContent=formatNum(totalCookies);
   document.getElementById('s-rebirths').textContent=totalRebirths;
   document.getElementById('s-active').textContent=active24;
@@ -328,180 +316,143 @@ async function updateStats(){
 // ====================================================
 async function loadSaves(){
   document.getElementById('saves-tbody').innerHTML='<tr><td colspan="8" class="loading-row">⏳ Chargement...</td></tr>';
-  const keys=await dbList('save:');
-  const saves=[];
-  for(const k of keys){const s=await dbGet(k);if(s)saves.push({key:k.replace('save:',''),...s});}
+  const saves=await dbList('saves');
   saves.sort((a,b)=>(b.totalCookies||0)-(a.totalCookies||0));
   document.getElementById('save-count').textContent=saves.length+' sauvegarde(s)';
-  if(saves.length===0){document.getElementById('saves-tbody').innerHTML='<tr><td colspan="8" class="loading-row">Aucune sauvegarde.</td></tr>';return;}
+  if(!saves.length){document.getElementById('saves-tbody').innerHTML='<tr><td colspan="8" class="loading-row">Aucune sauvegarde.</td></tr>';return;}
   document.getElementById('saves-tbody').innerHTML=saves.map(s=>`
     <tr>
-      <td><strong>${s.username||s.key}</strong></td>
+      <td><strong>${s.username||s.id}</strong></td>
       <td style="color:var(--accent3);">🍪 ${formatNum(s.cookies)}</td>
       <td>🍪 ${formatNum(s.totalCookies)}</td>
       <td style="color:var(--accent2);">⚡ ${formatNum(s.cps)}/s</td>
       <td><span class="badge badge-rb">🌀 ${s.rebirths||0}</span></td>
       <td style="color:#a855f7;">${s.rebirthPoints||0} pts</td>
       <td style="font-family:'Space Mono',monospace;font-size:0.65rem;">${formatDate(s.lastSave)}</td>
-      <td>
-        <div class="action-row">
-          <button class="act-btn primary" onclick="editSave('${s.key}')">✏️ Éditer</button>
-          <button class="act-btn success" onclick="giveCoins('${s.key}')">🍪 Donner</button>
-          <button class="act-btn danger" onclick="resetSave('${s.key}')">🗑 Reset</button>
-        </div>
-      </td>
+      <td><div class="action-row">
+        <button class="act-btn primary" onclick="editSave('${s.id}')">✏️ Éditer</button>
+        <button class="act-btn success" onclick="giveCoins('${s.id}')">🍪 Donner</button>
+        <button class="act-btn danger" onclick="resetSave('${s.id}')">🗑 Reset</button>
+      </div></td>
     </tr>`).join('');
 }
+window.loadSaves = loadSaves;
 
 // ====================================================
 // ACTIONS — USERS
 // ====================================================
-async function toggleAdmin(key){
-  const u=await dbGet('user:'+key);if(!u)return;
+window.toggleAdmin = async function(id){
+  const u=await dbGet('users',id);if(!u)return;
   u.isAdmin=!u.isAdmin;
-  await dbSet('user:'+key,u);
+  await dbSet('users',id,u);
   addLog(u.isAdmin?'ok':'info',(u.isAdmin?'Promotion':'Rétrogradation')+' de '+u.username);
-  showToast(u.isAdmin?'✓ '+u.username+' est maintenant admin':'✓ '+u.username+' est maintenant joueur');
+  showToast(u.isAdmin?'✓ '+u.username+' est admin':'✓ '+u.username+' est joueur');
   loadData();
-}
+};
 
-async function deleteUser(key){
-  const u=await dbGet('user:'+key);
-  if(!confirm('⚠️ Supprimer le compte de '+(u?u.username:key)+' ? Irréversible !'))return;
-  await dbDel('user:'+key);
-  await dbDel('save:'+key);
-  await dbDel('score:'+key);
-  addLog('err','Suppression du compte : '+(u?u.username:key));
-  showToast('🗑 Compte supprimé.');
-  loadData();loadSaves();
-}
+window.deleteUser = async function(id){
+  const u=await dbGet('users',id);
+  if(!confirm('⚠️ Supprimer '+(u?u.username:id)+' ? Irréversible !'))return;
+  await dbDel('users',id); await dbDel('saves',id); await dbDel('scores',id);
+  addLog('err','Suppression : '+(u?u.username:id));
+  showToast('🗑 Compte supprimé.'); loadData(); loadSaves();
+};
 
-function editUser(key){
-  dbGet('user:'+key).then(u=>{
+window.editUser = function(id){
+  dbGet('users',id).then(u=>{
     if(!u)return;
     const box=document.getElementById('edit-box');
-    box.innerHTML=`
-      <div class="edit-title">✏️ Modifier ${u.username} <button class="edit-close" onclick="closeEdit()">✕</button></div>
+    box.innerHTML=`<div class="edit-title">✏️ Modifier ${u.username} <button class="edit-close" onclick="closeEdit()">✕</button></div>
       <div class="field-group"><div class="field-label">Nouveau pseudo</div><input class="field-input" id="eu-name" value="${u.username}"></div>
-      <div class="field-group"><div class="field-label">Nouveau mot de passe (laisser vide = inchangé)</div><input type="password" class="field-input" id="eu-pw" placeholder="Nouveau mdp..."></div>
-      <button class="save-btn" onclick="saveUserEdit('${key}')">💾 Enregistrer</button>`;
+      <div class="field-group"><div class="field-label">Nouveau mot de passe (vide = inchangé)</div><input type="password" class="field-input" id="eu-pw" placeholder="Nouveau mdp..."></div>
+      <button class="save-btn" onclick="saveUserEdit('${id}')">💾 Enregistrer</button>`;
     document.getElementById('edit-modal').classList.add('open');
   });
-}
+};
 
-async function saveUserEdit(key){
-  const u=await dbGet('user:'+key);if(!u)return;
+window.saveUserEdit = async function(id){
+  const u=await dbGet('users',id);if(!u)return;
   const newName=document.getElementById('eu-name').value.trim();
   const newPw=document.getElementById('eu-pw').value;
   if(newName&&newName!==u.username)u.username=newName;
-  if(newPw&&newPw.length>=4){
-    let h=5381;for(let i=0;i<newPw.length;i++)h=((h<<5)+h)^newPw.charCodeAt(i);
-    u.password=(h>>>0).toString(16);
-  }
-  await dbSet('user:'+key,u);
+  if(newPw&&newPw.length>=4){let h=5381;for(let i=0;i<newPw.length;i++)h=((h<<5)+h)^newPw.charCodeAt(i);u.password=(h>>>0).toString(16);}
+  await dbSet('users',id,u);
   addLog('ok','Modification compte : '+u.username);
-  showToast('✓ Compte mis à jour.');closeEdit();loadData();
-}
+  showToast('✓ Compte mis à jour.'); closeEdit(); loadData();
+};
 
 // ====================================================
 // ACTIONS — SAVES
 // ====================================================
-async function editSave(key){
-  const s=await dbGet('save:'+key);if(!s)return;
+window.editSave = async function(id){
+  const s=await dbGet('saves',id);if(!s)return;
   const box=document.getElementById('edit-box');
-  box.innerHTML=`
-    <div class="edit-title">✏️ Sauvegarde de ${s.username||key} <button class="edit-close" onclick="closeEdit()">✕</button></div>
+  box.innerHTML=`<div class="edit-title">✏️ Sauvegarde de ${s.username||id} <button class="edit-close" onclick="closeEdit()">✕</button></div>
     <div class="field-group"><div class="field-label">Cookies actuels</div><input class="field-input" id="es-cookies" type="number" value="${Math.floor(s.cookies||0)}"></div>
-    <div class="field-group"><div class="field-label">Total cookies (classement)</div><input class="field-input" id="es-total" type="number" value="${Math.floor(s.totalCookies||0)}"></div>
-    <div class="field-group"><div class="field-label">Nombre de Rebirths</div><input class="field-input" id="es-rb" type="number" value="${s.rebirths||0}"></div>
+    <div class="field-group"><div class="field-label">Total cookies</div><input class="field-input" id="es-total" type="number" value="${Math.floor(s.totalCookies||0)}"></div>
+    <div class="field-group"><div class="field-label">Rebirths</div><input class="field-input" id="es-rb" type="number" value="${s.rebirths||0}"></div>
     <div class="field-group"><div class="field-label">Points Rebirth</div><input class="field-input" id="es-rbpts" type="number" value="${s.rebirthPoints||0}"></div>
-    <div class="field-group"><div class="field-label">CPS actuel</div><input class="field-input" id="es-cps" type="number" value="${Math.floor(s.cps||0)}"></div>
-    <button class="save-btn" onclick="saveSaveEdit('${key}')">💾 Enregistrer</button>`;
+    <div class="field-group"><div class="field-label">CPS</div><input class="field-input" id="es-cps" type="number" value="${Math.floor(s.cps||0)}"></div>
+    <button class="save-btn" onclick="saveSaveEdit('${id}')">💾 Enregistrer</button>`;
   document.getElementById('edit-modal').classList.add('open');
-}
+};
 
-async function saveSaveEdit(key){
-  const s=await dbGet('save:'+key);if(!s)return;
+window.saveSaveEdit = async function(id){
+  const s=await dbGet('saves',id);if(!s)return;
   s.cookies=parseFloat(document.getElementById('es-cookies').value)||0;
   s.totalCookies=parseFloat(document.getElementById('es-total').value)||0;
   s.rebirths=parseInt(document.getElementById('es-rb').value)||0;
   s.rebirthPoints=parseInt(document.getElementById('es-rbpts').value)||0;
   s.cps=parseFloat(document.getElementById('es-cps').value)||0;
   s.lastSave=Date.now();
-  await dbSet('save:'+key,s);
-  addLog('ok','Modification sauvegarde : '+(s.username||key));
-  showToast('✓ Sauvegarde mise à jour.');closeEdit();loadSaves();
-}
+  await dbSet('saves',id,s);
+  addLog('ok','Modification sauvegarde : '+(s.username||id));
+  showToast('✓ Sauvegarde mise à jour.'); closeEdit(); loadSaves();
+};
 
-async function giveCoins(key){
-  const amount=prompt('Combien de cookies donner à '+key+' ?','1000000');
-  if(!amount)return;
-  const n=parseFloat(amount);if(isNaN(n))return;
-  const s=await dbGet('save:'+key);if(!s)return;
-  s.cookies=(s.cookies||0)+n;s.totalCookies=(s.totalCookies||0)+n;s.lastSave=Date.now();
-  await dbSet('save:'+key,s);
-  addLog('info','Don de '+formatNum(n)+' cookies à '+(s.username||key));
-  showToast('🍪 +'+formatNum(n)+' cookies donnés à '+key);loadSaves();
-}
+window.giveCoins = async function(id){
+  const amount=prompt('Combien de cookies donner à '+id+' ?','1000000');
+  if(!amount)return; const n=parseFloat(amount); if(isNaN(n))return;
+  const s=await dbGet('saves',id);if(!s)return;
+  s.cookies=(s.cookies||0)+n; s.totalCookies=(s.totalCookies||0)+n; s.lastSave=Date.now();
+  await dbSet('saves',id,s);
+  addLog('info','Don de '+formatNum(n)+' cookies à '+(s.username||id));
+  showToast('🍪 +'+formatNum(n)+' cookies donnés !'); loadSaves();
+};
 
-async function resetSave(key){
-  const s=await dbGet('save:'+key);
-  if(!confirm('⚠️ Reset la sauvegarde de '+(s?s.username:key)+' ? Les rebirths et le shop seront aussi effacés.'))return;
-  const fresh={username:s?s.username:key,cookies:0,totalCookies:0,totalClicks:0,cps:0,buildings:{},upgrades:{},rebirths:0,rebirthPoints:0,rebirthShop:{},minigameUnlocks:{},lastSave:Date.now()};
-  await dbSet('save:'+key,fresh);
-  addLog('err','Reset sauvegarde : '+(s?s.username:key));
-  showToast('🗑 Sauvegarde remise à zéro.');loadSaves();
-}
+window.resetSave = async function(id){
+  const s=await dbGet('saves',id);
+  if(!confirm('⚠️ Reset la sauvegarde de '+(s?s.username:id)+' ?'))return;
+  await dbSet('saves',id,{username:s?s.username:id,cookies:0,totalCookies:0,totalClicks:0,cps:0,buildings:{},upgrades:{},rebirths:0,rebirthPoints:0,rebirthShop:{},minigameUnlocks:{},lastSave:Date.now()});
+  addLog('err','Reset sauvegarde : '+(s?s.username:id));
+  showToast('🗑 Sauvegarde remise à zéro.'); loadSaves();
+};
 
-async function purgeAllScores(){
-  if(!confirm('Purger toutes les entrées de classement ?'))return;
-  const keys=await dbList('score:');
-  for(const k of keys)await dbDel(k);
-  addLog('err','Purge de tous les scores ('+keys.length+' entrées)');
+window.purgeAllScores = async function(){
+  if(!confirm('Purger tous les scores ?'))return;
+  const scores=await dbList('scores');
+  for(const s of scores) await dbDel('scores',s.id);
+  addLog('err','Purge de tous les scores ('+scores.length+' entrées)');
   showToast('🗑 Scores purgés.');
-}
+};
 
-function closeEdit(){document.getElementById('edit-modal').classList.remove('open');}
-document.getElementById('edit-modal').addEventListener('click',e=>{if(e.target===document.getElementById('edit-modal'))closeEdit();});
+window.closeEdit = function(){ document.getElementById('edit-modal').classList.remove('open'); };
+document.getElementById('edit-modal').addEventListener('click',e=>{if(e.target===document.getElementById('edit-modal'))window.closeEdit();});
 
 // ====================================================
 // LOGS
 // ====================================================
 const LOG_KEY='axo_admin_logs';
 function getLogs(){try{return JSON.parse(localStorage.getItem(LOG_KEY)||'[]');}catch(e){return[];}}
-function addLog(type,msg){
-  const logs=getLogs();
-  logs.unshift({type,msg,ts:Date.now()});
-  if(logs.length>100)logs.pop();
-  localStorage.setItem(LOG_KEY,JSON.stringify(logs));
-  renderLogs();
-}
-function renderLogs(){
-  const logs=getLogs();
-  const box=document.getElementById('log-box');
-  if(logs.length===0){box.innerHTML='<div style="color:var(--muted);">Aucune action.</div>';return;}
-  box.innerHTML=logs.map(l=>`<div class="log-line ${l.type}">[${formatDate(l.ts)}] ${l.msg}</div>`).join('');
-}
-function clearLogs(){localStorage.removeItem(LOG_KEY);renderLogs();showToast('Logs vidés.');}
+function addLog(type,msg){const logs=getLogs();logs.unshift({type,msg,ts:Date.now()});if(logs.length>100)logs.pop();localStorage.setItem(LOG_KEY,JSON.stringify(logs));renderLogs();}
+function renderLogs(){const logs=getLogs();const box=document.getElementById('log-box');if(!logs.length){box.innerHTML='<div style="color:var(--muted);">Aucune action.</div>';return;}box.innerHTML=logs.map(l=>`<div class="log-line ${l.type}">[${formatDate(l.ts)}] ${l.msg}</div>`).join('');}
+window.clearLogs = function(){localStorage.removeItem(LOG_KEY);renderLogs();showToast('Logs vidés.');};
 
-// ====================================================
-// SYS INFO
-// ====================================================
-function loadSysInfo(){
-  const el=document.getElementById('sys-info');
-  el.innerHTML=`Version : AxoClicker v3.0<br>Stockage : window.storage (partagé)<br>Admin PW : ${getAdminPw()===DEFAULT_PW?'par défaut':'personnalisé'}<br>Heure : ${new Date().toLocaleString('fr-FR')}`;
-}
+function loadSysInfo(){document.getElementById('sys-info').innerHTML=`Version : AxoClicker v3.0<br>Stockage : Firebase Firestore<br>Admin PW : ${getAdminPw()===DEFAULT_PW?'par défaut':'personnalisé'}<br>Heure : ${new Date().toLocaleString('fr-FR')}`;}
 
-// ====================================================
-// TOAST
-// ====================================================
 let toastTimer;
-function showToast(msg){
-  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
-  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2500);
-}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2500);}
 
-// Init logs display
 renderLogs();
 </script>
 </body>

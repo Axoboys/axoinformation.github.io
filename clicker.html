@@ -334,18 +334,51 @@
   </div>
 </div>
 
-<script>
+<script type="module">
 // ====================================================
-// SHARED STORAGE HELPERS
+// FIREBASE CONFIG — remplace avec tes valeurs
+// https://console.firebase.google.com
 // ====================================================
+import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const FIREBASE_CONFIG = {
+  apiKey:            "REMPLACE_MOI",
+  authDomain:        "REMPLACE_MOI.firebaseapp.com",
+  projectId:         "REMPLACE_MOI",
+  storageBucket:     "REMPLACE_MOI.firebasestorage.app",
+  messagingSenderId: "REMPLACE_MOI",
+  appId:             "REMPLACE_MOI"
+};
+
+const _app = initializeApp(FIREBASE_CONFIG);
+const _db  = getFirestore(_app);
+
+// ====================================================
+// SHARED STORAGE HELPERS (Firebase Firestore)
+// clé format "col:id"  ex: "saves:toto", "users:toto", "scores:toto"
+// ====================================================
+function _parseKey(key) {
+  const i = key.indexOf(':');
+  return i === -1 ? ['data', key] : [key.slice(0,i), key.slice(i+1)];
+}
 async function dbGet(key) {
-  try { const r = await window.storage.get(key, true); return r ? JSON.parse(r.value) : null; } catch(e) { return null; }
+  const [col, id] = _parseKey(key);
+  try { const s = await getDoc(doc(_db, col, id)); return s.exists() ? s.data() : null; }
+  catch(e) { console.error('dbGet', key, e); return null; }
 }
 async function dbSet(key, val) {
-  try { await window.storage.set(key, JSON.stringify(val), true); return true; } catch(e) { return false; }
+  const [col, id] = _parseKey(key);
+  try { await setDoc(doc(_db, col, id), typeof val === 'object' ? val : { _v: val }); return true; }
+  catch(e) { console.error('dbSet', key, e); return false; }
 }
 async function dbList(prefix) {
-  try { const r = await window.storage.list(prefix, true); return r && r.keys ? r.keys : []; } catch(e) { return []; }
+  // prefix ex: "score:" → liste la collection "score"
+  const col = prefix.replace(/:$/, '');
+  try {
+    const snap = await getDocs(collection(_db, col));
+    return snap.docs.map(d => col + ':' + d.id);
+  } catch(e) { console.error('dbList', prefix, e); return []; }
 }
 
 function simpleHash(str) {
@@ -614,8 +647,7 @@ function buyRebirthItem(id) {
 // REBIRTH
 // ====================================================
 function getRebirthRequirement() {
-  // 1 milliard pour le 1er rebirth, x10 à chaque fois : 1B → 10B → 100B...
-  return Math.pow(10, 9 + state.rebirths);
+  return Math.pow(10, 9 + state.rebirths); // 1B, 10B, 100B...
 }
 
 function openRebirthModal() {
@@ -624,22 +656,17 @@ function openRebirthModal() {
   const req = getRebirthRequirement();
   const canRebirth = state.totalCookies >= req;
   const progress = Math.min(100, (state.totalCookies / req * 100)).toFixed(1);
-
   document.getElementById('rebirth-body').innerHTML = `
     <div style="padding:1rem;">
       <div class="rebirth-preview">
         <div class="rebirth-stat"><span>Rebirth actuel</span><span class="rebirth-stat-val">#${state.rebirths}</span></div>
         <div class="rebirth-stat"><span>Prérequis</span><span class="rebirth-stat-val" style="color:${canRebirth?'#22c55e':'#ef4444'};">${formatNum(req)} cookies totaux</span></div>
         <div class="rebirth-stat"><span>Ta progression</span><span class="rebirth-stat-val" style="color:${canRebirth?'#22c55e':'#f97316'};">${formatNum(state.totalCookies)} (${progress}%)</span></div>
-        <div class="rebirth-stat"><span>Points gagnés</span><span class="rebirth-stat-val">${canRebirth ? '+'+pts+' pts' : '—'}</span></div>
-        <div class="rebirth-stat"><span>Points après rebirth</span><span class="rebirth-stat-val">${canRebirth ? (state.rebirthPoints + pts)+' pts' : state.rebirthPoints+' pts'}</span></div>
+        <div class="rebirth-stat"><span>Points gagnés</span><span class="rebirth-stat-val">${canRebirth?'+'+pts+' pts':'—'}</span></div>
+        <div class="rebirth-stat"><span>Points après rebirth</span><span class="rebirth-stat-val">${canRebirth?(state.rebirthPoints+pts)+' pts':state.rebirthPoints+' pts'}</span></div>
         <div class="rebirth-stat"><span>Nouveau bonus production</span><span class="rebirth-stat-val">+${bonus}%</span></div>
       </div>
-      ${!canRebirth ? `
-      <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:0.85rem 1rem;margin-bottom:1rem;font-family:'Space Mono',monospace;font-size:0.72rem;color:#ef4444;line-height:1.8;">
-        🔒 Prérequis non atteint<br>
-        Il te manque encore <strong>${formatNum(req - state.totalCookies)}</strong> cookies totaux.
-      </div>` : ''}
+      ${!canRebirth?`<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:0.85rem 1rem;margin-bottom:1rem;font-family:'Space Mono',monospace;font-size:0.72rem;color:#ef4444;line-height:1.8;">🔒 Il te manque encore <strong>${formatNum(req-state.totalCookies)}</strong> cookies totaux.</div>`:''}
       <div class="rebirth-warning">
         ⚠️ Le rebirth va remettre à zéro :<br>
         • Tous tes cookies<br>
@@ -651,24 +678,20 @@ function openRebirthModal() {
         ✓ Ton historique total
       </div>
       ${canRebirth
-        ? `<button class="rebirth-confirm-btn" onclick="doRebirth()">🌀 Confirmer le Rebirth #${state.rebirths+1}</button>`
-        : `<button class="rebirth-confirm-btn" style="opacity:0.35;cursor:not-allowed;box-shadow:none;" disabled>🔒 Pas encore assez de cookies</button>`
+        ?`<button class="rebirth-confirm-btn" onclick="doRebirth()">🌀 Confirmer le Rebirth #${state.rebirths+1}</button>`
+        :`<button class="rebirth-confirm-btn" style="opacity:0.35;cursor:not-allowed;box-shadow:none;" disabled>🔒 Pas encore assez de cookies</button>`
       }
     </div>`;
 }
 
 function doRebirth() {
-  if (state.totalCookies < getRebirthRequirement()) {
-    showToast('❌ Prérequis non atteint !');
-    return;
-  }
+  if (state.totalCookies < getRebirthRequirement()) { showToast('❌ Prérequis non atteint !'); return; }
   const pts = getRebirthPointsEarned();
   state.rebirthPoints += pts;
   state.rebirths++;
   state.cookies = 0; state.totalClicks = 0;
   state.buildings = {}; state.upgrades = {};
   BUILDINGS.forEach(b => { state.buildings[b.id] = 0; state.buildingMult[b.id] = 1; });
-  // Apply starter bonuses
   REBIRTH_ITEMS.forEach(item => {
     if (!state.rebirthShop[item.id]) return;
     if (item.effect === 'startBonus') state.buildings[item.bid] = (state.buildings[item.bid]||0) + item.val;

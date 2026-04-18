@@ -43,7 +43,7 @@
     .password-hint{font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--muted);margin-top:0.4rem;}
     footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:1.5rem;text-align:center;font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--muted);}
     footer span{color:var(--accent);}
-    .loading-overlay{position:fixed;inset:0;background:rgba(10,10,15,0.8);z-index:500;display:none;align-items:center;justify-content:center;flex-direction:column;gap:1rem;}
+    .loading-overlay{position:fixed;inset:0;background:rgba(10,10,15,0.9);z-index:500;display:none;align-items:center;justify-content:center;flex-direction:column;gap:1rem;}
     .loading-overlay.show{display:flex;}
     .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
     @keyframes spin{to{transform:rotate(360deg)}}
@@ -54,7 +54,7 @@
 
 <div class="loading-overlay" id="loading">
   <div class="spinner"></div>
-  <div class="loading-text" id="loading-text">Connexion...</div>
+  <div class="loading-text" id="loading-text">Chargement...</div>
 </div>
 
 <nav>
@@ -69,14 +69,11 @@
       <h1 class="auth-title">Bienvenue</h1>
       <p class="auth-sub">Compte partagé entre tous tes appareils</p>
     </div>
-
     <div class="tabs">
       <button class="tab active" onclick="switchTab('login',this)">Connexion</button>
       <button class="tab" onclick="switchTab('register',this)">Créer un compte</button>
     </div>
-
     <div class="form-card">
-      <!-- LOGIN -->
       <div class="form-section active" id="section-login">
         <div class="form-group">
           <label class="form-label">Nom d'utilisateur</label>
@@ -89,8 +86,6 @@
         <button class="btn-submit" id="btn-login" onclick="doLogin()">Se connecter →</button>
         <div class="msg" id="login-msg"></div>
       </div>
-
-      <!-- REGISTER -->
       <div class="form-section" id="section-register">
         <div class="form-group">
           <label class="form-label">Nom d'utilisateur</label>
@@ -115,13 +110,34 @@
 
 <footer><p>© 2026 <span>Axoboys</span> — Tous droits réservés</p></footer>
 
-<script>
-// ===== SHARED STORAGE =====
-async function dbGet(key) {
-  try { const r = await window.storage.get(key, true); return r ? JSON.parse(r.value) : null; } catch(e) { return null; }
+<script type="module">
+import { initializeApp }           from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ══════════════════════════════════════════
+//  🔧 REMPLACE CES VALEURS PAR TES INFOS FIREBASE
+//  https://console.firebase.google.com
+// ══════════════════════════════════════════
+const FIREBASE_CONFIG = {
+  apiKey:            "REMPLACE_MOI",
+  authDomain:        "REMPLACE_MOI.firebaseapp.com",
+  projectId:         "REMPLACE_MOI",
+  storageBucket:     "REMPLACE_MOI.firebasestorage.app",
+  messagingSenderId: "REMPLACE_MOI",
+  appId:             "REMPLACE_MOI"
+};
+// ══════════════════════════════════════════
+
+const app = initializeApp(FIREBASE_CONFIG);
+const db  = getFirestore(app);
+
+async function dbGet(col, id) {
+  try { const s = await getDoc(doc(db, col, id)); return s.exists() ? s.data() : null; }
+  catch(e) { console.error('dbGet', e); return null; }
 }
-async function dbSet(key, val) {
-  try { await window.storage.set(key, JSON.stringify(val), true); return true; } catch(e) { console.error('dbSet error:', e); return false; }
+async function dbSet(col, id, data) {
+  try { await setDoc(doc(db, col, id), data); return true; }
+  catch(e) { console.error('dbSet', e); return false; }
 }
 
 function simpleHash(str) {
@@ -130,161 +146,105 @@ function simpleHash(str) {
   return (h >>> 0).toString(16);
 }
 
-// Session stockée localement, mais validée contre le storage partagé à chaque visite
-function setSession(username) {
-  localStorage.setItem('axo_session', JSON.stringify({ username, ts: Date.now() }));
-}
-function getSession() {
-  try { return JSON.parse(localStorage.getItem('axo_session')); } catch(e) { return null; }
-}
-function clearSession() {
-  localStorage.removeItem('axo_session');
-}
+function setSession(u)  { localStorage.setItem('axo_session', JSON.stringify({ username: u, ts: Date.now() })); }
+function getSession()   { try { return JSON.parse(localStorage.getItem('axo_session')); } catch(e) { return null; } }
+function clearSession() { localStorage.removeItem('axo_session'); }
 
-// Vérifie si la session locale est toujours valide côté serveur partagé
-async function validateAndRedirect() {
-  const session = getSession();
-  if (!session) return; // Pas de session locale, on reste sur login
-  showLoading('Vérification de ta session...');
-  const user = await dbGet('user:' + session.username.toLowerCase());
-  hideLoading();
-  if (user) {
-    // Session toujours valide, on redirige
-    window.location.href = 'profile.html';
-  } else {
-    // Compte supprimé ou session corrompue, on nettoie
-    clearSession();
-  }
-}
+const L = document.getElementById('loading');
+const LT = document.getElementById('loading-text');
+function showLoading(t='Chargement...') { LT.textContent=t; L.classList.add('show'); }
+function hideLoading()                  { L.classList.remove('show'); }
+function showMsg(id, type, text)        { const el=document.getElementById(id); el.className='msg '+type; el.textContent=text; }
 
-// ===== UI =====
-function showLoading(text='Chargement...') { document.getElementById('loading').classList.add('show'); document.getElementById('loading-text').textContent = text; }
-function hideLoading() { document.getElementById('loading').classList.remove('show'); }
-
-function switchTab(tab, el) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+window.switchTab = function(tab, el) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.form-section').forEach(s=>s.classList.remove('active'));
   document.getElementById('section-'+tab).classList.add('active');
   el.classList.add('active');
+};
+
+window.checkStrength = function(pw) {
+  const fill=document.getElementById('strength-fill'), lbl=document.getElementById('strength-label');
+  let s=0;
+  if(pw.length>=6)s++; if(pw.length>=10)s++;
+  if(/[A-Z]/.test(pw))s++; if(/[0-9]/.test(pw))s++; if(/[^A-Za-z0-9]/.test(pw))s++;
+  const lvl=[{w:'0%',c:'transparent',t:'Min. 6 caractères'},{w:'20%',c:'#ef4444',t:'Très faible'},{w:'40%',c:'#f97316',t:'Faible'},{w:'60%',c:'#eab308',t:'Moyen'},{w:'80%',c:'#22c55e',t:'Fort'},{w:'100%',c:'#06b6d4',t:'Excellent !'}];
+  fill.style.width=lvl[s].w; fill.style.background=lvl[s].c; lbl.textContent=lvl[s].t;
+};
+
+// Vérifie si session locale encore valide sur Firebase
+async function validateAndRedirect() {
+  const session = getSession();
+  if (!session) return;
+  showLoading('Vérification de ta session...');
+  const user = await dbGet('users', session.username.toLowerCase());
+  hideLoading();
+  if (user) window.location.href = 'profile.html';
+  else clearSession();
 }
 
-function showMsg(id, type, text) {
-  const el = document.getElementById(id);
-  el.className = 'msg ' + type;
-  el.textContent = text;
-}
-
-function checkStrength(pw) {
-  const fill = document.getElementById('strength-fill');
-  const label = document.getElementById('strength-label');
-  let score = 0;
-  if (pw.length >= 6) score++;
-  if (pw.length >= 10) score++;
-  if (/[A-Z]/.test(pw)) score++;
-  if (/[0-9]/.test(pw)) score++;
-  if (/[^A-Za-z0-9]/.test(pw)) score++;
-  const levels = [
-    {w:'0%',c:'transparent',t:'Min. 6 caractères'},
-    {w:'20%',c:'#ef4444',t:'Très faible'},
-    {w:'40%',c:'#f97316',t:'Faible'},
-    {w:'60%',c:'#eab308',t:'Moyen'},
-    {w:'80%',c:'#22c55e',t:'Fort'},
-    {w:'100%',c:'#06b6d4',t:'Excellent !'},
-  ];
-  fill.style.width = levels[score].w;
-  fill.style.background = levels[score].c;
-  label.textContent = levels[score].t;
-}
-
-// ===== LOGIN =====
-async function doLogin() {
+window.doLogin = async function() {
   const username = document.getElementById('login-username').value.trim();
   const password = document.getElementById('login-password').value;
   if (!username || !password) { showMsg('login-msg','error','Remplis tous les champs.'); return; }
-
   showLoading('Vérification...');
   document.getElementById('btn-login').disabled = true;
-
-  const key = username.toLowerCase();
-  const user = await dbGet('user:' + key);
-
+  const user = await dbGet('users', username.toLowerCase());
   hideLoading();
   document.getElementById('btn-login').disabled = false;
-
-  if (!user) { showMsg('login-msg','error','Ce compte n\'existe pas.'); return; }
+  if (!user)                                  { showMsg('login-msg','error','Ce compte n\'existe pas.'); return; }
   if (user.password !== simpleHash(password)) { showMsg('login-msg','error','Mot de passe incorrect.'); return; }
-
   setSession(user.username);
   showMsg('login-msg','success','Connexion réussie ! Redirection...');
   setTimeout(() => window.location.href = 'profile.html', 700);
-}
+};
 
-// ===== REGISTER =====
-async function doRegister() {
+window.doRegister = async function() {
   const username = document.getElementById('reg-username').value.trim();
   const password = document.getElementById('reg-password').value;
   const confirm  = document.getElementById('reg-confirm').value;
-
-  if (!username || !password || !confirm) { showMsg('register-msg','error','Remplis tous les champs.'); return; }
-  if (username.length < 3)   { showMsg('register-msg','error','Le pseudo doit faire au moins 3 caractères.'); return; }
-  if (password.length < 6)   { showMsg('register-msg','error','Le mot de passe doit faire au moins 6 caractères.'); return; }
-  if (password !== confirm)  { showMsg('register-msg','error','Les mots de passe ne correspondent pas.'); return; }
-  if (!/^[a-zA-Z0-9_\-]+$/.test(username)) { showMsg('register-msg','error','Le pseudo ne peut contenir que des lettres, chiffres, _ et -'); return; }
+  if (!username || !password || !confirm)   { showMsg('register-msg','error','Remplis tous les champs.'); return; }
+  if (username.length < 3)                  { showMsg('register-msg','error','Pseudo : au moins 3 caractères.'); return; }
+  if (password.length < 6)                  { showMsg('register-msg','error','Mot de passe : au moins 6 caractères.'); return; }
+  if (password !== confirm)                 { showMsg('register-msg','error','Les mots de passe ne correspondent pas.'); return; }
+  if (!/^[a-zA-Z0-9_\-]+$/.test(username)) { showMsg('register-msg','error','Pseudo : lettres, chiffres, _ et - uniquement.'); return; }
 
   showLoading('Création du compte...');
   document.getElementById('btn-register').disabled = true;
 
   const key = username.toLowerCase();
-  const existing = await dbGet('user:' + key);
+  const existing = await dbGet('users', key);
   if (existing) {
-    hideLoading();
-    document.getElementById('btn-register').disabled = false;
-    showMsg('register-msg','error','Ce pseudo est déjà pris.');
-    return;
+    hideLoading(); document.getElementById('btn-register').disabled = false;
+    showMsg('register-msg','error','Ce pseudo est déjà pris.'); return;
   }
 
-  const userData = {
-    username,
-    password: simpleHash(password),
-    createdAt: Date.now(),
-    isAdmin: false,
-  };
-  const defaultSave = {
-    username,
-    cookies: 0, totalCookies: 0, totalClicks: 0, cps: 0,
-    buildings: {}, upgrades: {},
-    rebirths: 0, rebirthPoints: 0, rebirthShop: {},
-    minigameUnlocks: {},
-  };
+  const ok1 = await dbSet('users', key, {
+    username, password: simpleHash(password), createdAt: Date.now(), isAdmin: false
+  });
+  const ok2 = await dbSet('saves', key, {
+    username, cookies:0, totalCookies:0, totalClicks:0, cps:0,
+    buildings:{}, upgrades:{}, rebirths:0, rebirthPoints:0,
+    rebirthShop:{}, minigameUnlocks:{}, lastSave: Date.now()
+  });
 
-  try {
-    await window.storage.set('user:' + key, JSON.stringify(userData), true);
-    await window.storage.set('save:' + key, JSON.stringify(defaultSave), true);
-  } catch(e) {
-    hideLoading();
-    document.getElementById('btn-register').disabled = false;
-    showMsg('register-msg','error','Erreur de sauvegarde. Réessaie.');
-    return;
+  hideLoading(); document.getElementById('btn-register').disabled = false;
+
+  if (!ok1 || !ok2) {
+    showMsg('register-msg','error','Erreur Firebase. Vérifie ta config et les règles Firestore (mode "test").'); return;
   }
-
-  hideLoading();
-  document.getElementById('btn-register').disabled = false;
-
 
   setSession(username);
   showMsg('register-msg','success','Compte créé ! Redirection...');
   setTimeout(() => window.location.href = 'clicker.html', 700);
-}
+};
 
-// Enter key
 document.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    const loginActive = document.getElementById('section-login').classList.contains('active');
-    if (loginActive) doLogin(); else doRegister();
-  }
+  if (e.key !== 'Enter') return;
+  if (document.getElementById('section-login').classList.contains('active')) window.doLogin();
+  else window.doRegister();
 });
 
-// Vérification de session au chargement (multi-appareils)
 validateAndRedirect();
 </script>
 </body>
