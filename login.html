@@ -121,7 +121,7 @@ async function dbGet(key) {
   try { const r = await window.storage.get(key, true); return r ? JSON.parse(r.value) : null; } catch(e) { return null; }
 }
 async function dbSet(key, val) {
-  try { await window.storage.set(key, JSON.stringify(val), true); return true; } catch(e) { return false; }
+  try { await window.storage.set(key, JSON.stringify(val), true); return true; } catch(e) { console.error('dbSet error:', e); return false; }
 }
 
 function simpleHash(str) {
@@ -257,16 +257,19 @@ async function doRegister() {
     minigameUnlocks: {},
   };
 
-  const ok1 = await dbSet('user:' + key, userData);
-  const ok2 = await dbSet('save:' + key, defaultSave);
+  try {
+    await window.storage.set('user:' + key, JSON.stringify(userData), true);
+    await window.storage.set('save:' + key, JSON.stringify(defaultSave), true);
+  } catch(e) {
+    hideLoading();
+    document.getElementById('btn-register').disabled = false;
+    showMsg('register-msg','error','Erreur de sauvegarde. Réessaie.');
+    return;
+  }
 
   hideLoading();
   document.getElementById('btn-register').disabled = false;
 
-  if (!ok1 || !ok2) {
-    showMsg('register-msg','error','Erreur lors de la création du compte. Réessaie.');
-    return;
-  }
 
   setSession(username);
   showMsg('register-msg','success','Compte créé ! Redirection...');
