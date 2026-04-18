@@ -1180,10 +1180,24 @@ function showToast(msg){
 
 window.confirmReset = function(){
   if(confirm('🗑 Tout remettre à zéro ? (progression ET rebirths)')){
-    state.cookies=0;state.totalCookies=0;state.totalClicks=0;
-    BUILDINGS.forEach(b=>state.buildings[b.id]=0);
-    state.upgrades={};state.rebirths=0;state.rebirthPoints=0;state.rebirthShop={};state.minigameUnlocks={};
-    recomputeMultipliers();saveGame(true);updateDisplay();
+    state.cookies=0;
+    state.totalCookies=0;
+    state.totalClicks=0;
+    state.cookiesThisLife=0;
+    state.rebirths=0;
+    state.rebirthPoints=0;
+    state.upgrades={};
+    state.rebirthShop={};
+    state.minigameUnlocks={};
+    state.buildings={};
+    state.buildingMult={};
+    BUILDINGS.forEach(b=>{ state.buildings[b.id]=0; state.buildingMult[b.id]=1; });
+    state.clickMult=1; state.globalMult=1;
+    state.rebirthClickBonus=1; state.rebirthGlobalBonus=1;
+    bldBuilt=false; upgBuilt=false;
+    recomputeMultipliers();
+    saveGame(true);
+    updateDisplay();
     showToast('Progression complètement remise à zéro.');
   }
 }
