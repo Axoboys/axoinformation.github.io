@@ -459,6 +459,7 @@ const REBIRTH_ITEMS = [
 // ====================================================
 let state = {
   cookies:0, totalCookies:0, totalClicks:0,
+  cookiesThisLife:0,
   buildings:{}, upgrades:{},
   // Rebirth
   rebirths:0, rebirthPoints:0, rebirthShop:{},
@@ -499,6 +500,7 @@ function loadFromSave(saved) {
   state.totalClicks   = saved.totalClicks   || 0;
   state.rebirths      = saved.rebirths      || 0;
   state.rebirthPoints = saved.rebirthPoints || 0;
+  state.cookiesThisLife = saved.cookiesThisLife || 0;
   state.rebirthShop   = saved.rebirthShop   || {};
   state.minigameUnlocks= saved.minigameUnlocks || {};
   if (saved.buildings) Object.assign(state.buildings, saved.buildings);
@@ -510,6 +512,7 @@ function getStateToSave() {
   return {
     username: currentUser,
     cookies: state.cookies, totalCookies: state.totalCookies,
+    cookiesThisLife: state.cookiesThisLife,
     totalClicks: state.totalClicks, cps: computeCps(),
     buildings: {...state.buildings}, upgrades: {...state.upgrades},
     rebirths: state.rebirths, rebirthPoints: state.rebirthPoints,
@@ -572,8 +575,8 @@ function getClickValue() {
 }
 
 function getRebirthPointsEarned() {
-  // 1 point per 100M cookies totaux, min 1
-  return Math.max(1, Math.floor(state.totalCookies / 1e8));
+  // 1 point par rebirth fixe (simple et prévisible)
+  return 1;
 }
 
 // ====================================================
@@ -583,7 +586,7 @@ const cookieBtn = document.getElementById('cookie-btn');
 
 function handleClick(cx, cy) {
   const val = getClickValue();
-  state.cookies += val; state.totalCookies += val; state.totalClicks++;
+  state.cookies += val; state.totalCookies += val; state.cookiesThisLife += val; state.totalClicks++;
   spawnParticle(cx, cy, '+' + formatNum(val));
   updateDisplay();
 }
@@ -678,7 +681,7 @@ window.doRebirth = function() {
   const pts = getRebirthPointsEarned();
   state.rebirthPoints += pts;
   state.rebirths++;
-  state.cookies = 0; state.totalClicks = 0;
+  state.cookies = 0; state.totalClicks = 0; state.cookiesThisLife = 0;
   state.buildings = {}; state.upgrades = {};
   BUILDINGS.forEach(b => { state.buildings[b.id] = 0; state.buildingMult[b.id] = 1; });
   REBIRTH_ITEMS.forEach(item => {
@@ -746,7 +749,7 @@ let lastTick=Date.now();
 setInterval(()=>{
   const now=Date.now(),dt=(now-lastTick)/1000;lastTick=now;
   const cps=computeCps();
-  state.cookies+=cps*dt;state.totalCookies+=cps*dt;
+  state.cookies+=cps*dt;state.totalCookies+=cps*dt;state.cookiesThisLife+=cps*dt;
   updateDisplay();
 },50);
 

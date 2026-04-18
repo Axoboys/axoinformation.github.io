@@ -226,32 +226,38 @@ function formatNum(n){n=Math.floor(n||0);if(n>=1e12)return(n/1e12).toFixed(2)+' 
 function formatDate(ts){if(!ts)return'—';return new Date(ts).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});}
 
 // ====================================================
-// ADMIN AUTH
+// ADMIN AUTH — vérifie isAdmin dans Firebase
 // ====================================================
-const ADMIN_PW_KEY='axo_admin_pw', DEFAULT_PW='axoboys2026';
-function getAdminPw(){ return localStorage.getItem(ADMIN_PW_KEY)||DEFAULT_PW; }
+function simpleHash(str){let h=5381;for(let i=0;i<str.length;i++)h=((h<<5)+h)^str.charCodeAt(i);return(h>>>0).toString(16);}
 
-window.checkAdmin = function() {
-  const pw=document.getElementById('admin-pw').value;
-  if(pw===getAdminPw()){
-    document.getElementById('auth-gate').style.display='none';
-    document.getElementById('main-content').style.display='block';
-    loadData(); loadSaves(); loadSysInfo();
-    addLog('info','Connexion admin réussie.');
-  } else {
-    document.getElementById('auth-err').style.display='block';
-    addLog('err','Tentative de connexion admin échouée.');
+window.checkAdmin = async function() {
+  const username = (document.getElementById('admin-user').value||'').trim();
+  const password = document.getElementById('admin-pw').value;
+  const errEl = document.getElementById('auth-err');
+  errEl.style.display='none';
+  if(!username||!password){errEl.textContent='Remplis tous les champs.';errEl.style.display='block';return;}
+  const btn = document.querySelector('.auth-btn');
+  btn.textContent='Vérification...'; btn.disabled=true;
+  const user = await dbGet('users', username.toLowerCase());
+  btn.textContent='Accéder →'; btn.disabled=false;
+  if(!user||user.password!==simpleHash(password)){
+    errEl.textContent='Identifiants incorrects.';errEl.style.display='block';
+    addLog('err','Tentative connexion admin échouée : '+username);
+    return;
   }
+  if(!user.isAdmin){
+    errEl.textContent="Ce compte n'a pas les droits admin.";errEl.style.display='block';
+    addLog('err','Accès refusé (non-admin) : '+username);
+    return;
+  }
+  document.getElementById('auth-gate').style.display='none';
+  document.getElementById('main-content').style.display='block';
+  loadData(); loadSaves(); loadSysInfo();
+  addLog('info','Connexion admin réussie : '+username);
 };
-document.getElementById('admin-pw').addEventListener('keydown',e=>{if(e.key==='Enter')window.checkAdmin();});
 
-window.changeAdminPw = function(){
-  const np=document.getElementById('new-admin-pw').value;
-  if(!np||np.length<4){showToast('❌ Mot de passe trop court');return;}
-  localStorage.setItem(ADMIN_PW_KEY,np);
-  showToast('✓ Mot de passe admin changé !');
-  addLog('ok','Mot de passe admin modifié.');
-};
+window.changeAdminPw = function(){ showToast('ℹ️ Modifie isAdmin dans Firebase directement.'); };
+
 
 // ====================================================
 // TABS
@@ -449,7 +455,7 @@ function addLog(type,msg){const logs=getLogs();logs.unshift({type,msg,ts:Date.no
 function renderLogs(){const logs=getLogs();const box=document.getElementById('log-box');if(!logs.length){box.innerHTML='<div style="color:var(--muted);">Aucune action.</div>';return;}box.innerHTML=logs.map(l=>`<div class="log-line ${l.type}">[${formatDate(l.ts)}] ${l.msg}</div>`).join('');}
 window.clearLogs = function(){localStorage.removeItem(LOG_KEY);renderLogs();showToast('Logs vidés.');};
 
-function loadSysInfo(){document.getElementById('sys-info').innerHTML=`Version : AxoClicker v3.0<br>Stockage : Firebase Firestore<br>Admin PW : ${getAdminPw()===DEFAULT_PW?'par défaut':'personnalisé'}<br>Heure : ${new Date().toLocaleString('fr-FR')}`;}
+function loadSysInfo(){document.getElementById('sys-info').innerHTML=`Version : AxoClicker v3.0<br>Stockage : Firebase Firestore<br>Auth : Compte admin Firebase<br>Heure : ${new Date().toLocaleString('fr-FR')}`;}
 
 let toastTimer;
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2500);}
