@@ -754,7 +754,8 @@ window.buyRebirthItem = function(id) {
 // REBIRTH
 // ====================================================
 function getRebirthRequirement() {
-  return Math.pow(10, 9 + state.rebirths); // 1B, 10B, 100B...
+  // R0→R1: 500K | R1→R2: 5M | R2→R3: 50M | R3→R4: 500M | etc.
+  return 500000 * Math.pow(10, state.rebirths);
 }
 
 function openRebirthModal() {
