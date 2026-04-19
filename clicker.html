@@ -41,8 +41,6 @@
     }
     .panel-title{padding:0.6rem 1rem;font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--accent);letter-spacing:0.2em;text-transform:uppercase;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;}
     .panel-title-sub{color:var(--muted);font-size:0.58rem;}
-    .panel-fam-btn{background:transparent;border:1px solid rgba(245,158,11,0.4);border-radius:6px;padding:0.15rem 0.45rem;font-family:'Space Mono',monospace;font-size:0.58rem;color:#f59e0b;cursor:pointer;transition:all 0.15s;white-space:nowrap;display:none;}
-    .panel-fam-btn:hover{background:rgba(245,158,11,0.12);border-color:#f59e0b;}
 
     /* LISTS */
     .upgrade-list,.building-list,.rebirth-shop-list{flex:1;overflow-y:auto;padding:0.4rem;-webkit-overflow-scrolling:touch;}
@@ -264,7 +262,7 @@
     .offline-claim-btn:active{transform:scale(0.98);}
   
     /* ── FAMILIER ── */
-    .fam-bar{position:fixed;bottom:0;left:0;right:0;height:52px;z-index:150;pointer-events:none;overflow:hidden;}
+    .fam-bar{position:fixed;bottom:0;left:0;right:0;height:52px;z-index:150;pointer-events:none;overflow:visible;}
     .fam-sprite{position:absolute;bottom:4px;font-size:2rem;cursor:pointer;pointer-events:all;transition:transform 0.1s;user-select:none;-webkit-user-select:none;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5));}
     .fam-sprite:active{transform:scale(1.25);}
     .fam-gift{position:fixed;font-size:1.6rem;cursor:pointer;z-index:160;pointer-events:all;animation:giftBounce 1s ease-in-out infinite alternate;filter:drop-shadow(0 0 8px gold);}
@@ -296,14 +294,9 @@
     .fshop-hunger{display:flex;align-items:center;gap:0.5rem;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:0.6rem 0.8rem;margin-bottom:0.6rem;}
     .fshop-hunger-bar-wrap{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden;}
     .fshop-hunger-bar{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--green),var(--accent3));transition:width 0.5s;}
-    .fam-equip-btn{position:fixed;bottom:56px;right:8px;z-index:155;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:0.65rem;font-family:'Space Mono',monospace;color:var(--muted);padding:0.3rem 0.5rem;cursor:pointer;transition:all 0.2s;display:none;}
+    .fam-equip-btn{position:fixed;bottom:56px;left:8px;z-index:155;background:rgba(10,10,15,0.85);border:1px solid var(--border);border-radius:6px;font-size:0.6rem;font-family:'Space Mono',monospace;color:var(--muted);padding:0.2rem 0.45rem;cursor:pointer;transition:all 0.2s;display:none;backdrop-filter:blur(4px);}
     .fam-equip-btn:hover{border-color:var(--accent);color:var(--accent);}
 
-
-    /* ── ADMIN TEST BUTTON ── */
-    .admin-test-btn{position:fixed;top:calc(var(--nav-h) + 8px);right:8px;z-index:300;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;border:none;border-radius:8px;padding:0.35rem 0.8rem;font-family:'Space Mono',monospace;font-size:0.65rem;font-weight:700;cursor:pointer;box-shadow:0 2px 12px rgba(239,68,68,0.4);transition:all 0.2s;display:none;letter-spacing:0.05em;}
-    .admin-test-btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(239,68,68,0.6);}
-    .admin-test-btn:active{transform:scale(0.96);}
   </style>
 </head>
 <body>
@@ -324,7 +317,7 @@
 <div class="game-wrapper">
   <!-- LEFT: UPGRADES -->
   <div class="panel panel-left" id="panel-upgrades">
-    <div class="panel-title">// Améliorations <span class="panel-title-sub" id="upg-count">0</span><button class="panel-fam-btn" id="panel-fam-btn" onclick="openModal('fshop')">🐾 <span id="panel-fam-name">Familier</span></button></div>
+    <div class="panel-title">// Améliorations <span class="panel-title-sub" id="upg-count">0</span></div>
     <div class="upgrade-list" id="upgrade-list"></div>
   </div>
 
@@ -381,9 +374,8 @@
 <div class="golden-cookie" id="golden-cookie" onclick="goldenClick()">✨</div>
 <div class="golden-potato" id="golden-potato" onclick="potatoClick()">🥔</div>
 <div class="fam-bar" id="fam-bar"></div>
-<!-- fam-equip-btn moved to panel-title -->
+<button class="fam-equip-btn" id="fam-equip-btn" onclick="openModal('fshop')">🎽 Équiper</button>
 <div class="toast" id="toast"></div>
-<button class="admin-test-btn" id="admin-test-btn" onclick="openAdminTestPanel()">⚠ TEST ADMIN</button>
 
 <!-- ===== LEADERBOARD MODAL ===== -->
 <div class="modal-overlay" id="modal-lb" onclick="closeLbIfOutside(event)">
@@ -804,81 +796,7 @@ async function initGame() {
   scheduleGoldenPotato(); // Démarre après init Firebase + DOM prêt
   checkForUpdates();      // Vérifie si nouvelle version dispo
   updateDisplay();
-  // Vérifie les droits admin pour afficher le bouton TEST
-  checkAdminButton();
 }
-
-async function checkAdminButton() {
-  if (!currentUser) return;
-  const user = await dbGet('users', userKey);
-  if (user && user.isAdmin) {
-    const btn = document.getElementById('admin-test-btn');
-    if (btn) btn.style.display = 'block';
-  }
-}
-
-function openAdminTestPanel() {
-  // Panneau de test admin : ouvre un modal rapide avec les outils de test
-  const existing = document.getElementById('admin-test-overlay');
-  if (existing) { existing.remove(); return; }
-  const overlay = document.createElement('div');
-  overlay.id = 'admin-test-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:1rem;';
-  overlay.innerHTML = `
-    <div style="background:#111118;border:2px solid #ef4444;border-radius:16px;width:min(480px,96vw);max-height:85vh;overflow-y:auto;padding:1.5rem;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
-        <div style="font-size:1.1rem;font-weight:800;color:#ef4444;display:flex;align-items:center;gap:0.5rem;">⚠ Panneau TEST Admin</div>
-        <button onclick="document.getElementById('admin-test-overlay').remove()" style="background:transparent;border:1px solid #1e1e2e;border-radius:50%;width:28px;height:28px;color:#64748b;cursor:pointer;font-size:0.9rem;">✕</button>
-      </div>
-      <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:#64748b;margin-bottom:1.25rem;line-height:1.7;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:0.75rem;">
-        ⚠️ Ces actions affectent ton compte en direct. Utilise avec précaution.
-      </div>
-      <div style="display:flex;flex-direction:column;gap:0.6rem;">
-        <button onclick="adminTest_giveResources()" style="padding:0.65rem;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;color:#22c55e;font-family:'Space Mono',monospace;font-size:0.75rem;cursor:pointer;">🍪 +1 Milliard de cookies</button>
-        <button onclick="adminTest_givePotatoes()" style="padding:0.65rem;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;color:#f59e0b;font-family:'Space Mono',monospace;font-size:0.75rem;cursor:pointer;">🥔 +50 patates dorées</button>
-        <button onclick="adminTest_giveRebirthPts()" style="padding:0.65rem;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);border-radius:8px;color:#a855f7;font-family:'Space Mono',monospace;font-size:0.75rem;cursor:pointer;">🌀 +10 points rebirth</button>
-        <button onclick="adminTest_spawnPotato()" style="padding:0.65rem;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;color:#f59e0b;font-family:'Space Mono',monospace;font-size:0.75rem;cursor:pointer;">🥔 Faire apparaître une patate dorée</button>
-        <button onclick="adminTest_spawnGolden()" style="padding:0.65rem;background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.3);border-radius:8px;color:#06b6d4;font-family:'Space Mono',monospace;font-size:0.75rem;cursor:pointer;">✨ Faire apparaître un cookie doré</button>
-        <button onclick="adminTest_resetSave()" style="padding:0.65rem;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;color:#ef4444;font-family:'Space Mono',monospace;font-size:0.75rem;cursor:pointer;">🗑 Reset ma sauvegarde (test)</button>
-        <div style="border-top:1px solid #1e1e2e;padding-top:0.75rem;margin-top:0.15rem;">
-          <a href="admin.html" style="display:block;padding:0.65rem;background:rgba(239,68,68,0.15);border:1px solid #ef4444;border-radius:8px;color:#ef4444;font-family:'Space Mono',monospace;font-size:0.75rem;text-decoration:none;text-align:center;">🔐 Ouvrir le Panel Admin complet</a>
-        </div>
-      </div>
-    </div>`;
-  document.body.appendChild(overlay);
-}
-
-// Actions du panneau de test
-window.openAdminTestPanel = openAdminTestPanel;
-window.adminTest_giveResources = function() {
-  state.cookies += 1e9; state.totalCookies += 1e9; state.cookiesThisLife += 1e9;
-  updateDisplay(); saveGame(true);
-  showToast('🍪 +1 Milliard de cookies ajoutés !');
-};
-window.adminTest_givePotatoes = function() {
-  if (!state.goldenPotatoes) state.goldenPotatoes = 0;
-  state.goldenPotatoes += 50;
-  updateDisplay(); saveGame(true);
-  showToast('🥔 +50 patates dorées !');
-};
-window.adminTest_giveRebirthPts = function() {
-  state.rebirthPoints += 10;
-  updateDisplay(); saveGame(true);
-  showToast('🌀 +10 points rebirth !');
-};
-window.adminTest_spawnPotato = function() {
-  document.getElementById('admin-test-overlay')?.remove();
-  spawnGoldenPotato();
-};
-window.adminTest_spawnGolden = function() {
-  document.getElementById('admin-test-overlay')?.remove();
-  showGoldenCookie();
-};
-window.adminTest_resetSave = function() {
-  if (!confirm('Reset ta sauvegarde ? Irréversible !')) return;
-  document.getElementById('admin-test-overlay')?.remove();
-  confirmReset();
-};
 
 // ====================================================
 // GAINS HORS LIGNE
@@ -1370,6 +1288,12 @@ function updateDisplay(){
   const boughtUpg=UPGRADES.filter(u=>state.upgrades[u.id]).length;
   document.getElementById('upg-count').textContent=boughtUpg+'/'+UPGRADES.length;
   renderBuildings();renderUpgrades();updateTabDots();
+  // Compteur patates dorées dans la nav
+  const gcEl = document.getElementById('gold-count');
+  if (gcEl) gcEl.textContent = Math.floor(state.goldenPotatoes || 0);
+  // Même compteur dans le shop
+  const gsEl = document.getElementById('gshop-gold-count');
+  if (gsEl) gsEl.textContent = Math.floor(state.goldenPotatoes || 0);
 }
 
 function updateTabDots(){
@@ -2243,6 +2167,7 @@ window.buyGoldUpgrade = function(id) {
   showToast(u.emoji + ' ' + u.name + ' acheté !');
 };
 
+
 // ============================================================
 // SYSTÈME FAMILIER
 // ============================================================
@@ -2287,13 +2212,8 @@ function startFamiliar() {
   bar.innerHTML = '';
   bar.appendChild(cvs);
 
-  const eqBtn = document.getElementById('panel-fam-btn');
-  if (eqBtn) {
-    eqBtn.style.display = 'block';
-    const pet = getFamData();
-    const nameEl = document.getElementById('panel-fam-name');
-    if (nameEl && pet) nameEl.textContent = pet.emoji + ' ' + pet.name;
-  }
+  const eqBtn = document.getElementById('fam-equip-btn');
+  if (eqBtn) eqBtn.style.display = 'block';
 
   famAnim = {
     x: 60, dir: 1,
@@ -2317,8 +2237,8 @@ function startFamiliar() {
 function stopFamiliar() {
   const bar = document.getElementById('fam-bar');
   if (bar) bar.innerHTML = '';
-  const eqBtn = document.getElementById('panel-fam-btn');
-  if (eqBtn) { eqBtn.style.display = 'none'; }
+  const eqBtn = document.getElementById('fam-equip-btn');
+  if (eqBtn) eqBtn.style.display = 'none';
   if (famAnim) {
     clearTimeout(famAnim.sleepTimer);
     clearTimeout(famAnim.giftTimer);
