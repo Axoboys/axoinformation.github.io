@@ -86,6 +86,7 @@
 
     /* PARTICLES */
     .click-particle{position:fixed;pointer-events:none;z-index:999;font-family:'Space Mono',monospace;font-weight:700;font-size:0.9rem;color:var(--accent3);animation:floatUp 0.9s ease-out forwards;}
+    .click-particle.auto{color:var(--accent2);font-size:0.75rem;}
     @keyframes floatUp{0%{opacity:1;transform:translateY(0) scale(1);}100%{opacity:0;transform:translateY(-70px) scale(0.6);}}
 
     /* BUILDINGS */
@@ -878,13 +879,20 @@ function buyUpgrade(id) {
 
 window.buyRebirthItem = function(id) {
   const item = REBIRTH_ITEMS.find(x=>x.id===id); if(!item) return;
-  if(state.rebirthShop[id]) return; // already bought
+  if(state.rebirthShop[id]) return;
   if(state.rebirthPoints < item.cost) { showToast('❌ Pas assez de points rebirth !'); return; }
   state.rebirthPoints -= item.cost;
   state.rebirthShop[id] = true;
   if (item.effect === 'minigame') state.minigameUnlocks[item.bid] = true;
+  // ✅ FIX: Starter pack → donne les bâtiments immédiatement
+  if (item.effect === 'startBonus') {
+    state.buildings[item.bid] = (state.buildings[item.bid]||0) + item.val;
+    bldBuilt = false; // force rebuild DOM pour afficher les nouveaux bâtiments
+    showToast(item.emoji + ' ' + item.name + ' acheté ! +' + item.val + ' ' + item.bid + ' ajoutés !');
+  } else {
+    showToast(item.emoji + ' ' + item.name + ' acheté !');
+  }
   recomputeMultipliers();
-  showToast(item.emoji + ' ' + item.name + ' acheté !');
   renderRebirthShop(); updateDisplay();
 }
 
@@ -1001,6 +1009,29 @@ scheduleGoldenCookie();
 // ====================================================
 let lastTick=Date.now();
 let autoClickAccum=0;
+let autoVisualAccum=0; // compteur séparé pour les animations (1/s max)
+
+function spawnAutoParticle(val) {
+  const btn = document.getElementById('cookie-btn');
+  if (!btn) return;
+  const r = btn.getBoundingClientRect();
+  // Position aléatoire autour du cookie
+  const angle = Math.random() * Math.PI * 2;
+  const dist = 50 + Math.random() * 30;
+  const x = r.left + r.width/2 + Math.cos(angle) * dist;
+  const y = r.top  + r.height/2 + Math.sin(angle) * dist;
+  const el = document.createElement('div');
+  el.className = 'click-particle auto';
+  el.textContent = '🤖 +' + formatNum(val);
+  el.style.left = x + 'px';
+  el.style.top  = y + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 900);
+  // Petite impulsion lumineuse sur le cookie
+  btn.style.boxShadow = '0 0 50px rgba(6,182,212,0.7), 0 8px 30px rgba(0,0,0,0.5)';
+  setTimeout(() => { btn.style.boxShadow = ''; }, 200);
+}
+
 setInterval(()=>{
   const now=Date.now(),dt=(now-lastTick)/1000;lastTick=now;
   const cps=computeCps();
@@ -1008,11 +1039,18 @@ setInterval(()=>{
   // Autoclicker — accumule des clics fractionnaires, déclenche quand ≥1
   if(state.autoclickerCps > 0){
     autoClickAccum += state.autoclickerCps * dt;
+    autoVisualAccum += state.autoclickerCps * dt;
+    let totalAutoVal = 0;
     while(autoClickAccum >= 1){
       autoClickAccum -= 1;
       const val = getClickValue();
+      totalAutoVal += val;
       state.cookies += val; state.totalCookies += val; state.cookiesThisLife += val;
-      // pas de totalClicks++ ni de particule pour rester discret
+    }
+    // Animation visuelle : 1 particule par seconde max, affiche le total gagné
+    if(autoVisualAccum >= 1 && totalAutoVal > 0){
+      autoVisualAccum -= 1;
+      spawnAutoParticle(totalAutoVal);
     }
   }
   updateDisplay();
