@@ -543,6 +543,9 @@ const REBIRTH_ITEMS = [
   { id:'rb_boost3', emoji:'🌌', name:'Boost Niveau III',  cost:7, desc:'+60% production permanent',    effect:'globalMult',  val:1.6, max:1 },
   { id:'rb_click1', emoji:'👆', name:'Clic Renforcé I',   cost:1, desc:'+50% puissance de clic',       effect:'clickMult',   val:1.5, max:1 },
   { id:'rb_click2', emoji:'👊', name:'Clic Renforcé II',  cost:3, desc:'+100% puissance de clic',      effect:'clickMult',   val:2.0, max:1 },
+  { id:'rb_auto1',  emoji:'🤖', name:'Autoclicker I',     cost:1, desc:'1 clic auto toutes les 2 sec', effect:'autoclicker', val:0.5, max:1 },
+  { id:'rb_auto2',  emoji:'🦾', name:'Autoclicker II',    cost:3, desc:'1 clic auto par seconde',      effect:'autoclicker', val:1,   max:1 },
+  { id:'rb_auto3',  emoji:'⚙️', name:'Autoclicker III',   cost:6, desc:'2 clics auto par seconde',     effect:'autoclicker', val:2,   max:1 },
   { id:'rb_start1', emoji:'🎁', name:'Starter Pack I',    cost:2, desc:'Commence avec 100 curseurs',   effect:'startBonus',  bid:'cursor',  val:100, max:1 },
   { id:'rb_start2', emoji:'🎁', name:'Starter Pack II',   cost:4, desc:'Commence avec 10 grand-mères', effect:'startBonus',  bid:'grandma', val:10,  max:1 },
   { id:'rb_mg1',    emoji:'🎮', name:'Débloquer mini-jeu Curseur',   cost:1, desc:'Accès au mini-jeu Curseur',   effect:'minigame', bid:'cursor',  max:1 },
@@ -580,6 +583,7 @@ let state = {
   // Computed multipliers
   clickMult:1, globalMult:1, buildingMult:{},
   rebirthClickBonus:1, rebirthGlobalBonus:1,
+  autoclickerCps: 0,
 };
 BUILDINGS.forEach(b => { state.buildings[b.id]=0; state.buildingMult[b.id]=1; });
 
@@ -765,6 +769,7 @@ setInterval(() => saveGame(true), 30000);
 // ====================================================
 function recomputeMultipliers() {
   state.clickMult=1; state.globalMult=1;
+  state.autoclickerCps = 0;
   BUILDINGS.forEach(b => state.buildingMult[b.id]=1);
   UPGRADES.forEach(u => {
     if (!state.upgrades[u.id]) return;
@@ -779,6 +784,7 @@ function recomputeMultipliers() {
     if (!state.rebirthShop[item.id]) return;
     if (item.effect==='clickMult')  state.rebirthClickBonus  *= item.val;
     if (item.effect==='globalMult') state.rebirthGlobalBonus *= item.val;
+    if (item.effect==='autoclicker') state.autoclickerCps = Math.max(state.autoclickerCps, item.val);
   });
 }
 
@@ -994,10 +1000,21 @@ scheduleGoldenCookie();
 // CPS TICK
 // ====================================================
 let lastTick=Date.now();
+let autoClickAccum=0;
 setInterval(()=>{
   const now=Date.now(),dt=(now-lastTick)/1000;lastTick=now;
   const cps=computeCps();
   state.cookies+=cps*dt;state.totalCookies+=cps*dt;state.cookiesThisLife+=cps*dt;
+  // Autoclicker — accumule des clics fractionnaires, déclenche quand ≥1
+  if(state.autoclickerCps > 0){
+    autoClickAccum += state.autoclickerCps * dt;
+    while(autoClickAccum >= 1){
+      autoClickAccum -= 1;
+      const val = getClickValue();
+      state.cookies += val; state.totalCookies += val; state.cookiesThisLife += val;
+      // pas de totalClicks++ ni de particule pour rester discret
+    }
+  }
   updateDisplay();
 },50);
 
@@ -1034,7 +1051,7 @@ function updateDisplay(){
   const cps=computeCps();
   document.getElementById('cookie-count').textContent=formatNum(state.cookies);
   document.getElementById('cps-display').textContent=formatNum(cps)+'/sec';
-  document.getElementById('click-stats').textContent='🖱 '+state.totalClicks.toLocaleString('fr')+' clics • ⚡ +'+formatNum(getClickValue())+'/tap';
+  document.getElementById('click-stats').textContent='🖱 '+state.totalClicks.toLocaleString('fr')+' clics • ⚡ +'+formatNum(getClickValue())+'/tap'+(state.autoclickerCps>0?' • 🤖 '+state.autoclickerCps+'/s':'');
   const rb=document.getElementById('rebirth-badge');
   rb.style.display=state.rebirths>0?'inline':'none';
   rb.textContent='🌀 R'+state.rebirths;
