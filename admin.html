@@ -199,6 +199,18 @@
         <button class="act-btn danger" style="width:100%;padding:0.65rem;margin-bottom:0.5rem;" onclick="purgeAllSaves()">💣 Reset TOUTES les sauvegardes</button>
         <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--muted);">Remet à zéro la progression de TOUS les joueurs. Irréversible.</div>
       </div>
+      <div style="background:var(--surface);border:1px solid rgba(6,182,212,0.3);border-radius:12px;padding:1.5rem;">
+        <div style="font-weight:700;margin-bottom:0.5rem;color:var(--accent2);">🚀 Mise à jour / Reload forcé</div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--muted);margin-bottom:1rem;line-height:1.7;">
+          Incrémente la version dans Firebase. Tous les joueurs connectés verront un banner et la page se rechargera automatiquement en 10 secondes après avoir sauvegardé leur progression.
+        </div>
+        <div id="current-version-display" style="font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--accent2);margin-bottom:0.75rem;">Version actuelle : <strong id="ver-num">—</strong></div>
+        <div class="field-group">
+          <div class="field-label">Message de mise à jour (optionnel)</div>
+          <input class="field-input" id="update-msg" placeholder="ex: Nouveaux bâtiments ajoutés !">
+        </div>
+        <button class="act-btn primary" style="width:100%;padding:0.65rem;" onclick="pushUpdate()">🚀 Déployer la mise à jour</button>
+      </div>
     </div>
   </div>
 </main>
@@ -496,7 +508,16 @@ function addLog(type,msg){const logs=getLogs();logs.unshift({type,msg,ts:Date.no
 function renderLogs(){const logs=getLogs();const box=document.getElementById('log-box');if(!logs.length){box.innerHTML='<div style="color:var(--muted);">Aucune action.</div>';return;}box.innerHTML=logs.map(l=>`<div class="log-line ${l.type}">[${formatDate(l.ts)}] ${l.msg}</div>`).join('');}
 window.clearLogs = function(){localStorage.removeItem(LOG_KEY);renderLogs();showToast('Logs vidés.');};
 
-function loadSysInfo(){document.getElementById('sys-info').innerHTML=`Version : AxoClicker v3.0<br>Stockage : Firebase Firestore<br>Auth : Compte admin Firebase<br>Heure : ${new Date().toLocaleString('fr-FR')}`;}
+async function loadSysInfo(){
+  const v = await dbGet('config','version');
+  document.getElementById('sys-info').innerHTML=`
+    Jeu : AxoClicker<br>
+    Version déployée : <strong style="color:var(--accent2);">${v ? 'v'+v.number : 'non définie'}</strong><br>
+    ${v&&v.deployedAt?'Dernier déploiement : '+formatDate(v.deployedAt)+'<br>':''}
+    Stockage : Firebase Firestore<br>
+    Heure : ${new Date().toLocaleString('fr-FR')}
+  `;
+}
 
 let toastTimer;
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2500);}
@@ -569,7 +590,38 @@ window.purgeAllSaves = async function() {
   loadSaves();
 };
 
+// ====================================================
+// VERSION / RELOAD FORCÉ
+// ====================================================
+async function loadVersionInfo() {
+  const v = await dbGet('config', 'version');
+  const num = v ? v.number : 0;
+  const el = document.getElementById('ver-num');
+  if (el) el.textContent = num;
+  return num;
+}
+
+window.pushUpdate = async function() {
+  const msg = document.getElementById('update-msg').value.trim();
+  const current = await loadVersionInfo();
+  const newVer = (current || 0) + 1;
+  if (!confirm('🚀 Déployer la version ' + newVer + ' ?
+
+Tous les joueurs connectés seront notifiés et leur page se rechargera automatiquement dans 10 secondes.')) return;
+  await dbSet('config', 'version', {
+    number: newVer,
+    message: msg,
+    deployedAt: Date.now(),
+    by: 'admin',
+  });
+  document.getElementById('ver-num').textContent = newVer;
+  document.getElementById('update-msg').value = '';
+  addLog('ok', 'Mise à jour v' + newVer + ' déployée' + (msg ? ' — ' + msg : ''));
+  showToast('🚀 Version ' + newVer + ' déployée ! Les joueurs seront rechargés automatiquement.');
+};
+
 renderLogs();
+loadVersionInfo();
 </script>
 </body>
 </html>

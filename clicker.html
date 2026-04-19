@@ -642,7 +642,8 @@ window.saveGame = async function(silent=false) {
   }
 }
 
-setInterval(() => saveGame(true), 30000);
+// Sauvegarde automatique toutes les 5 minutes
+setInterval(() => saveGame(true), 5 * 60 * 1000);
 
 // ====================================================
 // GAME LOGIC
@@ -1357,15 +1358,69 @@ window.confirmReset = function(){
 // ====================================================
 updateDisplay();
 
+// ====================================================
+// AUTO-RELOAD QUAND UNE NOUVELLE VERSION EST DÉPLOYÉE
+// ====================================================
+// Dans Firebase Firestore, crée un doc : config/version { number: 1 }
+// Pour forcer un reload chez tous les joueurs, incrémente number dans l'admin.
+let _currentVersion = null;
+
+async function checkVersion() {
+  if (!currentUser) return;
+  try {
+    const v = await dbGet('config', 'version');
+    if (!v) return;
+    if (_currentVersion === null) {
+      // Premier check : on mémorise la version actuelle
+      _currentVersion = v.number;
+      return;
+    }
+    if (v.number !== _currentVersion) {
+      // Nouvelle version détectée : on sauvegarde d'abord, puis on recharge
+      await saveGame(true);
+      showUpdateBanner(v.number, v.message || '');
+    }
+  } catch(e) {}
+}
+
+function showUpdateBanner(newVer, msg) {
+  // Évite d'afficher le banner plusieurs fois
+  if (document.getElementById('update-banner')) return;
+  const banner = document.createElement('div');
+  banner.id = 'update-banner';
+  banner.style.cssText = `
+    position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+    background:linear-gradient(135deg,#7c3aed,#06b6d4);
+    color:#fff;border-radius:12px;padding:0.85rem 1.5rem;
+    font-family:'Space Mono',monospace;font-size:0.78rem;
+    z-index:9999;box-shadow:0 8px 30px rgba(0,0,0,0.5);
+    display:flex;align-items:center;gap:1rem;max-width:90vw;
+    animation:slideUp 0.4s ease;
+  `;
+  banner.innerHTML = `
+    <span>🚀 Mise à jour v${newVer} disponible${msg ? ' — '+msg : ''}</span>
+    <button onclick="location.reload()" style="
+      background:#fff;color:#7c3aed;border:none;border-radius:6px;
+      padding:0.35rem 0.85rem;font-family:'Space Mono',monospace;
+      font-size:0.75rem;font-weight:700;cursor:pointer;white-space:nowrap;
+    ">Recharger →</button>
+  `;
+  document.body.appendChild(banner);
+  // Auto-reload dans 10 secondes
+  setTimeout(() => location.reload(), 10000);
+}
+
+// Vérification toutes les 5 minutes (en même temps que la sauvegarde)
+setInterval(checkVersion, 5 * 60 * 1000);
+// Premier check au démarrage (après 5s pour laisser le jeu se charger)
+setTimeout(checkVersion, 5000);
+
 // Recharge depuis Firebase quand l'onglet redevient visible
-// (utile après une modif admin ou retour depuis une autre page)
 document.addEventListener('visibilitychange', async () => {
   if (document.visibilityState === 'visible' && currentUser) {
     const saved = await dbGet('saves', userKey);
-    if (saved) {
-      loadFromSave(saved);
-      updateDisplay();
-    }
+    if (saved) { loadFromSave(saved); updateDisplay(); }
+    checkVersion();
   }
 });
 </script>
