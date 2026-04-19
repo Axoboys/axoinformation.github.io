@@ -262,7 +262,7 @@
     .offline-claim-btn:active{transform:scale(0.98);}
   
     /* ── FAMILIER ── */
-    .fam-bar{position:fixed;bottom:0;left:0;right:0;height:52px;z-index:150;pointer-events:none;overflow:hidden;}
+    .fam-bar{position:fixed;bottom:0;left:0;right:0;height:52px;z-index:150;pointer-events:none;overflow:visible;}
     .fam-sprite{position:absolute;bottom:4px;font-size:2rem;cursor:pointer;pointer-events:all;transition:transform 0.1s;user-select:none;-webkit-user-select:none;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5));}
     .fam-sprite:active{transform:scale(1.25);}
     .fam-gift{position:fixed;font-size:1.6rem;cursor:pointer;z-index:160;pointer-events:all;animation:giftBounce 1s ease-in-out infinite alternate;filter:drop-shadow(0 0 8px gold);}
@@ -294,40 +294,9 @@
     .fshop-hunger{display:flex;align-items:center;gap:0.5rem;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:0.6rem 0.8rem;margin-bottom:0.6rem;}
     .fshop-hunger-bar-wrap{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden;}
     .fshop-hunger-bar{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--green),var(--accent3));transition:width 0.5s;}
-    .fam-equip-btn{position:fixed;bottom:56px;right:8px;z-index:155;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:0.65rem;font-family:'Space Mono',monospace;color:var(--muted);padding:0.3rem 0.5rem;cursor:pointer;transition:all 0.2s;display:none;}
+    .fam-equip-btn{position:fixed;bottom:56px;left:8px;z-index:155;background:rgba(10,10,15,0.85);border:1px solid var(--border);border-radius:6px;font-size:0.6rem;font-family:'Space Mono',monospace;color:var(--muted);padding:0.2rem 0.45rem;cursor:pointer;transition:all 0.2s;display:none;backdrop-filter:blur(4px);}
     .fam-equip-btn:hover{border-color:var(--accent);color:var(--accent);}
 
-
-    /* ── CHAT WIDGET ── */
-    .chat-btn{position:fixed;bottom:calc(var(--tab-h) + 0.75rem);right:0.75rem;z-index:400;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.3rem;box-shadow:0 4px 20px rgba(124,58,237,0.4);transition:transform 0.2s;}
-    @media(min-width:768px){.chat-btn{bottom:1.5rem;}}
-    .chat-btn:active{transform:scale(0.92);}
-    .chat-btn .chat-unread{position:absolute;top:-3px;right:-3px;background:var(--red);color:#fff;font-family:'Space Mono',monospace;font-size:0.55rem;font-weight:700;border-radius:999px;padding:0.1rem 0.3rem;min-width:16px;text-align:center;display:none;}
-    .chat-panel{position:fixed;bottom:calc(var(--tab-h) + 4rem);right:0.75rem;width:min(340px,94vw);max-height:420px;background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.7);z-index:399;display:none;flex-direction:column;overflow:hidden;}
-    @media(min-width:768px){.chat-panel{bottom:4.5rem;}}
-    .chat-panel.open{display:flex;}
-    .chat-header{display:flex;align-items:center;justify-content:space-between;padding:0.7rem 1rem;background:linear-gradient(135deg,rgba(124,58,237,0.2),rgba(6,182,212,0.1));border-bottom:1px solid var(--border);flex-shrink:0;}
-    .chat-header-title{font-size:0.82rem;font-weight:800;display:flex;align-items:center;gap:0.4rem;}
-    .chat-online{font-family:'Space Mono',monospace;font-size:0.58rem;color:var(--green);}
-    .chat-close{width:24px;height:24px;border-radius:50%;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:0.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-    .chat-msgs{flex:1;overflow-y:auto;padding:0.6rem 0.75rem;display:flex;flex-direction:column;gap:0.4rem;scroll-behavior:smooth;}
-    .chat-msgs::-webkit-scrollbar{width:3px;}
-    .chat-msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
-    .chat-msg{display:flex;flex-direction:column;gap:0.1rem;max-width:88%;}
-    .chat-msg.me{align-self:flex-end;align-items:flex-end;}
-    .chat-msg.other{align-self:flex-start;}
-    .chat-msg-meta{font-family:'Space Mono',monospace;font-size:0.55rem;color:var(--muted);padding:0 0.4rem;}
-    .chat-msg-bubble{padding:0.45rem 0.7rem;border-radius:12px;font-family:'Space Mono',monospace;font-size:0.72rem;line-height:1.45;word-break:break-word;max-width:100%;}
-    .chat-msg.me .chat-msg-bubble{background:var(--accent);color:#fff;border-radius:12px 12px 4px 12px;}
-    .chat-msg.other .chat-msg-bubble{background:var(--bg);border:1px solid var(--border);border-radius:12px 12px 12px 4px;}
-    .chat-msg-name{font-size:0.58rem;color:var(--accent2);font-weight:700;}
-    .chat-system{text-align:center;font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--muted);padding:0.2rem;}
-    .chat-input-row{display:flex;gap:0.4rem;padding:0.55rem 0.65rem;border-top:1px solid var(--border);flex-shrink:0;background:var(--surface);}
-    .chat-input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.45rem 0.7rem;color:var(--text);font-family:'Space Mono',monospace;font-size:0.72rem;outline:none;transition:border-color 0.2s;}
-    .chat-input:focus{border-color:var(--accent);}
-    .chat-send{padding:0.45rem 0.8rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.7rem;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
-    .chat-send:active{transform:scale(0.95);}
-    .chat-empty{text-align:center;padding:1.5rem;font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);}
   </style>
 </head>
 <body>
@@ -500,7 +469,7 @@
 // https://console.firebase.google.com → Paramètres → Général → Tes apps
 // ====================================================
 import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyAODYOz_M_CAr4ReMZzhMi71qU_DASgBls",
@@ -728,9 +697,6 @@ let state = {
   clickMult:1, globalMult:1, buildingMult:{},
   rebirthClickBonus:1, rebirthGlobalBonus:1,
   autoclickerCps: 0,
-  // Patates dorées (2e monnaie)
-  goldenPotatoes: 0,
-  goldShop: {},
   // Familiers
   famOwned: {},       // {petId: true}
   famEquipped: null,  // petId équipé
@@ -1322,11 +1288,12 @@ function updateDisplay(){
   const boughtUpg=UPGRADES.filter(u=>state.upgrades[u.id]).length;
   document.getElementById('upg-count').textContent=boughtUpg+'/'+UPGRADES.length;
   renderBuildings();renderUpgrades();updateTabDots();
-  // Compteur patates dorées dans la barre et le shop
-  const gpEl = document.getElementById('gshop-gold-count');
-  if (gpEl) gpEl.textContent = Math.floor(state.goldenPotatoes || 0);
-  const gpBarEl = document.getElementById('gp-bar-count');
-  if (gpBarEl) gpBarEl.textContent = Math.floor(state.goldenPotatoes || 0);
+  // Compteur patates dorées dans la nav
+  const gcEl = document.getElementById('gold-count');
+  if (gcEl) gcEl.textContent = Math.floor(state.goldenPotatoes || 0);
+  // Même compteur dans le shop
+  const gsEl = document.getElementById('gshop-gold-count');
+  if (gsEl) gsEl.textContent = Math.floor(state.goldenPotatoes || 0);
 }
 
 function updateTabDots(){
@@ -1860,12 +1827,11 @@ function rxSpawnNext() {
   const arena = document.getElementById('rx-arena'); if(!arena) return;
   arena.innerHTML='';
   const isGreen = Math.random() > 0.35; // 65% verte, 35% rouge
-  const size = 52 + Math.floor(Math.random()*18); // cibles plus grandes
+  const size = 44 + Math.floor(Math.random()*20);
   const x = 10 + Math.random()*(260-size);
   const y = 10 + Math.random()*(180-size);
-  const delay = 200 + Math.random()*400; // délai court : 200-600ms
-  // lifetime minimum 900ms même au round 10, descend progressivement
-  const lifetime = Math.max(900, 1800 - s.round*60);
+  const delay = 600 + Math.random()*800; // délai avant apparition
+  const lifetime = 900 - s.round*50; // plus difficile avec les rounds
 
   s.spawnTimer = setTimeout(()=>{
     const target = document.createElement('div');
@@ -2556,8 +2522,7 @@ function dropGift() {
     const cBonus = Math.max(10, Math.floor(computeCps() * 120));
     const gpBonus = Math.random() < 0.3 ? 1 : 0; // 30% chance 1 patate
     state.cookies += cBonus; state.totalCookies += cBonus; state.cookiesThisLife += cBonus;
-    if (gpBonus) {
-      if (state.goldenPotatoes === undefined) state.goldenPotatoes = 0;
+    if (gpBonus && typeof state.goldenPotatoes !== 'undefined') {
       state.goldenPotatoes += gpBonus;
       showToast('🎁 +' + formatNum(cBonus) + ' cookies + 1 🥔✨ !');
     } else {
@@ -2593,8 +2558,8 @@ function petTap() {
     showFamBubble('👋 Hey!', famAnim.x);
     return;
   }
-  // Caresser le familier lui remonte légèrement la faim
-  state.famHunger = Math.min(100, state.famHunger + 1);
+  // Faim diminuée par le tap
+  state.famHunger = Math.max(0, state.famHunger - 2);
   const phrases = ['🍪 Miam!','😊 Merci!','💕 Coucou!','🎉 Yay!','✨ Woof!'];
   showFamBubble(phrases[Math.floor(Math.random()*phrases.length)], famAnim.x);
 }
@@ -2731,174 +2696,6 @@ window.famFeed = function(id) {
   saveGame(true);
 };
 
-
-// ====================================================
-// CHAT GLOBAL — Firebase Firestore realtime
-// ====================================================
-const CHAT_COL = 'chat';
-const CHAT_MAX_MSGS = 60;       // messages conservés dans l'affichage
-const CHAT_MAX_LEN = 200;       // max caractères par message
-const CHAT_COOLDOWN_MS = 2000;  // anti-spam : 2s entre messages
-
-let chatOpen = false;
-let chatUnreadCount = 0;
-let chatLastSend = 0;
-let chatUnsub = null; // Firestore onSnapshot unsubscribe
-let chatInitialized = false;
-
-function toggleChat() {
-  chatOpen = !chatOpen;
-  const panel = document.getElementById('chat-panel');
-  panel.classList.toggle('open', chatOpen);
-  if (chatOpen) {
-    // Reset unread
-    chatUnreadCount = 0;
-    const badge = document.getElementById('chat-unread');
-    badge.style.display = 'none';
-    // Scroll to bottom
-    const msgs = document.getElementById('chat-msgs');
-    setTimeout(() => { msgs.scrollTop = msgs.scrollHeight; }, 50);
-    // Focus input
-    const inp = document.getElementById('chat-input');
-    if (inp) inp.focus();
-    // Start listening if not already
-    if (!chatInitialized) initChat();
-  }
-}
-
-function initChat() {
-  if (chatInitialized) return;
-  chatInitialized = true;
-  // Firestore: écoute les 60 derniers messages en temps réel
-  try {
-    const q = query(
-      collection(_db, CHAT_COL),
-      orderBy('ts', 'asc'),
-      limit(CHAT_MAX_MSGS)
-    );
-    chatUnsub = onSnapshot(q, (snap) => {
-      renderChatMessages(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-    }, (err) => {
-      console.error('[Chat] Firestore error:', err);
-      document.getElementById('chat-msgs').innerHTML =
-        '<div class="chat-empty">❌ Impossible de charger le chat.<br>Vérifie les règles Firestore.</div>';
-    });
-  } catch(e) {
-    console.error('[Chat] initChat error:', e);
-  }
-}
-
-function renderChatMessages(msgs) {
-  const container = document.getElementById('chat-msgs');
-  if (!container) return;
-  const wasAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 40;
-
-  if (msgs.length === 0) {
-    container.innerHTML = '<div class="chat-empty">Aucun message. Sois le premier !</div>';
-    return;
-  }
-
-  const meKey = currentUser ? currentUser.toLowerCase() : null;
-  container.innerHTML = msgs.map(msg => {
-    const isMe = meKey && msg.user && msg.user.toLowerCase() === meKey;
-    const name = msg.user || 'Anonyme';
-    const text = escapeHtml(msg.text || '');
-    const time = msg.ts && msg.ts.toDate ? formatChatTime(msg.ts.toDate()) : '';
-    if (msg.system) {
-      return `<div class="chat-system">${text}</div>`;
-    }
-    return `<div class="chat-msg ${isMe ? 'me' : 'other'}">
-      ${!isMe ? `<div class="chat-msg-meta"><span class="chat-msg-name">${escapeHtml(name)}</span> ${time}</div>` : `<div class="chat-msg-meta">${time}</div>`}
-      <div class="chat-msg-bubble">${text}</div>
-    </div>`;
-  }).join('');
-
-  // Notification unread si chat fermé
-  if (!chatOpen && msgs.length > 0) {
-    const last = msgs[msgs.length - 1];
-    const meKey2 = currentUser ? currentUser.toLowerCase() : null;
-    if (last && last.user && last.user.toLowerCase() !== meKey2 && !last.system) {
-      chatUnreadCount++;
-      const badge = document.getElementById('chat-unread');
-      badge.textContent = chatUnreadCount > 9 ? '9+' : chatUnreadCount;
-      badge.style.display = 'block';
-    }
-  }
-
-  // Scroll automatique si on était en bas
-  if (wasAtBottom || !chatOpen) {
-    container.scrollTop = container.scrollHeight;
-  }
-}
-
-async function sendChatMsg() {
-  if (!currentUser) { showToast('🔐 Connecte-toi pour chatter !'); return; }
-  const inp = document.getElementById('chat-input');
-  const text = (inp.value || '').trim();
-  if (!text) return;
-  if (text.length > CHAT_MAX_LEN) { showToast('❌ Message trop long (max 200 car.)'); return; }
-
-  const now = Date.now();
-  if (now - chatLastSend < CHAT_COOLDOWN_MS) {
-    showToast('⏳ Attends un peu avant d\'envoyer !');
-    return;
-  }
-  chatLastSend = now;
-  inp.value = '';
-
-  try {
-    await addDoc(collection(_db, CHAT_COL), {
-      user: currentUser,
-      text: text,
-      ts: serverTimestamp(),
-    });
-  } catch(e) {
-    console.error('[Chat] send error:', e);
-    showToast('❌ Erreur envoi. Vérifie les règles Firestore.');
-    inp.value = text; // restore on error
-  }
-}
-
-function escapeHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-
-function formatChatTime(date) {
-  const h = date.getHours().toString().padStart(2,'0');
-  const m = date.getMinutes().toString().padStart(2,'0');
-  return h + ':' + m;
-}
-
-// Enter pour envoyer
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && document.activeElement === document.getElementById('chat-input')) {
-    e.preventDefault();
-    sendChatMsg();
-  }
-});
-
-// Rend toggleChat et sendChatMsg accessibles globalement
-window.toggleChat = toggleChat;
-window.sendChatMsg = sendChatMsg;
-
 </script>
-
-<!-- ── CHAT WIDGET ── -->
-<button class="chat-btn" id="chat-toggle-btn" onclick="toggleChat()" title="Chat">
-  💬
-  <span class="chat-unread" id="chat-unread"></span>
-</button>
-<div class="chat-panel" id="chat-panel">
-  <div class="chat-header">
-    <div class="chat-header-title">💬 Chat Global <span class="chat-online" id="chat-online">● en ligne</span></div>
-    <button class="chat-close" onclick="toggleChat()">✕</button>
-  </div>
-  <div class="chat-msgs" id="chat-msgs"><div class="chat-empty">Chargement...</div></div>
-  <div class="chat-input-row">
-    <input class="chat-input" id="chat-input" placeholder="Ton message..." maxlength="200" autocomplete="off">
-    <button class="chat-send" onclick="sendChatMsg()">→</button>
-  </div>
-</div>
-
 </body>
 </html>
