@@ -8,7 +8,7 @@
   <link rel="icon" type="logo.png" href="logo.png">
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#0a0a0f;--surface:#111118;--border:#1e1e2e;--accent:#7c3aed;--accent2:#06b6d4;--accent3:#f59e0b;--text:#e2e8f0;--muted:#64748b;--glow:rgba(124,58,237,0.3);--green:#22c55e;--red:#ef4444;--nav-h:52px;--tab-h:64px;}
+    :root{--bg:#0a0a0f;--surface:#111118;--border:#1e1e2e;--accent:#7c3aed;--accent2:#06b6d4;--accent3:#f59e0b;--text:#e2e8f0;--muted:#64748b;--glow:rgba(124,58,237,0.3);--green:#22c55e;--red:#ef4444;--nav-h:52px;--tab-h:64px;--gc-h:34px;}
     *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
     html,body{height:100%;overflow:hidden;}
     body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;display:flex;flex-direction:column;}
@@ -35,7 +35,7 @@
     }
     .panel{display:flex;flex-direction:column;overflow:hidden;}
     @media(max-width:767px){
-      .panel-left,.panel-right{display:none;position:fixed;inset:var(--nav-h) 0 var(--tab-h) 0;z-index:50;background:var(--bg);}
+      .panel-left,.panel-right{display:none;position:fixed;top:calc(var(--nav-h) + var(--gc-h, 34px));left:0;right:0;bottom:var(--tab-h);z-index:50;background:var(--bg);}
       .panel-left.mob-show,.panel-right.mob-show{display:flex;}
       .panel-center{flex:1;}
     }
