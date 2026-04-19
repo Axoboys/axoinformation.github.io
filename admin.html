@@ -135,6 +135,7 @@
     <button class="tab-btn" onclick="switchTab('saves')">💾 Sauvegardes</button>
     <button class="tab-btn" onclick="switchTab('logs')">📋 Logs</button>
     <button class="tab-btn" onclick="switchTab('settings')">⚙️ Paramètres</button>
+    <button class="tab-btn" onclick="switchTab('chat')">💬 Chat</button>
   </div>
 
   <!-- ACCOUNTS -->
@@ -218,6 +219,24 @@
       </div>
     </div>
   </div>
+
+  <!-- CHAT MODERATION -->
+  <div class="tab-panel" id="panel-chat">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+      <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);" id="chat-msg-count">Chargement...</div>
+      <div style="display:flex;gap:0.5rem;">
+        <button class="act-btn primary" onclick="loadChatMsgs()">↻ Rafraîchir</button>
+        <button class="act-btn danger" onclick="clearAllChat()">🗑 Vider le chat</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Heure</th><th>Joueur</th><th>Message</th><th>Action</th></tr></thead>
+        <tbody id="chat-tbody"><tr><td colspan="4" class="loading-row">⏳ Chargement...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
 </main>
 
 <!-- EDIT MODAL -->
