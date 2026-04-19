@@ -136,27 +136,6 @@
     .login-banner a{padding:0.4rem 0.9rem;background:#fff;color:#111;border-radius:6px;font-family:'Space Mono',monospace;font-size:0.68rem;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0;}
     #login-banner-wrap{flex-shrink:0;}
 
-    /* GOLDEN POTATO CURRENCY */
-    .gold-display{display:flex;align-items:center;gap:0.4rem;font-family:'Space Mono',monospace;font-size:0.68rem;color:#f59e0b;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);border-radius:8px;padding:0.25rem 0.6rem;cursor:pointer;transition:all 0.2s;}
-    .gold-display:hover{background:rgba(245,158,11,0.22);border-color:#f59e0b;}
-    .gold-display .gold-icon{font-size:0.9rem;}
-    .gold-display .gold-val{font-weight:700;}
-    /* GOLDEN POTATO SHOP */
-    .gshop-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;padding:0.75rem;}
-    @media(max-width:400px){.gshop-grid{grid-template-columns:1fr;}}
-    .gshop-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:0.85rem;display:flex;flex-direction:column;gap:0.4rem;transition:border-color 0.2s;}
-    .gshop-item.can-buy{border-color:rgba(245,158,11,0.5);}
-    .gshop-item.owned{border-color:rgba(34,197,94,0.4);opacity:0.6;}
-    .gshop-item-icon{font-size:1.6rem;}
-    .gshop-item-name{font-size:0.8rem;font-weight:700;line-height:1.2;}
-    .gshop-item-desc{font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--muted);line-height:1.4;}
-    .gshop-item-cost{font-family:'Space Mono',monospace;font-size:0.7rem;color:#f59e0b;font-weight:700;margin-top:auto;}
-    .gshop-buy-btn{margin-top:0.4rem;padding:0.4rem;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.4);border-radius:7px;color:#f59e0b;font-family:'Space Mono',monospace;font-size:0.65rem;font-weight:700;cursor:pointer;transition:all 0.2s;}
-    .gshop-buy-btn:hover{background:rgba(245,158,11,0.3);}
-    .gshop-buy-btn:disabled{opacity:0.4;cursor:not-allowed;}
-    .gshop-buy-btn.owned-btn{background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.3);color:var(--green);cursor:default;}
-    .golden-potato{position:fixed;display:none;font-size:2.2rem;cursor:pointer;z-index:200;filter:drop-shadow(0 0 12px #f59e0b);animation:potatoFloat 12s ease-in-out forwards;-webkit-user-select:none;user-select:none;}
-    @keyframes potatoFloat{0%{opacity:0;transform:scale(0.5) rotate(-10deg);}8%{opacity:1;transform:scale(1.15) rotate(5deg);}15%{transform:scale(1) rotate(0deg);}85%{opacity:1;transform:scale(1) rotate(0deg);}100%{opacity:0;transform:scale(0.5) rotate(10deg);}}
     /* GOLDEN COOKIE */
     .golden-cookie{position:fixed;cursor:pointer;z-index:200;font-size:2.5rem;filter:drop-shadow(0 0 15px gold);display:none;animation:goldenFloat 10s ease-in-out forwards;}
     @keyframes goldenFloat{0%{opacity:0;transform:scale(0);}10%{opacity:1;transform:scale(1) rotate(-10deg);}90%{opacity:1;transform:scale(1) rotate(10deg);}100%{opacity:0;transform:scale(0);}}
@@ -260,6 +239,43 @@
     .offline-claim-btn{width:100%;padding:1rem;background:linear-gradient(135deg,var(--accent3),#d97706);color:#000;border:none;border-radius:10px;font-family:'Space Mono',monospace;font-size:0.95rem;font-weight:700;cursor:pointer;transition:all 0.2s;box-shadow:0 0 30px rgba(245,158,11,0.3);}
     .offline-claim-btn:hover{transform:translateY(-2px);box-shadow:0 0 50px rgba(245,158,11,0.5);}
     .offline-claim-btn:active{transform:scale(0.98);}
+  
+    /* ── FAMILIER ── */
+    .fam-bar{position:fixed;bottom:0;left:0;right:0;height:52px;z-index:150;pointer-events:none;overflow:hidden;}
+    .fam-sprite{position:absolute;bottom:4px;font-size:2rem;cursor:pointer;pointer-events:all;transition:transform 0.1s;user-select:none;-webkit-user-select:none;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5));}
+    .fam-sprite:active{transform:scale(1.25);}
+    .fam-gift{position:fixed;font-size:1.6rem;cursor:pointer;z-index:160;pointer-events:all;animation:giftBounce 1s ease-in-out infinite alternate;filter:drop-shadow(0 0 8px gold);}
+    @keyframes giftBounce{from{transform:translateY(0) scale(1);}to{transform:translateY(-8px) scale(1.1);}}
+    .fam-bubble{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:0.3rem 0.6rem;font-size:0.65rem;font-family:'Space Mono',monospace;color:var(--text);pointer-events:none;z-index:161;white-space:nowrap;animation:bubblePop 2.5s ease forwards;}
+    @keyframes bubblePop{0%{opacity:0;transform:scale(0.7) translateY(0);}10%{opacity:1;transform:scale(1) translateY(-5px);}80%{opacity:1;transform:scale(1) translateY(-5px);}100%{opacity:0;transform:scale(0.8) translateY(-20px);}}
+    .fam-zz{position:fixed;font-size:1.1rem;pointer-events:none;z-index:161;animation:zzFloat 2s ease-in-out infinite;}
+    @keyframes zzFloat{0%{opacity:0;transform:translateY(0);}50%{opacity:1;}100%{opacity:0;transform:translateY(-30px);}}
+
+    /* ── BOUTIQUE FAMILIER ── */
+    .fshop-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
+    .fshop-tab{flex:1;padding:0.6rem;font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);background:transparent;border:none;cursor:pointer;transition:all 0.2s;border-bottom:2px solid transparent;}
+    .fshop-tab.active{color:var(--accent3);border-bottom-color:var(--accent3);}
+    .fshop-section{display:none;padding:0.6rem;overflow-y:auto;flex:1;}
+    .fshop-section.active{display:block;}
+    .fshop-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.55rem;}
+    .fshop-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:0.75rem;display:flex;flex-direction:column;align-items:center;gap:0.35rem;text-align:center;transition:border-color 0.2s;}
+    .fshop-card.equipped{border-color:var(--accent);background:rgba(124,58,237,0.08);}
+    .fshop-card.can-buy{border-color:rgba(245,158,11,0.45);}
+    .fshop-card-icon{font-size:2rem;}
+    .fshop-card-name{font-size:0.75rem;font-weight:700;}
+    .fshop-card-desc{font-family:'Space Mono',monospace;font-size:0.58rem;color:var(--muted);line-height:1.4;}
+    .fshop-card-cost{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--accent3);font-weight:700;}
+    .fshop-card-btn{width:100%;margin-top:0.3rem;padding:0.35rem;border-radius:7px;font-family:'Space Mono',monospace;font-size:0.6rem;font-weight:700;cursor:pointer;transition:all 0.2s;border:1px solid var(--border);background:var(--bg);color:var(--text);}
+    .fshop-card-btn.equip-btn{border-color:var(--accent);color:var(--accent);}
+    .fshop-card-btn.equipped-btn{border-color:var(--green);color:var(--green);cursor:default;}
+    .fshop-card-btn.buy-btn{border-color:var(--accent3);color:var(--accent3);}
+    .fshop-card-btn:disabled{opacity:0.4;cursor:not-allowed;}
+    .fshop-hunger{display:flex;align-items:center;gap:0.5rem;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:0.6rem 0.8rem;margin-bottom:0.6rem;}
+    .fshop-hunger-bar-wrap{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden;}
+    .fshop-hunger-bar{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--green),var(--accent3));transition:width 0.5s;}
+    .fam-equip-btn{position:fixed;bottom:56px;right:8px;z-index:155;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:0.65rem;font-family:'Space Mono',monospace;color:var(--muted);padding:0.3rem 0.5rem;cursor:pointer;transition:all 0.2s;display:none;}
+    .fam-equip-btn:hover{border-color:var(--accent);color:var(--accent);}
+
   </style>
 </head>
 <body>
@@ -269,7 +285,6 @@
   <div class="nav-right">
     <span class="save-indicator" id="save-indicator">✓ Sauvé</span>
     <span class="rebirth-badge" id="rebirth-badge">🌀 R0</span>
-    <span class="gold-display" id="gold-display" onclick="openModal('gshop')" title="Boutique Patates Dorées"><span class="gold-icon">🥔✨</span>&nbsp;<span class="gold-val" id="gold-count">0</span></span>
     <a href="profile.html" id="nav-user-link">Mon profil</a>
     <a href="index.html">Hub</a>
   </div>
@@ -301,7 +316,7 @@
       <button class="action-btn lb" onclick="openModal('lb')">🏆 Classement</button>
       <button class="action-btn rebirth-btn" onclick="openModal('rebirth')">🌀 Rebirth</button>
       <button class="action-btn shop-btn" onclick="openModal('rshop')">🛒 Shop</button>
-      <button class="action-btn" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);" onclick="openModal('gshop')">🥔 Patates</button>
+      <button class="action-btn" style="border-color:#f59e0b;color:#f59e0b;" onclick="openModal('fshop')">🐾 Familiers</button>
       <button class="action-btn danger" onclick="confirmReset()">🗑</button>
     </div>
   </div>
@@ -334,7 +349,8 @@
 </div>
 
 <div class="golden-cookie" id="golden-cookie" onclick="goldenClick()">✨</div>
-<div class="golden-potato" id="golden-potato" onclick="potatoClick()">🥔</div>
+<div class="fam-bar" id="fam-bar"></div>
+<button class="fam-equip-btn" id="fam-equip-btn" onclick="openModal('fshop')">🎽 Équiper</button>
 <div class="toast" id="toast"></div>
 
 <!-- ===== LEADERBOARD MODAL ===== -->
@@ -380,16 +396,20 @@
   </div>
 </div>
 
-<!-- ===== GOLDEN POTATO SHOP MODAL ===== -->
-<div class="modal-overlay" id="modal-gshop" onclick="closeModalIfOutside(event,'gshop')">
+<!-- ===== FAMILIER SHOP MODAL ===== -->
+<div class="modal-overlay" id="modal-fshop" onclick="closeModalIfOutside(event,'fshop')">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-header">
-      <div class="modal-title">🥔✨ Boutique Patates Dorées</div>
-      <button class="modal-close" onclick="closeModal('gshop')">✕</button>
+      <div class="modal-title">🐾 Boutique Familiers</div>
+      <button class="modal-close" onclick="closeModal('fshop')">✕</button>
     </div>
-    <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:#f59e0b;text-align:center;padding:0.5rem;border-bottom:1px solid var(--border);">Tu as <strong id="gshop-gold-count">0</strong> 🥔✨ patates dorées</div>
-    <div class="modal-body" id="gshop-body" style="overflow-y:auto;"></div>
+    <div class="fshop-tabs">
+      <button class="fshop-tab active" onclick="switchFshopTab('pets',this)">🐣 Familiers</button>
+      <button class="fshop-tab" onclick="switchFshopTab('food',this)">🍖 Nourriture</button>
+    </div>
+    <div class="fshop-section active" id="fshop-pets"></div>
+    <div class="fshop-section" id="fshop-food"></div>
   </div>
 </div>
 
@@ -574,24 +594,6 @@ const UPGRADES = [
   { id:'axo3',   emoji:'🦎', name:"Transcendance d'Axo", cost:1e15,    desc:'Tout ×1.5',   effect:'global',   mult:1.5 },
 ];
 
-// ====================================================
-// GOLDEN POTATO SHOP DATA
-// ====================================================
-const GOLD_UPGRADES = [
-  { id:'gp_spawn1', emoji:'🍀', name:'Attraction dorée',   cost:3,  desc:'Les patates dorées apparaissent 30% plus souvent',  effect:'spawnRate', val:0.7 },
-  { id:'gp_spawn2', emoji:'✨', name:'Aimant à patates',   cost:8,  desc:'Les patates dorées apparaissent 50% plus souvent',  effect:'spawnRate', val:0.5 },
-  { id:'gp_spawn3', emoji:'🌟', name:'Champ de patates',   cost:18, desc:'Les patates dorées apparaissent 2× plus souvent',  effect:'spawnRate', val:0.3 },
-  { id:'gp_bonus1', emoji:'💰', name:'Récolte généreuse',  cost:5,  desc:'Chaque patate dorée donne +50% de cookies bonus',   effect:'clickBonus', val:1.5 },
-  { id:'gp_bonus2', emoji:'💎', name:'Trésor de patate',   cost:12, desc:'Chaque patate dorée donne ×2 cookies bonus',        effect:'clickBonus', val:2.0 },
-  { id:'gp_bonus3', emoji:'👑', name:'Jackpot doré',       cost:25, desc:'Chaque patate dorée donne ×4 cookies bonus',        effect:'clickBonus', val:4.0 },
-  { id:'gp_prod1',  emoji:'🏭', name:'Engrais doré I',     cost:6,  desc:'Tous les bâtiments produisent +25% de cookies',     effect:'globalMult', val:1.25 },
-  { id:'gp_prod2',  emoji:'⚗️', name:'Engrais doré II',    cost:15, desc:'Tous les bâtiments produisent +50% de cookies',     effect:'globalMult', val:1.5 },
-  { id:'gp_prod3',  emoji:'🔬', name:'Super-engrais',      cost:30, desc:'Tous les bâtiments produisent ×2 de cookies',       effect:'globalMult', val:2.0 },
-  { id:'gp_click1', emoji:'👆', name:'Doigt doré I',       cost:4,  desc:'Le clic donne +50% de cookies',                     effect:'clickMult',  val:1.5 },
-  { id:'gp_click2', emoji:'👊', name:'Doigt doré II',      cost:10, desc:'Le clic donne ×2 cookies',                          effect:'clickMult',  val:2.0 },
-  { id:'gp_click3', emoji:'⚡', name:'Frappe dorée',       cost:22, desc:'Le clic donne ×3 cookies',                          effect:'clickMult',  val:3.0 },
-];
-
 // REBIRTH SHOP// REBIRTH SHOP — bought with rebirthPoints
 const REBIRTH_ITEMS = [
   { id:'rb_boost1', emoji:'⚡', name:'Boost Niveau I',    cost:1, desc:'+20% production permanent',    effect:'globalMult',  val:1.2, max:1 },
@@ -632,7 +634,6 @@ const REBIRTH_ITEMS = [
 let state = {
   cookies:0, totalCookies:0, totalClicks:0,
   cookiesThisLife:0,
-  goldenPotatoes:0, goldShop:{},
   buildings:{}, upgrades:{},
   // Rebirth
   rebirths:0, rebirthPoints:0, rebirthShop:{},
@@ -641,6 +642,11 @@ let state = {
   clickMult:1, globalMult:1, buildingMult:{},
   rebirthClickBonus:1, rebirthGlobalBonus:1,
   autoclickerCps: 0,
+  // Familiers
+  famOwned: {},       // {petId: true}
+  famEquipped: null,  // petId équipé
+  famHunger: 100,     // 0-100
+  famFood: {},        // {foodId: quantité}
 };
 BUILDINGS.forEach(b => { state.buildings[b.id]=0; state.buildingMult[b.id]=1; });
 
@@ -684,6 +690,7 @@ async function initGame() {
     checkOfflineEarnings(saved);  // Vérifie les gains hors ligne
   }
   updateDisplay();
+  if (state.famEquipped && state.famOwned[state.famEquipped]) startFamiliar();
 }
 
 // ====================================================
@@ -787,8 +794,10 @@ function loadFromSave(saved) {
   state.cookiesThisLife = saved.cookiesThisLife || 0;
   state.rebirthShop   = saved.rebirthShop   || {};
   state.minigameUnlocks= saved.minigameUnlocks || {};
-  state.goldenPotatoes  = saved.goldenPotatoes  || 0;
-  state.goldShop        = saved.goldShop        || {};
+  state.famOwned    = saved.famOwned    || {};
+  state.famEquipped = saved.famEquipped || null;
+  state.famHunger   = (saved.famHunger  != null) ? saved.famHunger : 100;
+  state.famFood     = saved.famFood     || {};
   if (saved.buildings) Object.assign(state.buildings, saved.buildings);
   if (saved.upgrades)  Object.assign(state.upgrades, saved.upgrades);
   recomputeMultipliers();
@@ -804,8 +813,10 @@ function getStateToSave() {
     rebirths: state.rebirths, rebirthPoints: state.rebirthPoints,
     rebirthShop: {...state.rebirthShop},
     minigameUnlocks: {...state.minigameUnlocks},
-    goldenPotatoes: state.goldenPotatoes,
-    goldShop: {...state.goldShop},
+    famOwned: {...state.famOwned},
+    famEquipped: state.famEquipped,
+    famHunger: state.famHunger,
+    famFood: {...state.famFood},
     lastSave: Date.now(),
   };
 }
@@ -847,13 +858,6 @@ function recomputeMultipliers() {
     if (item.effect==='globalMult') state.rebirthGlobalBonus *= item.val;
     if (item.effect==='autoclicker') state.autoclickerCps = Math.max(state.autoclickerCps, item.val);
   });
-  // Gold shop bonuses
-  state.gpGlobalMult = 1; state.gpClickMult = 1;
-  GOLD_UPGRADES.forEach(u => {
-    if (!state.goldShop[u.id]) return;
-    if (u.effect==='globalMult') state.gpGlobalMult *= u.val;
-    if (u.effect==='clickMult')  state.gpClickMult  *= u.val;
-  });
 }
 
 // ====================================================
@@ -885,12 +889,12 @@ function computeCps() {
   BUILDINGS.forEach(b => cps += (state.buildings[b.id]||0) * b.baseCps * (state.buildingMult[b.id]||1));
   // Rebirth global bonus = +50% per rebirth level
   const rebirthBonus = 1 + (state.rebirths * 0.2);
-  return cps * state.globalMult * rebirthBonus * state.rebirthGlobalBonus * (state.gpGlobalMult||1);
+  return cps * state.globalMult * rebirthBonus * state.rebirthGlobalBonus;
 }
 
 function getClickValue() {
   const rebirthBonus = 1 + (state.rebirths * 0.2);
-  return Math.max(1, computeCps()*0.002) * state.clickMult * rebirthBonus * state.rebirthClickBonus * (state.gpClickMult||1);
+  return Math.max(1, computeCps()*0.002) * state.clickMult * rebirthBonus * state.rebirthClickBonus;
 }
 
 function getRebirthPointsEarned() {
@@ -1072,42 +1076,6 @@ window.goldenClick = function(){
 scheduleGoldenCookie();
 
 // ====================================================
-// GOLDEN POTATO SPAWN
-// ====================================================
-let potatoTimer = null;
-function scheduleGoldenPotato() {
-  if (potatoTimer) clearTimeout(potatoTimer);
-  // Base interval 90-180s, réduit par les upgrades spawnRate
-  let base = 90 + Math.random() * 90;
-  const spawnUpgs = GOLD_UPGRADES.filter(u => u.effect==='spawnRate' && state.goldShop[u.id]);
-  spawnUpgs.forEach(u => base *= u.val);
-  potatoTimer = setTimeout(spawnGoldenPotato, base * 1000);
-}
-function spawnGoldenPotato() {
-  const gp = document.getElementById('golden-potato');
-  gp.style.display = 'block';
-  gp.style.left = (60 + Math.random() * (window.innerWidth - 140)) + 'px';
-  gp.style.top  = (80 + Math.random() * (window.innerHeight - 200)) + 'px';
-  gp.style.animation = 'none'; gp.offsetHeight;
-  gp.style.animation = 'potatoFloat 12s ease-in-out forwards';
-  setTimeout(() => { gp.style.display='none'; scheduleGoldenPotato(); }, 12000);
-}
-window.potatoClick = function() {
-  document.getElementById('golden-potato').style.display = 'none';
-  clearTimeout(potatoTimer);
-  state.goldenPotatoes++;
-  // Bonus cookie = 5min de prod * multiplicateur gold shop
-  let bonusMult = 1;
-  GOLD_UPGRADES.filter(u => u.effect==='clickBonus' && state.goldShop[u.id]).forEach(u => bonusMult = u.val);
-  const bonus = Math.max(50, Math.floor(computeCps() * 300 * bonusMult));
-  state.cookies += bonus; state.totalCookies += bonus; state.cookiesThisLife += bonus;
-  spawnParticle(window.innerWidth/2, window.innerHeight/3, '🥔 +'+formatNum(bonus));
-  showToast('🥔✨ Patate dorée ! +'+formatNum(bonus)+' cookies | +1 patate dorée');
-  updateDisplay(); scheduleGoldenPotato();
-};
-scheduleGoldenPotato();
-
-// ====================================================
 // CPS TICK
 // ====================================================
 let lastTick=Date.now();
@@ -1193,11 +1161,6 @@ function updateDisplay(){
   document.getElementById('cookie-count').textContent=formatNum(state.cookies);
   document.getElementById('cps-display').textContent=formatNum(cps)+'/sec';
   document.getElementById('click-stats').textContent='🖱 '+state.totalClicks.toLocaleString('fr')+' clics • ⚡ +'+formatNum(getClickValue())+'/tap'+(state.autoclickerCps>0?' • 🤖 '+state.autoclickerCps+'/s':'');
-  // Gold potato counter
-  const goldEl = document.getElementById('gold-count');
-  if (goldEl) goldEl.textContent = state.goldenPotatoes;
-  const gshopGold = document.getElementById('gshop-gold-count');
-  if (gshopGold) gshopGold.textContent = state.goldenPotatoes;
   const rb=document.getElementById('rebirth-badge');
   rb.style.display=state.rebirths>0?'inline':'none';
   rb.textContent='🌀 R'+state.rebirths;
@@ -1285,7 +1248,7 @@ function renderBuildings(){
   if(!bldBuilt)buildBuildingDOM();
   BUILDINGS.forEach(b=>{
     const count=state.buildings[b.id]||0,cost=getBuildingCost(b),canBuy=state.cookies>=cost;
-    const realCps=b.baseCps*(state.buildingMult[b.id]||1)*state.globalMult*(1+state.rebirths*0.2)*state.rebirthGlobalBonus*(state.gpGlobalMult||1);
+    const realCps=b.baseCps*(state.buildingMult[b.id]||1)*state.globalMult*(1+state.rebirths*0.2)*state.rebirthGlobalBonus;
     const el=document.getElementById('bld-'+b.id);if(!el)return;
     const bulkCost=getBulkCost(b),canAfford=state.cookies>=bulkCost;
     el.className='building-item '+(canAfford?'can-buy':'too-exp');
@@ -1321,7 +1284,7 @@ window.openModal = function(id) {
   if(id==='lb')renderLeaderboard();
   if(id==='rebirth')openRebirthModal();
   if(id==='rshop')renderRebirthShop();
-  if(id==='gshop')renderGoldShop();
+  if(id==='fshop')renderFamiliarShop();
 }
 window.closeModal = function(id) { document.getElementById('modal-'+id).classList.remove('open'); }
 window.closeLbIfOutside = function(e){if(e.target===document.getElementById('modal-lb'))closeModal('lb');}
@@ -1716,8 +1679,9 @@ window.confirmReset = function(){
     state.rebirths=0;
     state.rebirthPoints=0;
     state.upgrades={};
-    state.goldenPotatoes=0;
-    state.goldShop={};
+    state.famOwned={}; state.famEquipped=null;
+    state.famHunger=100; state.famFood={};
+    stopFamiliar();
     state.rebirthShop={};
     state.minigameUnlocks={};
     state.buildings={};
@@ -1792,46 +1756,312 @@ updateDisplay();
 if (currentUser) {
   registerSW();
 }
-// ====================================================
-// GOLDEN POTATO SHOP RENDER
-// ====================================================
-function renderGoldShop() {
-  const body = document.getElementById('gshop-body');
-  if (!body) return;
-  const grid = document.createElement('div');
-  grid.className = 'gshop-grid';
-  GOLD_UPGRADES.forEach(u => {
-    const owned = !!state.goldShop[u.id];
-    const canBuy = !owned && state.goldenPotatoes >= u.cost;
-    const item = document.createElement('div');
-    item.className = 'gshop-item' + (owned ? ' owned' : canBuy ? ' can-buy' : '');
-    item.innerHTML = `
-      <div class='gshop-item-icon'>${u.emoji}</div>
-      <div class='gshop-item-name'>${u.name}</div>
-      <div class='gshop-item-desc'>${u.desc}</div>
-      <div class='gshop-item-cost'><span>🥔✨</span> ${u.cost} patates</div>
-      <button class='gshop-buy-btn${owned ? ' owned-btn' : ''}'
-        ${owned ? 'disabled' : ''}
-        onclick='buyGoldUpgrade("${u.id}")'>
-        ${owned ? '✓ Acheté' : canBuy ? 'Acheter' : `Manque ${u.cost - state.goldenPotatoes} 🥔`}
-      </button>`;
-    grid.appendChild(item);
-  });
-  body.innerHTML = '';
-  body.appendChild(grid);
+// ============================================================
+// SYSTÈME FAMILIER
+// ============================================================
+const PETS = [
+  { id:'axolotl', emoji:'🦎', name:'Axolotl',   cost:500,      currency:'cookies', desc:'Petit axolotl curieux. Adore les cookies.',  speed:1.2, giftRate:180 },
+  { id:'dragon',  emoji:'🐲', name:'Bébé Dragon',cost:5000,     currency:'cookies', desc:'Crache du feu et des cadeaux chauds.',        speed:1.5, giftRate:120 },
+  { id:'cat',     emoji:'🐱', name:'Cookie Cat', cost:2000,     currency:'cookies', desc:'Ronronne et apporte des surprises.',           speed:1.0, giftRate:150 },
+  { id:'ghost',   emoji:'👻', name:'Fantôme',    cost:15000,    currency:'cookies', desc:'Se téléporte partout. Très généreux.',        speed:2.0, giftRate:90  },
+  { id:'penguin', emoji:'🐧', name:'Manchot',    cost:8000,     currency:'cookies', desc:'Glisse sur le sol. Ramasse des trésors.',     speed:0.9, giftRate:140 },
+  { id:'unicorn', emoji:'🦄', name:'Licorne',    cost:100000,   currency:'cookies', desc:'Magique ! Laisse tomber beaucoup de dons.',   speed:1.4, giftRate:60  },
+  { id:'robot',   emoji:'🤖', name:'Cookie Bot', cost:500000,   currency:'cookies', desc:'Très efficace. Cadeau garanti.',              speed:1.8, giftRate:45  },
+  { id:'alien',   emoji:'👽', name:'Alien Doré', cost:2000000,  currency:'cookies', desc:'Venu d\'ailleurs avec des cookies rares.',    speed:1.6, giftRate:40  },
+];
+
+const FOODS = [
+  { id:'cookie_snack', emoji:'🍪', name:'Cookie Snack',  cost:50,     currency:'cookies', hunger:15, desc:'+15 faim' },
+  { id:'cookie_feast', emoji:'🎂', name:'Festin Cookie', cost:500,    currency:'cookies', hunger:50, desc:'+50 faim' },
+  { id:'golden_treat', emoji:'✨', name:'Gâteau Doré',   cost:200,    currency:'cookies', hunger:35, desc:'+35 faim, bonus cadeaux' },
+  { id:'mega_feast',   emoji:'🍰', name:'Méga Festin',   cost:5000,   currency:'cookies', hunger:100,desc:'Faim max + boost' },
+];
+
+// ── État interne de l'animation
+let famAnim = null; // { x, dir, sleeping, sleepTimer, giftTimer, zzEl }
+
+function getFamData() {
+  return PETS.find(p => p.id === state.famEquipped) || null;
 }
 
-window.buyGoldUpgrade = function(id) {
-  const u = GOLD_UPGRADES.find(x => x.id===id); if (!u) return;
-  if (state.goldShop[id]) { showToast('Déjà acheté !'); return; }
-  if (state.goldenPotatoes < u.cost) { showToast('❌ Pas assez de patates dorées !'); return; }
-  state.goldenPotatoes -= u.cost;
-  state.goldShop[id] = true;
-  recomputeMultipliers();
-  renderGoldShop();
+// ── Démarre / recharge le familier équipé
+function startFamiliar() {
+  stopFamiliar();
+  const pet = getFamData();
+  const bar = document.getElementById('fam-bar');
+  if (!pet || !state.famOwned[pet.id]) { bar.innerHTML=''; return; }
+
+  const sprite = document.createElement('div');
+  sprite.className = 'fam-sprite';
+  sprite.id = 'fam-sprite';
+  sprite.textContent = pet.emoji;
+  sprite.title = pet.name;
+  sprite.onclick = () => petTap();
+  bar.innerHTML = '';
+  bar.appendChild(sprite);
+
+  // Bouton équiper visible
+  const eqBtn = document.getElementById('fam-equip-btn');
+  if (eqBtn) eqBtn.style.display = 'block';
+
+  famAnim = { x: 60, dir: 1, sleeping: false, sleepTimer: null, giftTimer: null };
+  scheduleGift(pet);
+  scheduleSleeep(pet);
+  runFamLoop(pet, sprite);
+}
+
+function stopFamiliar() {
+  const bar = document.getElementById('fam-bar');
+  if (bar) bar.innerHTML = '';
+  const eqBtn = document.getElementById('fam-equip-btn');
+  if (eqBtn) eqBtn.style.display = 'none';
+  if (famAnim) {
+    clearTimeout(famAnim.sleepTimer);
+    clearTimeout(famAnim.giftTimer);
+    if (famAnim.zzEl && famAnim.zzEl.parentNode) famAnim.zzEl.parentNode.removeChild(famAnim.zzEl);
+    famAnim = null;
+  }
+}
+
+// ── Boucle d'animation (déplacement)
+function runFamLoop(pet, sprite) {
+  if (!famAnim) return;
+  const maxX = window.innerWidth - 60;
+  if (!famAnim.sleeping) {
+    famAnim.x += famAnim.dir * pet.speed * 1.2;
+    if (famAnim.x >= maxX) { famAnim.x = maxX; famAnim.dir = -1; }
+    if (famAnim.x <= 20)   { famAnim.x = 20;   famAnim.dir =  1; }
+    sprite.style.left = famAnim.x + 'px';
+    sprite.style.transform = famAnim.dir < 0 ? 'scaleX(-1)' : 'scaleX(1)';
+  }
+  requestAnimationFrame(() => runFamLoop(pet, sprite));
+}
+
+// ── Sommeil aléatoire
+function scheduleSleeep(pet) {
+  if (!famAnim) return;
+  const delay = 30000 + Math.random() * 60000; // 30-90s
+  famAnim.sleepTimer = setTimeout(() => {
+    if (!famAnim) return;
+    famAnim.sleeping = true;
+    showFamBubble('💤 Zzzz...', famAnim.x);
+    // Affiche 💤 flottant
+    const zz = document.createElement('div');
+    zz.className = 'fam-zz'; zz.textContent = '💤';
+    zz.style.left = (famAnim.x + 20) + 'px';
+    zz.style.bottom = '55px';
+    document.body.appendChild(zz);
+    famAnim.zzEl = zz;
+    setTimeout(() => {
+      if (!famAnim) return;
+      famAnim.sleeping = false;
+      if (famAnim.zzEl && famAnim.zzEl.parentNode) { famAnim.zzEl.parentNode.removeChild(famAnim.zzEl); famAnim.zzEl = null; }
+      scheduleSleeep(pet);
+    }, 8000 + Math.random() * 12000);
+  }, delay);
+}
+
+// ── Cadeau aléatoire
+function scheduleGift(pet) {
+  if (!famAnim) return;
+  const delay = (pet.giftRate + Math.random() * pet.giftRate) * 1000;
+  famAnim.giftTimer = setTimeout(() => {
+    if (!famAnim) return;
+    dropGift();
+    scheduleGift(pet);
+  }, delay);
+}
+
+function dropGift() {
+  // Pose le cadeau là où est le familier
+  const x = famAnim ? famAnim.x : 100;
+  const gift = document.createElement('div');
+  gift.className = 'fam-gift';
+  gift.textContent = '🎁';
+  gift.style.left = x + 'px';
+  gift.style.bottom = '55px';
+  document.body.appendChild(gift);
+  showFamBubble('🎁 Cadeau !', x);
+  gift.onclick = () => {
+    // Récompense : cookies + patates dorées
+    const cBonus = Math.max(10, Math.floor(computeCps() * 120));
+    const gpBonus = Math.random() < 0.3 ? 1 : 0; // 30% chance 1 patate
+    state.cookies += cBonus; state.totalCookies += cBonus; state.cookiesThisLife += cBonus;
+    if (gpBonus && typeof state.goldenPotatoes !== 'undefined') {
+      state.goldenPotatoes += gpBonus;
+      showToast('🎁 +' + formatNum(cBonus) + ' cookies + 1 🥔✨ !');
+    } else {
+      showToast('🎁 +' + formatNum(cBonus) + ' cookies !');
+    }
+    spawnParticle(x, window.innerHeight - 80, '🎁 +' + formatNum(cBonus));
+    gift.remove();
+    updateDisplay();
+    saveGame(true);
+  };
+  // Disparaît après 30s si pas cliqué
+  setTimeout(() => { if (gift.parentNode) gift.remove(); }, 30000);
+}
+
+// ── Bulle de parole
+function showFamBubble(text, x) {
+  const bub = document.createElement('div');
+  bub.className = 'fam-bubble';
+  bub.textContent = text;
+  bub.style.left = Math.min(window.innerWidth - 120, x) + 'px';
+  bub.style.bottom = '55px';
+  document.body.appendChild(bub);
+  setTimeout(() => { if (bub.parentNode) bub.remove(); }, 2600);
+}
+
+// ── Tap sur le familier
+function petTap() {
+  if (!famAnim) return;
+  const pet = getFamData(); if (!pet) return;
+  if (famAnim.sleeping) {
+    famAnim.sleeping = false;
+    if (famAnim.zzEl && famAnim.zzEl.parentNode) { famAnim.zzEl.parentNode.removeChild(famAnim.zzEl); famAnim.zzEl = null; }
+    showFamBubble('👋 Hey!', famAnim.x);
+    return;
+  }
+  // Faim diminuée par le tap
+  state.famHunger = Math.max(0, state.famHunger - 2);
+  const phrases = ['🍪 Miam!','😊 Merci!','💕 Coucou!','🎉 Yay!','✨ Woof!'];
+  showFamBubble(phrases[Math.floor(Math.random()*phrases.length)], famAnim.x);
+}
+
+// ── Tick faim (toutes les 60s)
+setInterval(() => {
+  if (!state.famEquipped) return;
+  state.famHunger = Math.max(0, state.famHunger - 1);
+  if (state.famHunger === 0) {
+    const sprite = document.getElementById('fam-sprite');
+    if (sprite) sprite.style.filter = 'grayscale(80%) drop-shadow(0 2px 6px rgba(0,0,0,0.5))';
+  }
+}, 60000);
+
+// ── Render boutique familier
+window.switchFshopTab = function(tab, el) {
+  document.querySelectorAll('.fshop-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.fshop-section').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('fshop-' + tab).classList.add('active');
+};
+
+function renderFamiliarShop() {
+  renderPetsTab();
+  renderFoodTab();
+}
+
+function renderPetsTab() {
+  const el = document.getElementById('fshop-pets'); if (!el) return;
+  // Hunger bar
+  const hungerColor = state.famHunger > 60 ? 'var(--green)' : state.famHunger > 30 ? 'var(--accent3)' : 'var(--red)';
+  let html = '';
+  if (state.famEquipped) {
+    const p = getFamData();
+    html += `<div class="fshop-hunger">
+      <span style="font-size:1.3rem;">${p ? p.emoji : '?'}</span>
+      <div style="flex:1;">
+        <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--muted);margin-bottom:3px;">Faim de ${p ? p.name : ''}</div>
+        <div class="fshop-hunger-bar-wrap"><div class="fshop-hunger-bar" style="width:${state.famHunger}%;background:${hungerColor};"></div></div>
+      </div>
+      <span style="font-family:'Space Mono',monospace;font-size:0.65rem;color:${hungerColor};">${Math.round(state.famHunger)}%</span>
+    </div>`;
+  }
+  html += '<div class="fshop-grid">';
+  PETS.forEach(pet => {
+    const owned    = !!state.famOwned[pet.id];
+    const equipped = state.famEquipped === pet.id;
+    const canBuy   = !owned && state.cookies >= pet.cost;
+    html += `<div class="fshop-card${equipped?' equipped':canBuy?' can-buy':''}">
+      <div class="fshop-card-icon">${pet.emoji}</div>
+      <div class="fshop-card-name">${pet.name}</div>
+      <div class="fshop-card-desc">${pet.desc}</div>
+      <div class="fshop-card-desc" style="color:var(--muted);margin-top:2px;">🎁 cadeau ~${pet.giftRate}s</div>
+      ${owned
+        ? `<div class="fshop-card-cost" style="color:var(--green);">✓ Possédé</div>
+           <button class="fshop-card-btn ${equipped?'equipped-btn':'equip-btn'}"
+             onclick="famEquip('${pet.id}')" ${equipped?'disabled':''}>
+             ${equipped ? '✓ Équipé' : '🎽 Équiper'}
+           </button>`
+        : `<div class="fshop-card-cost">🍪 ${formatNum(pet.cost)}</div>
+           <button class="fshop-card-btn buy-btn" ${canBuy?'':'disabled'}
+             onclick="famBuy('${pet.id}')">
+             ${canBuy ? 'Acheter' : 'Pas assez 🍪'}
+           </button>`
+      }
+    </div>`;
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function renderFoodTab() {
+  const el = document.getElementById('fshop-food'); if (!el) return;
+  let html = '<div class="fshop-grid">';
+  FOODS.forEach(food => {
+    const qty = state.famFood[food.id] || 0;
+    const canBuy = state.cookies >= food.cost;
+    html += `<div class="fshop-card${canBuy?' can-buy':''}">
+      <div class="fshop-card-icon">${food.emoji}</div>
+      <div class="fshop-card-name">${food.name}</div>
+      <div class="fshop-card-desc">${food.desc}</div>
+      <div class="fshop-card-cost">🍪 ${formatNum(food.cost)}</div>
+      ${qty > 0 ? `<div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--accent2);">En stock: ${qty}</div>` : ''}
+      <button class="fshop-card-btn buy-btn" ${canBuy?'':'disabled'} onclick="famBuyFood('${food.id}')">Acheter</button>
+      ${qty > 0 ? `<button class="fshop-card-btn equip-btn" onclick="famFeed('${food.id}')">🍽 Nourrir</button>` : ''}
+    </div>`;
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+window.famBuy = function(id) {
+  const pet = PETS.find(p => p.id === id); if (!pet) return;
+  if (state.famOwned[id]) { showToast('Déjà possédé !'); return; }
+  if (state.cookies < pet.cost) { showToast('❌ Pas assez de cookies !'); return; }
+  state.cookies -= pet.cost;
+  state.famOwned[id] = true;
+  showToast(pet.emoji + ' ' + pet.name + ' adopté !');
+  renderPetsTab();
   updateDisplay();
   saveGame(true);
-  showToast(u.emoji + ' ' + u.name + ' acheté !');
+};
+
+window.famEquip = function(id) {
+  const pet = PETS.find(p => p.id === id); if (!pet || !state.famOwned[id]) return;
+  state.famEquipped = id;
+  startFamiliar();
+  renderFamiliarShop();
+  showToast(pet.emoji + ' ' + pet.name + ' équipé !');
+  saveGame(true);
+};
+
+window.famBuyFood = function(id) {
+  const food = FOODS.find(f => f.id === id); if (!food) return;
+  if (state.cookies < food.cost) { showToast('❌ Pas assez de cookies !'); return; }
+  state.cookies -= food.cost;
+  state.famFood[id] = (state.famFood[id] || 0) + 1;
+  showToast(food.emoji + ' ' + food.name + ' acheté !');
+  renderFoodTab();
+  updateDisplay();
+  saveGame(true);
+};
+
+window.famFeed = function(id) {
+  const food = FOODS.find(f => f.id === id); if (!food) return;
+  if (!state.famFood[id] || state.famFood[id] <= 0) { showToast('Plus en stock !'); return; }
+  if (!state.famEquipped) { showToast('Équipe d\'abord un familier !'); return; }
+  state.famFood[id]--;
+  state.famHunger = Math.min(100, state.famHunger + food.hunger);
+  const sprite = document.getElementById('fam-sprite');
+  if (sprite) sprite.style.filter = 'drop-shadow(0 2px 6px rgba(0,0,0,0.5))';
+  const pet = getFamData();
+  if (famAnim) showFamBubble('😋 Délicieux !', famAnim.x);
+  showToast(food.emoji + ' ' + (pet ? pet.name : 'Familier') + ' nourri !');
+  renderFoodTab();
+  updateDisplay();
+  saveGame(true);
 };
 
 </script>
