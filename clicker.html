@@ -1319,54 +1319,81 @@ function mgReward(bid, score){
 
 // --- CLICK RUSH ---
 function renderClickRush(body,bid){
-  let clicks=0,timer=10,started=false,iv=null;
+  // Nettoyer tout interval précédent
+  if(window._crState && window._crState.iv){
+    clearInterval(window._crState.iv);
+  }
   body.innerHTML=`<div class="minigame-container mg-clickrush">
     <div class="mg-title">⚡ Click Rush</div>
     <div class="mg-desc">Clique le plus vite possible en 10 secondes !</div>
     <div class="mg-timer" id="cr-timer">10</div>
     <div class="mg-score" id="cr-score">Clics : 0</div>
-    <div id="cr-btn-wrap"><button class="mg-big-btn" id="cr-btn" onclick="crClick()">👆</button></div>
-    <div><button class="mg-start-btn" id="cr-start" onclick="crStart()">▶ Commencer</button></div>
+    <div id="cr-btn-wrap"><button class="mg-big-btn" id="cr-btn">👆</button></div>
+    <button class="mg-start-btn" id="cr-start">▶ Commencer</button>
   </div>`;
   window._crState={clicks:0,timer:10,started:false,iv:null,bid};
+
+  // Bouton principal de clic — touch + click
+  const crBtn = document.getElementById('cr-btn');
+  const clickHandler = () => { const s=window._crState; if(!s||!s.started)return; s.clicks++; document.getElementById('cr-score').textContent='Clics : '+s.clicks; };
+  crBtn.addEventListener('click', clickHandler);
+  crBtn.addEventListener('touchstart', e => { e.preventDefault(); clickHandler(); }, {passive:false});
+
+  // Bouton Commencer / Rejouer
+  const startBtn = document.getElementById('cr-start');
+  const startHandler = () => {
+    const s = window._crState;
+    if(!s || s.started) return;
+    // Nettoyer l'ancien interval si existant
+    if(s.iv){ clearInterval(s.iv); s.iv=null; }
+    s.started=true; s.clicks=0; s.timer=10;
+    document.getElementById('cr-timer').textContent='10';
+    document.getElementById('cr-score').textContent='Clics : 0';
+    document.getElementById('cr-btn').disabled=false;
+    startBtn.style.display='none';
+    s.iv=setInterval(()=>{
+      s.timer--;
+      const timerEl=document.getElementById('cr-timer');
+      const scoreEl=document.getElementById('cr-score');
+      const btn=document.getElementById('cr-btn');
+      if(!timerEl){clearInterval(s.iv);return;} // modale fermée
+      timerEl.textContent=s.timer;
+      if(s.timer<=0){
+        clearInterval(s.iv); s.iv=null;
+        if(btn) btn.disabled=true;
+        const score=s.clicks;
+        if(scoreEl) scoreEl.textContent='Résultat : '+score+' clics !';
+        mgReward(s.bid, score*10);
+        startBtn.textContent='↺ Rejouer';
+        startBtn.style.display='inline-block';
+        s.started=false;
+      }
+    },1000);
+  };
+  startBtn.addEventListener('click', startHandler);
+  startBtn.addEventListener('touchstart', e => { e.preventDefault(); startHandler(); }, {passive:false});
 }
-window.crStart=function(){
-  const s=window._crState;if(s.started)return;
-  s.started=true;s.clicks=0;s.timer=10;
-  document.getElementById('cr-start').style.display='none';
-  s.iv=setInterval(()=>{
-    s.timer--;
-    document.getElementById('cr-timer').textContent=s.timer;
-    if(s.timer<=0){
-      clearInterval(s.iv);
-      document.getElementById('cr-btn').disabled=true;
-      const score=s.clicks;
-      document.getElementById('cr-score').textContent='Résultat : '+score+' clics !';
-      mgReward(s.bid,score*10);
-      document.getElementById('cr-start').textContent='↺ Rejouer';
-      document.getElementById('cr-start').style.display='inline-block';
-      s.started=false;
-    }
-  },1000);
-};
-window.crClick=function(){
-  const s=window._crState;if(!s||!s.started)return;
-  s.clicks++;document.getElementById('cr-score').textContent='Clics : '+s.clicks;
-};
 
 // --- NUMBER GUESS ---
 function renderNumberGuess(body,bid){
-  let target=Math.floor(Math.random()*100)+1,attempts=0,maxA=7,won=false;
   body.innerHTML=`<div class="minigame-container mg-guess">
     <div class="mg-title">🔢 Devinette</div>
-    <div class="mg-desc">Devine le nombre entre 1 et 100 en ${maxA} essais !</div>
+    <div class="mg-desc">Devine le nombre entre 1 et 100 en 7 essais !</div>
     <input type="number" id="ng-input" min="1" max="100" placeholder="Ton nombre..." onkeydown="if(event.key==='Enter')ngGuess()">
     <div class="mg-feedback" id="ng-feedback"></div>
-    <div class="mg-attempts" id="ng-attempts">Essais restants : ${maxA}</div>
-    <button class="mg-start-btn" onclick="ngGuess()">Valider</button>
-    <button class="mg-start-btn" style="margin-left:0.5rem;background:var(--surface);border:1px solid var(--border);" onclick="ngReset(${bid})">↺ Nouveau</button>
+    <div class="mg-attempts" id="ng-attempts">Essais restants : 7</div>
+    <button class="mg-start-btn" id="ng-validate">Valider</button>
+    <button class="mg-start-btn" id="ng-reset-btn" style="margin-left:0.5rem;background:var(--surface);border:1px solid var(--border);">↺ Nouveau</button>
   </div>`;
-  window._ngState={target,attempts,maxA,won,bid};
+  window._ngState={target:Math.floor(Math.random()*100)+1,attempts:0,maxA:7,won:false,bid};
+
+  const validate = () => ngGuess();
+  const resetBtn = document.getElementById('ng-reset-btn');
+  const validateBtn = document.getElementById('ng-validate');
+  validateBtn.addEventListener('click', validate);
+  validateBtn.addEventListener('touchstart', e=>{e.preventDefault();validate();},{passive:false});
+  resetBtn.addEventListener('click', ()=>renderNumberGuess(body,bid));
+  resetBtn.addEventListener('touchstart', e=>{e.preventDefault();renderNumberGuess(body,bid);},{passive:false});
 }
 window.ngGuess=function(){
   const s=window._ngState;if(!s||s.won)return;
@@ -1374,62 +1401,81 @@ window.ngGuess=function(){
   if(isNaN(val)||val<1||val>100){document.getElementById('ng-feedback').textContent='Entre un nombre entre 1 et 100 !';return;}
   s.attempts++;
   const rem=s.maxA-s.attempts;
+  const fb=document.getElementById('ng-feedback');
+  const att=document.getElementById('ng-attempts');
   if(val===s.target){
     s.won=true;
-    document.getElementById('ng-feedback').textContent='🎉 Gagné en '+s.attempts+' essais !';
-    document.getElementById('ng-feedback').style.color='var(--green)';
+    fb.textContent='🎉 Gagné en '+s.attempts+' essais !';fb.style.color='var(--green)';
     mgReward(s.bid,(s.maxA-s.attempts+1)*50);
+    att.textContent='';
   } else if(rem<=0){
-    document.getElementById('ng-feedback').textContent='❌ C\'était '+s.target+' !';
-    document.getElementById('ng-feedback').style.color='var(--red)';
-    document.getElementById('ng-attempts').textContent='Game over';
+    fb.textContent='❌ C\'était '+s.target+' !';fb.style.color='var(--red)';
+    att.textContent='Game over — clique ↺ Nouveau pour réessayer';
   } else {
-    document.getElementById('ng-feedback').textContent=val<s.target?'📈 Plus grand !':'📉 Plus petit !';
-    document.getElementById('ng-feedback').style.color='var(--accent3)';
-    document.getElementById('ng-attempts').textContent='Essais restants : '+rem;
+    fb.textContent=val<s.target?'📈 Plus grand !':'📉 Plus petit !';fb.style.color='var(--accent3)';
+    att.textContent='Essais restants : '+rem;
   }
   document.getElementById('ng-input').value='';
 };
-window.ngReset=function(){renderNumberGuess(document.getElementById('mg-body'),window._ngState.bid);};
+window.ngReset=function(){if(window._ngState)renderNumberGuess(document.getElementById('mg-body'),window._ngState.bid);};
 
 // --- MEMORY ---
 function renderMemory(body,bid){
   const emojis=['🍪','🎮','🌟','⚡','🦎','🎯','🔥','💎'];
   const pairs=[...emojis,...emojis].sort(()=>Math.random()-0.5);
-  let revealed=[],matched=[],attempts=0;
   body.innerHTML=`<div class="minigame-container">
     <div class="mg-title">🃏 Mémoire</div>
     <div class="mg-desc">Trouve toutes les paires !</div>
     <div class="mg-memory-grid" id="mem-grid"></div>
-    <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);text-align:center;margin-top:0.75rem;" id="mem-info">0 paires trouvées</div>
+    <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);text-align:center;margin-top:0.75rem;" id="mem-info">0 / 8 paires trouvées</div>
+    <div style="text-align:center;margin-top:0.5rem;"><button class="mg-start-btn" id="mem-replay" style="display:none;">↺ Rejouer</button></div>
   </div>`;
   const grid=document.getElementById('mem-grid');
   window._memState={pairs,revealed:[],matched:[],attempts:0,locked:false,bid};
   pairs.forEach((_,i)=>{
-    const card=document.createElement('div');card.className='mg-card';card.id='mc-'+i;
-    card.textContent='?';
-    card.onclick=()=>memFlip(i);
+    const card=document.createElement('div');
+    card.className='mg-card';card.id='mc-'+i;card.textContent='?';
+    // Utiliser touchstart pour éviter délai sur mobile, click pour desktop
+    const flipHandler = (e) => { e.preventDefault(); memFlip(i); };
+    card.addEventListener('click', ()=>memFlip(i));
+    card.addEventListener('touchend', flipHandler, {passive:false});
     grid.appendChild(card);
   });
+  const replayBtn = document.getElementById('mem-replay');
+  replayBtn.addEventListener('click', ()=>renderMemory(body,bid));
+  replayBtn.addEventListener('touchstart', e=>{e.preventDefault();renderMemory(body,bid);},{passive:false});
 }
 window.memFlip=function(i){
   const s=window._memState;
-  if(s.locked||s.matched.includes(i)||s.revealed.includes(i))return;
+  if(!s||s.locked||s.matched.includes(i)||s.revealed.includes(i))return;
   s.revealed.push(i);
-  document.getElementById('mc-'+i).textContent=s.pairs[i];
-  document.getElementById('mc-'+i).classList.add('revealed');
+  const cardEl=document.getElementById('mc-'+i);
+  if(!cardEl)return;
+  cardEl.textContent=s.pairs[i];cardEl.classList.add('revealed');
   if(s.revealed.length===2){
     s.locked=true;s.attempts++;
     const[a,b]=s.revealed;
     if(s.pairs[a]===s.pairs[b]){
       s.matched.push(a,b);
-      [a,b].forEach(x=>{document.getElementById('mc-'+x).classList.add('matched');document.getElementById('mc-'+x).classList.remove('revealed');});
+      [a,b].forEach(x=>{
+        const el=document.getElementById('mc-'+x);
+        if(el){el.classList.add('matched');el.classList.remove('revealed');}
+      });
       s.revealed=[];s.locked=false;
-      document.getElementById('mem-info').textContent=(s.matched.length/2)+'/'+8+' paires';
-      if(s.matched.length===s.pairs.length){mgReward(s.bid,Math.max(1,100-s.attempts*5));document.getElementById('mem-info').textContent='🎉 Gagné !';}
+      const info=document.getElementById('mem-info');
+      if(info) info.textContent=(s.matched.length/2)+' / 8 paires trouvées';
+      if(s.matched.length===s.pairs.length){
+        mgReward(s.bid,Math.max(1,100-s.attempts*5));
+        if(info) info.textContent='🎉 Gagné en '+s.attempts+' essais !';
+        const replay=document.getElementById('mem-replay');
+        if(replay) replay.style.display='inline-block';
+      }
     } else {
       setTimeout(()=>{
-        [a,b].forEach(x=>{document.getElementById('mc-'+x).textContent='?';document.getElementById('mc-'+x).classList.remove('revealed');});
+        [a,b].forEach(x=>{
+          const el=document.getElementById('mc-'+x);
+          if(el){el.textContent='?';el.classList.remove('revealed');}
+        });
         s.revealed=[];s.locked=false;
       },800);
     }
@@ -1444,24 +1490,42 @@ function renderSnake(body,bid){
     <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--muted);margin-bottom:0.5rem;" id="snake-score">Score : 0</div>
     <canvas id="snake-canvas" width="${SIZE*CELL}" height="${SIZE*CELL}"></canvas>
     <div class="mg-controls">
-      <div class="mg-ctrl-row"><button class="mg-ctrl-btn" onclick="snakeDir(0,-1)">▲</button></div>
+      <div class="mg-ctrl-row"><button class="mg-ctrl-btn" id="sc-up">▲</button></div>
       <div class="mg-ctrl-row">
-        <button class="mg-ctrl-btn" onclick="snakeDir(-1,0)">◄</button>
-        <button class="mg-ctrl-btn" onclick="snakeDir(0,1)">▼</button>
-        <button class="mg-ctrl-btn" onclick="snakeDir(1,0)">►</button>
+        <button class="mg-ctrl-btn" id="sc-left">◄</button>
+        <button class="mg-ctrl-btn" id="sc-down">▼</button>
+        <button class="mg-ctrl-btn" id="sc-right">►</button>
       </div>
     </div>
-    <button class="mg-start-btn" id="snake-start" onclick="snakeStart()">▶ Commencer</button>
+    <button class="mg-start-btn" id="snake-start">▶ Commencer</button>
   </div>`;
   window._snakeState={size:SIZE,cell:CELL,snake:[{x:7,y:7}],dir:{x:1,y:0},food:snakePlaceFood(SIZE),score:0,running:false,bid};
   snakeDraw();
+
+  // Boutons de direction — stopPropagation pour ne pas interférer avec le swipe global
+  const dirs=[['sc-up',0,-1],['sc-down',0,1],['sc-left',-1,0],['sc-right',1,0]];
+  dirs.forEach(([id,dx,dy])=>{
+    const btn=document.getElementById(id);
+    const h=(e)=>{e.stopPropagation();e.preventDefault();snakeDir(dx,dy);};
+    btn.addEventListener('click',h);
+    btn.addEventListener('touchstart',h,{passive:false});
+  });
+
+  // Bouton start / rejouer
+  const startBtn=document.getElementById('snake-start');
+  const startH=(e)=>{e.stopPropagation();if(e.cancelable)e.preventDefault();snakeStart();};
+  startBtn.addEventListener('click',startH);
+  startBtn.addEventListener('touchstart',startH,{passive:false});
 }
 window.snakePlaceFood=function(s){return{x:Math.floor(Math.random()*s),y:Math.floor(Math.random()*s)};};
 window.snakeDir=function(x,y){const s=window._snakeState;if(!s||!s.running)return;if(s.dir.x===-x&&s.dir.y===-y)return;s.dir={x,y};};
 window.snakeStart=function(){
   const s=window._snakeState;if(!s)return;
   s.snake=[{x:7,y:7}];s.dir={x:1,y:0};s.score=0;s.running=true;s.food=snakePlaceFood(s.size);
-  document.getElementById('snake-start').style.display='none';
+  const startBtn=document.getElementById('snake-start');
+  if(startBtn) startBtn.style.display='none';
+  const scoreEl=document.getElementById('snake-score');
+  if(scoreEl) scoreEl.textContent='Score : 0';
   if(snakeInterval)clearInterval(snakeInterval);
   snakeInterval=setInterval(snakeTick,150);
 };
@@ -1469,16 +1533,20 @@ window.snakeTick=function(){
   const s=window._snakeState;if(!s||!s.running)return;
   const head={x:s.snake[0].x+s.dir.x,y:s.snake[0].y+s.dir.y};
   if(head.x<0||head.x>=s.size||head.y<0||head.y>=s.size||s.snake.some(seg=>seg.x===head.x&&seg.y===head.y)){
-    s.running=false;clearInterval(snakeInterval);
+    s.running=false;clearInterval(snakeInterval);snakeInterval=null;
     mgReward(s.bid,s.score*30);
-    document.getElementById('snake-score').textContent='Game over ! Score : '+s.score;
-    document.getElementById('snake-start').textContent='↺ Rejouer';
-    document.getElementById('snake-start').style.display='inline-block';
+    const scoreEl=document.getElementById('snake-score');
+    const startBtn=document.getElementById('snake-start');
+    if(scoreEl) scoreEl.textContent='Game over ! Score : '+s.score;
+    if(startBtn){startBtn.textContent='↺ Rejouer';startBtn.style.display='inline-block';}
     return;
   }
   s.snake.unshift(head);
-  if(head.x===s.food.x&&head.y===s.food.y){s.score++;s.food=snakePlaceFood(s.size);document.getElementById('snake-score').textContent='Score : '+s.score;}
-  else s.snake.pop();
+  if(head.x===s.food.x&&head.y===s.food.y){
+    s.score++;s.food=snakePlaceFood(s.size);
+    const scoreEl=document.getElementById('snake-score');
+    if(scoreEl) scoreEl.textContent='Score : '+s.score;
+  } else s.snake.pop();
   snakeDraw();
 };
 window.snakeDraw=function(){
@@ -1490,13 +1558,22 @@ window.snakeDraw=function(){
   ctx.fillStyle='#ef4444';ctx.fillRect(s.food.x*C+2,s.food.y*C+2,C-4,C-4);
   s.snake.forEach((seg,i)=>{ctx.fillStyle=i===0?'#7c3aed':'#a855f7';ctx.fillRect(seg.x*C+1,seg.y*C+1,C-2,C-2);});
 };
-// Touch swipe for snake
+// Touch swipe for snake — sur le canvas uniquement
 let touchStart={x:0,y:0};
-document.addEventListener('touchstart',e=>{if(!window._snakeState?.running)return;touchStart={x:e.touches[0].clientX,y:e.touches[0].clientY};},{passive:true});
+document.addEventListener('touchstart',e=>{
+  if(!window._snakeState?.running)return;
+  // Ignorer si on touche un bouton
+  if(e.target.tagName==='BUTTON'||e.target.closest('button'))return;
+  touchStart={x:e.touches[0].clientX,y:e.touches[0].clientY};
+},{passive:true});
 document.addEventListener('touchend',e=>{
   if(!window._snakeState?.running)return;
-  const dx=e.changedTouches[0].clientX-touchStart.x,dy=e.changedTouches[0].clientY-touchStart.y;
-  if(Math.abs(dx)>Math.abs(dy)){snakeDir(dx>0?1:-1,0);}else{snakeDir(0,dy>0?1:-1);}
+  if(e.target.tagName==='BUTTON'||e.target.closest('button'))return;
+  const dx=e.changedTouches[0].clientX-touchStart.x;
+  const dy=e.changedTouches[0].clientY-touchStart.y;
+  if(Math.abs(dx)<10&&Math.abs(dy)<10)return; // trop petit = tap, pas swipe
+  if(Math.abs(dx)>Math.abs(dy)){snakeDir(dx>0?1:-1,0);}
+  else{snakeDir(0,dy>0?1:-1);}
 },{passive:true});
 
 // Keyboard arrow keys for snake
