@@ -196,7 +196,7 @@
     .mg-big-btn:active{transform:scale(0.88);}
     .mg-timer{font-family:'Space Mono',monospace;font-size:2rem;font-weight:700;color:var(--accent3);margin:0.5rem 0;}
     .mg-score{font-family:'Space Mono',monospace;font-size:0.9rem;color:var(--accent2);}
-    .mg-start-btn{padding:0.65rem 1.5rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.82rem;cursor:pointer;transition:all 0.2s;margin-top:0.75rem;}
+    .mg-start-btn{padding:0.65rem 1.5rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.82rem;cursor:pointer;transition:all 0.2s;margin-top:0.75rem;touch-action:manipulation;}
     .mg-start-btn:hover{background:#6d28d9;}
     /* Number guess */
     .mg-guess input{width:100%;padding:0.75rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Space Mono',monospace;font-size:1rem;outline:none;margin-bottom:0.75rem;}
@@ -205,14 +205,14 @@
     .mg-attempts{font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--muted);}
     /* Memory */
     .mg-memory-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;max-width:280px;margin:0 auto;}
-    .mg-card{height:60px;border-radius:8px;border:1px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.5rem;transition:all 0.2s;-webkit-user-select:none;}
+    .mg-card{height:60px;border-radius:8px;border:1px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.5rem;transition:all 0.2s;-webkit-user-select:none;touch-action:manipulation;}
     .mg-card.revealed{background:rgba(6,182,212,0.15);border-color:var(--accent2);}
     .mg-card.matched{background:rgba(34,197,94,0.15);border-color:var(--green);cursor:default;}
     /* Snake */
     #snake-canvas{border:2px solid var(--border);border-radius:8px;display:block;margin:0 auto;touch-action:none;}
     .mg-controls{display:flex;flex-direction:column;align-items:center;gap:0.3rem;margin-top:0.5rem;}
     .mg-ctrl-row{display:flex;gap:0.3rem;}
-    .mg-ctrl-btn{width:42px;height:42px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+    .mg-ctrl-btn{width:46px;height:46px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;touch-action:manipulation;}
     .mg-ctrl-btn:active{background:rgba(124,58,237,0.2);}
 
     body.prestige .cookie-btn{animation:prestigeGlow 2s ease infinite;}
@@ -1091,13 +1091,27 @@ function buildBuildingDOM(){
       </div>
       <div class="building-right">
         <div class="building-owned" id="bld-count-${b.id}">0</div>
-        <button class="minigame-btn ${mgLocked?'locked':''}" id="mg-btn-${b.id}" onclick="event.stopPropagation();openMinigame('${b.id}')">
+        <button class="minigame-btn ${mgLocked?'locked':''}" id="mg-btn-${b.id}">
           ${mgLocked?'🔒 Mini-jeu':'🎮 Jouer'}
         </button>
       </div>`;
-    const handler=()=>{if(state.cookies>=getBuildingCost(b))buyBuilding(b.id);};
-    el.addEventListener('click',handler);
-    el.addEventListener('touchend',e=>{e.preventDefault();handler();},{passive:false});
+
+    // Bouton mini-jeu — stoppe la propagation sur TOUS les événements touch/click
+    const mgBtn = el.querySelector(`#mg-btn-${b.id}`);
+    const mgHandler = (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      window.openMinigame(b.id);
+    };
+    mgBtn.addEventListener('click',   mgHandler);
+    mgBtn.addEventListener('touchend', mgHandler, {passive: false});
+    mgBtn.addEventListener('touchstart', e => e.stopPropagation(), {passive: false});
+
+    // Bâtiment — achat (ignoré si on touche le bouton mini-jeu)
+    const buyHandler = () => { if(state.cookies >= getBuildingCost(b)) buyBuilding(b.id); };
+    el.addEventListener('click', buyHandler);
+    el.addEventListener('touchend', e => { e.preventDefault(); buyHandler(); }, {passive: false});
+
     list.appendChild(el);
   });
   bldBuilt=true;
@@ -1242,6 +1256,14 @@ window.openMinigame = function(bid){
   else if(b.mg==='number')renderNumberGuess(body,bid);
   else if(b.mg==='memory')renderMemory(body,bid);
   else if(b.mg==='snake')renderSnake(body,bid);
+  // Sur mobile : ferme le panel bâtiments pour que la modale soit visible
+  if(window.innerWidth < 768){
+    document.getElementById('panel-buildings').classList.remove('mob-show');
+    document.getElementById('panel-upgrades').classList.remove('mob-show');
+    document.getElementById('panel-game').style.display = '';
+    document.getElementById('tab-bld').classList.remove('active');
+    document.getElementById('tab-game').classList.add('active');
+  }
   openModal('mg');
 }
 
