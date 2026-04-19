@@ -581,6 +581,21 @@ if (!currentUser) {
 }
 
 async function initGame() {
+  // Vérifier la maintenance avant tout
+  const maint = await dbGet('config', 'maintenance');
+  if (maint && maint.active) {
+    document.body.innerHTML = `
+      <div style="position:fixed;inset:0;background:#0a0a0f;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Syne',sans-serif;text-align:center;padding:2rem;z-index:9999;">
+        <div style="font-size:4rem;margin-bottom:1.5rem;">🔧</div>
+        <h1 style="font-size:2rem;font-weight:800;color:#e2e8f0;margin-bottom:0.75rem;">Maintenance en cours</h1>
+        <p style="font-family:'Space Mono',monospace;font-size:0.85rem;color:#64748b;max-width:400px;line-height:1.7;margin-bottom:2rem;">${maint.message || 'Le jeu est temporairement indisponible. Revenez bientôt !'}</p>
+        <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:#1e1e2e;border:1px solid #1e1e2e;border-radius:8px;padding:0.5rem 1rem;">
+          Depuis le ${new Date(maint.since||Date.now()).toLocaleString('fr-FR')}
+        </div>
+        <a href="index.html" style="margin-top:2rem;font-family:'Space Mono',monospace;font-size:0.75rem;color:#64748b;text-decoration:none;">← Retour au Hub</a>
+      </div>`;
+    return;
+  }
   const saved = await dbGet('saves', userKey);
   if (saved) loadFromSave(saved);
   updateDisplay();
@@ -875,6 +890,22 @@ setInterval(()=>{
 // ====================================================
 function formatNum(n){
   n=Math.floor(n);
+  if(n>=1e63)return(n/1e63).toFixed(2)+' Vi';
+  if(n>=1e60)return(n/1e60).toFixed(2)+' No';
+  if(n>=1e57)return(n/1e57).toFixed(2)+' Oc';
+  if(n>=1e54)return(n/1e54).toFixed(2)+' Sp';
+  if(n>=1e51)return(n/1e51).toFixed(2)+' Sd';
+  if(n>=1e48)return(n/1e48).toFixed(2)+' Qn';
+  if(n>=1e45)return(n/1e45).toFixed(2)+' Qd';
+  if(n>=1e42)return(n/1e42).toFixed(2)+' Td';
+  if(n>=1e39)return(n/1e39).toFixed(2)+' Dd';
+  if(n>=1e36)return(n/1e36).toFixed(2)+' Ud';
+  if(n>=1e33)return(n/1e33).toFixed(2)+' De';
+  if(n>=1e30)return(n/1e30).toFixed(2)+' No';
+  if(n>=1e27)return(n/1e27).toFixed(2)+' Oc';
+  if(n>=1e24)return(n/1e24).toFixed(2)+' Sp';
+  if(n>=1e21)return(n/1e21).toFixed(2)+' Sx';
+  if(n>=1e18)return(n/1e18).toFixed(2)+' Qt';
   if(n>=1e15)return(n/1e15).toFixed(2)+' Qa';
   if(n>=1e12)return(n/1e12).toFixed(2)+' T';
   if(n>=1e9) return(n/1e9).toFixed(2)+' B';

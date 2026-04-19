@@ -78,6 +78,15 @@
     .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:0.6rem 1.25rem;font-family:'Space Mono',monospace;font-size:0.75rem;z-index:998;transition:transform 0.3s,opacity 0.3s;opacity:0;}
     .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
     .loading-row{text-align:center;padding:2rem;font-family:'Space Mono',monospace;font-size:0.8rem;color:var(--muted);}
+    .maint-bar{position:sticky;top:60px;z-index:90;display:none;align-items:center;justify-content:space-between;gap:1rem;padding:0.65rem 2rem;font-family:'Space Mono',monospace;font-size:0.75rem;transition:all 0.3s;}
+    .maint-bar.off{background:rgba(34,197,94,0.08);border-bottom:1px solid rgba(34,197,94,0.2);color:#22c55e;display:flex;}
+    .maint-bar.on{background:rgba(239,68,68,0.12);border-bottom:1px solid rgba(239,68,68,0.3);color:#ef4444;display:flex;animation:maintPulse 2s ease infinite;}
+    @keyframes maintPulse{0%,100%{background:rgba(239,68,68,0.12);}50%{background:rgba(239,68,68,0.22);}}
+    .maint-toggle{padding:0.35rem 1rem;border-radius:6px;border:none;font-family:'Space Mono',monospace;font-size:0.7rem;font-weight:700;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+    .maint-toggle.activate{background:var(--red);color:#fff;}
+    .maint-toggle.activate:hover{background:#dc2626;}
+    .maint-toggle.deactivate{background:var(--green);color:#fff;}
+    .maint-toggle.deactivate:hover{background:#16a34a;}
   </style>
 </head>
 <body>
@@ -100,6 +109,12 @@
   <a href="index.html" class="nav-logo">AXO<span>BOYS</span></a>
   <span class="nav-badge">⚠ PANEL ADMIN</span>
 </nav>
+
+<!-- MAINTENANCE BAR -->
+<div class="maint-bar off" id="maint-bar">
+  <span id="maint-status">🟢 Jeu en ligne — tous les joueurs peuvent jouer</span>
+  <button class="maint-toggle activate" id="maint-btn" onclick="toggleMaintenance()">🔒 Activer la maintenance</button>
+</div>
 
 <main id="main-content" style="display:none;">
   <div class="page-label">// accès restreint</div>
@@ -180,7 +195,9 @@
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;">
         <div style="font-weight:700;margin-bottom:0.75rem;color:var(--red);">⚠️ Zone dangereuse</div>
         <button class="act-btn danger" style="width:100%;padding:0.65rem;margin-bottom:0.5rem;" onclick="purgeAllScores()">Purger tous les scores</button>
-        <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--muted);">Supprime uniquement les entrées de classement, pas les sauvegardes.</div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:0.75rem;">Supprime uniquement les entrées de classement, pas les sauvegardes.</div>
+        <button class="act-btn danger" style="width:100%;padding:0.65rem;margin-bottom:0.5rem;" onclick="purgeAllSaves()">💣 Reset TOUTES les sauvegardes</button>
+        <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--muted);">Remet à zéro la progression de TOUS les joueurs. Irréversible.</div>
       </div>
     </div>
   </div>
@@ -222,7 +239,31 @@ async function dbList(col) {
   try { const snap=await getDocs(collection(_db,col)); return snap.docs.map(d=>({id:d.id,...d.data()})); } catch(e){return[];}
 }
 
-function formatNum(n){n=Math.floor(n||0);if(n>=1e12)return(n/1e12).toFixed(2)+' T';if(n>=1e9)return(n/1e9).toFixed(2)+' B';if(n>=1e6)return(n/1e6).toFixed(2)+' M';if(n>=1e3)return(n/1e3).toFixed(1)+' K';return n.toString();}
+function formatNum(n){
+  n = Math.floor(n||0);
+  if (n >= 1e63) return (n/1e63).toFixed(2) + ' Vi';   // Vigintillion
+  if (n >= 1e60) return (n/1e60).toFixed(2) + ' No';   // Novemdecillion
+  if (n >= 1e57) return (n/1e57).toFixed(2) + ' Oc';   // Octodecillion
+  if (n >= 1e54) return (n/1e54).toFixed(2) + ' Sp';   // Septendecillion
+  if (n >= 1e51) return (n/1e51).toFixed(2) + ' Sd';   // Sexdecillion
+  if (n >= 1e48) return (n/1e48).toFixed(2) + ' Qn';   // Quindecillion
+  if (n >= 1e45) return (n/1e45).toFixed(2) + ' Qd';   // Quattuordecillion
+  if (n >= 1e42) return (n/1e42).toFixed(2) + ' Td';   // Tredecillion
+  if (n >= 1e39) return (n/1e39).toFixed(2) + ' Dd';   // Duodecillion
+  if (n >= 1e36) return (n/1e36).toFixed(2) + ' Ud';   // Undecillion
+  if (n >= 1e33) return (n/1e33).toFixed(2) + ' De';   // Decillion
+  if (n >= 1e30) return (n/1e30).toFixed(2) + ' No';   // Nonillion
+  if (n >= 1e27) return (n/1e27).toFixed(2) + ' Oc';   // Octillion
+  if (n >= 1e24) return (n/1e24).toFixed(2) + ' Sp';   // Septillion
+  if (n >= 1e21) return (n/1e21).toFixed(2) + ' Sx';   // Sextillion
+  if (n >= 1e18) return (n/1e18).toFixed(2) + ' Qt';   // Quintillion
+  if (n >= 1e15) return (n/1e15).toFixed(2) + ' Qa';   // Quadrillion
+  if (n >= 1e12) return (n/1e12).toFixed(2) + ' T';
+  if (n >= 1e9)  return (n/1e9).toFixed(2)  + ' B';
+  if (n >= 1e6)  return (n/1e6).toFixed(2)  + ' M';
+  if (n >= 1e3)  return (n/1e3).toFixed(1)  + ' K';
+  return n.toString();
+}
 function formatDate(ts){if(!ts)return'—';return new Date(ts).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});}
 
 // ====================================================
@@ -252,7 +293,7 @@ window.checkAdmin = async function() {
   }
   document.getElementById('auth-gate').style.display='none';
   document.getElementById('main-content').style.display='block';
-  loadData(); loadSaves(); loadSysInfo();
+  loadData(); loadSaves(); loadSysInfo(); loadMaintenanceStatus();
   addLog('info','Connexion admin réussie : '+username);
 };
 
@@ -459,6 +500,74 @@ function loadSysInfo(){document.getElementById('sys-info').innerHTML=`Version : 
 
 let toastTimer;
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2500);}
+
+// ====================================================
+// MAINTENANCE — écrit dans Firebase, bloque le clicker
+// ====================================================
+let maintActive = false;
+
+async function loadMaintenanceStatus() {
+  const cfg = await dbGet('config', 'maintenance');
+  maintActive = !!(cfg && cfg.active);
+  updateMaintBar();
+}
+
+function updateMaintBar() {
+  const bar = document.getElementById('maint-bar');
+  const status = document.getElementById('maint-status');
+  const btn = document.getElementById('maint-btn');
+  if (maintActive) {
+    bar.className = 'maint-bar on';
+    status.textContent = '🔴 MAINTENANCE ACTIVE — le jeu est bloqué pour tous les joueurs';
+    btn.className = 'maint-toggle deactivate';
+    btn.textContent = '✅ Désactiver la maintenance';
+  } else {
+    bar.className = 'maint-bar off';
+    status.textContent = '🟢 Jeu en ligne — tous les joueurs peuvent jouer';
+    btn.className = 'maint-toggle activate';
+    btn.textContent = '🔒 Activer la maintenance';
+  }
+}
+
+window.toggleMaintenance = async function() {
+  const newState = !maintActive;
+  const msg = newState
+    ? '⚠️ Activer la maintenance ?\n\nTous les joueurs verront un écran de maintenance et ne pourront plus jouer.'
+    : '✅ Désactiver la maintenance ?\n\nLes joueurs pourront à nouveau accéder au jeu.';
+  if (!confirm(msg)) return;
+  const btn = document.getElementById('maint-btn');
+  btn.disabled = true; btn.textContent = '⏳ ...';
+  await dbSet('config', 'maintenance', {
+    active: newState,
+    message: newState ? '🔧 Maintenance en cours — revenez bientôt !' : '',
+    since: Date.now(),
+    by: 'admin',
+  });
+  maintActive = newState;
+  updateMaintBar();
+  btn.disabled = false;
+  addLog(newState ? 'err' : 'ok', (newState ? 'Maintenance ACTIVÉE' : 'Maintenance DÉSACTIVÉE') + ' par admin');
+  showToast(newState ? '🔒 Maintenance activée — joueurs bloqués' : '✅ Maintenance désactivée — jeu accessible');
+};
+
+window.purgeAllSaves = async function() {
+  if (!confirm('💣 RESET TOTAL ?\n\nCela va remettre à zéro la progression de TOUS les joueurs.\nCette action est IRRÉVERSIBLE.')) return;
+  if (!confirm('Dernière confirmation — vraiment reset TOUS les joueurs ?')) return;
+  const saves = await dbList('saves');
+  let count = 0;
+  for (const s of saves) {
+    await dbSet('saves', s.id, {
+      username: s.username || s.id, cookies: 0, totalCookies: 0,
+      totalClicks: 0, cps: 0, buildings: {}, upgrades: {},
+      rebirths: 0, rebirthPoints: 0, rebirthShop: {}, minigameUnlocks: {},
+      lastSave: Date.now(),
+    });
+    count++;
+  }
+  addLog('err', 'RESET TOTAL de ' + count + ' sauvegardes par admin');
+  showToast('💣 ' + count + ' sauvegardes remises à zéro.');
+  loadSaves();
+};
 
 renderLogs();
 </script>
