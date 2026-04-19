@@ -528,28 +528,26 @@ window.switchMobTab = function(tab) {
 // GAME DATA
 // ====================================================
 const BUILDINGS = [
-  // Ratio cible : ~400-600s pour récupérer le coût de 10 unités
-  // CPS bien plus faibles, coûts bien plus élevés
   { id:'cursor',     emoji:'🖱', name:'Curseur',         baseCost:15,       baseCps:1,       desc:'Clique tout seul',      mg:'clickrush' },
   { id:'grandma',    emoji:'👵', name:'Grand-mère',      baseCost:200,      baseCps:2,       desc:'Fait des cookies avec amour', mg:'number' },
   { id:'farm',       emoji:'🌾', name:'Ferme',           baseCost:2000,     baseCps:5,       desc:'Cultive des cookies',   mg:'memory' },
   { id:'mine',       emoji:'⛏',  name:'Mine',            baseCost:15000,    baseCps:8,       desc:'Extrait des pépites',   mg:'snake' },
-  { id:'factory',    emoji:'🏭', name:'Usine',           baseCost:100000,   baseCps:25,      desc:'Produit en masse',      mg:'clickrush' },
-  { id:'bank',       emoji:'🏦', name:'Banque',          baseCost:1.4e6,    baseCps:80,      desc:'Génère des intérêts',   mg:'number' },
-  { id:'temple',     emoji:'⛩',  name:'Temple',          baseCost:2e7,      baseCps:300,     desc:'Cookies bénis',         mg:'memory' },
-  { id:'wizard',     emoji:'🧙', name:'Tour de mage',    baseCost:3.3e8,    baseCps:1200,    desc:'Cookies magiques',      mg:'snake' },
-  { id:'ship',       emoji:'🚀', name:'Vaisseau',        baseCost:5.1e9,    baseCps:5000,    desc:'Mine des planètes',     mg:'clickrush' },
-  { id:'lab',        emoji:'🔬', name:'Labo temporel',   baseCost:7.5e10,   baseCps:20000,   desc:'Vole dans le passé',    mg:'number' },
-  { id:'portal',     emoji:'🌀', name:'Portail',         baseCost:1e12,     baseCps:80000,   desc:'Ouvre des dimensions',  mg:'memory' },
-  { id:'dragon',     emoji:'🐉', name:'Dragon',          baseCost:1.5e13,   baseCps:300000,  desc:'Crache des cookies',    mg:'clickrush' },
-  { id:'heaven',     emoji:'☁️', name:'Paradis',         baseCost:2.5e14,   baseCps:1e6,     desc:'Cookies célestes',      mg:'number' },
-  { id:'antimatter', emoji:'⚛️', name:'Antimatière',     baseCost:4e15,     baseCps:4e6,     desc:'Annihile la faim',      mg:'snake' },
+  { id:'factory',    emoji:'🏭', name:'Usine',           baseCost:100000,   baseCps:25,      desc:'Produit en masse',      mg:'reaction' },
+  { id:'bank',       emoji:'🏦', name:'Banque',          baseCost:1.4e6,    baseCps:80,      desc:'Génère des intérêts',   mg:'math' },
+  { id:'temple',     emoji:'⛩',  name:'Temple',          baseCost:2e7,      baseCps:300,     desc:'Cookies bénis',         mg:'clickrush' },
+  { id:'wizard',     emoji:'🧙', name:'Tour de mage',    baseCost:3.3e8,    baseCps:1200,    desc:'Cookies magiques',      mg:'number' },
+  { id:'ship',       emoji:'🚀', name:'Vaisseau',        baseCost:5.1e9,    baseCps:5000,    desc:'Mine des planètes',     mg:'memory' },
+  { id:'lab',        emoji:'🔬', name:'Labo temporel',   baseCost:7.5e10,   baseCps:20000,   desc:'Vole dans le passé',    mg:'snake' },
+  { id:'portal',     emoji:'🌀', name:'Portail',         baseCost:1e12,     baseCps:80000,   desc:'Ouvre des dimensions',  mg:'reaction' },
+  { id:'dragon',     emoji:'🐉', name:'Dragon',          baseCost:1.5e13,   baseCps:300000,  desc:'Crache des cookies',    mg:'math' },
+  { id:'heaven',     emoji:'☁️', name:'Paradis',         baseCost:2.5e14,   baseCps:1e6,     desc:'Cookies célestes',      mg:'clickrush' },
+  { id:'antimatter', emoji:'⚛️', name:'Antimatière',     baseCost:4e15,     baseCps:4e6,     desc:'Annihile la faim',      mg:'number' },
   { id:'prism',      emoji:'🌈', name:'Prisme',          baseCost:6e16,     baseCps:1.5e7,   desc:'Lumière en cookies',    mg:'memory' },
-  { id:'chancemaker',emoji:'🍀', name:'Trèfle magique',  baseCost:9e17,     baseCps:6e7,     desc:'Chance infinie',        mg:'clickrush' },
-  { id:'fractal',    emoji:'🔮', name:'Fractale',        baseCost:1.5e19,   baseCps:2.5e8,   desc:'Cookies récursifs',     mg:'number' },
-  { id:'javascript', emoji:'💻', name:'Serveur JS',      baseCost:2.5e20,   baseCps:1e9,     desc:'Compile des cookies',   mg:'snake' },
-  { id:'idleverse',  emoji:'🌌', name:'Idleverse',       baseCost:4e21,     baseCps:4e9,     desc:'Univers de cookies',    mg:'memory' },
-  { id:'cortex',     emoji:'🧠', name:'Neurone',         baseCost:7e22,     baseCps:1.5e10,  desc:'Pense en cookies',      mg:'clickrush' },
+  { id:'chancemaker',emoji:'🍀', name:'Trèfle magique',  baseCost:9e17,     baseCps:6e7,     desc:'Chance infinie',        mg:'snake' },
+  { id:'fractal',    emoji:'🔮', name:'Fractale',        baseCost:1.5e19,   baseCps:2.5e8,   desc:'Cookies récursifs',     mg:'reaction' },
+  { id:'javascript', emoji:'💻', name:'Serveur JS',      baseCost:2.5e20,   baseCps:1e9,     desc:'Compile des cookies',   mg:'math' },
+  { id:'idleverse',  emoji:'🌌', name:'Idleverse',       baseCost:4e21,     baseCps:4e9,     desc:'Univers de cookies',    mg:'reaction' },
+  { id:'cortex',     emoji:'🧠', name:'Neurone',         baseCost:7e22,     baseCps:1.5e10,  desc:'Pense en cookies',      mg:'math' },
 ];
 
 const UPGRADES = [
@@ -725,6 +723,54 @@ if (!currentUser) {
   initGame();
 }
 
+// ── Popup style for update notification
+(function() {
+  const style = document.createElement('style');
+  style.textContent = `
+    .update-popup-overlay{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;}
+    .update-popup{background:#111118;border:2px solid #06b6d4;border-radius:20px;padding:2rem;max-width:380px;width:92vw;text-align:center;animation:popupIn 0.4s cubic-bezier(0.34,1.56,0.64,1);}
+    @keyframes popupIn{from{opacity:0;transform:scale(0.7) translateY(30px);}to{opacity:1;transform:scale(1) translateY(0);}}
+    .update-popup-icon{font-size:3rem;margin-bottom:0.75rem;}
+    .update-popup-title{font-size:1.3rem;font-weight:800;color:#e2e8f0;margin-bottom:0.5rem;}
+    .update-popup-msg{font-family:'Space Mono',monospace;font-size:0.78rem;color:#64748b;line-height:1.6;margin-bottom:1.25rem;}
+    .update-popup-btn{padding:0.7rem 2rem;background:#06b6d4;color:#000;border:none;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.85rem;font-weight:700;cursor:pointer;transition:all 0.2s;}
+    .update-popup-btn:hover{background:#0891b2;}
+  `;
+  document.head.appendChild(style);
+})();
+
+let _lastSeenVersion = 0;
+
+function showUpdatePopup(version, msg) {
+  const existing = document.getElementById('update-popup-overlay');
+  if (existing) existing.remove();
+  const overlay = document.createElement('div');
+  overlay.className = 'update-popup-overlay';
+  overlay.id = 'update-popup-overlay';
+  overlay.innerHTML = `
+    <div class="update-popup">
+      <div class="update-popup-icon">🚀</div>
+      <div class="update-popup-title">Mise à jour v${version}</div>
+      <div class="update-popup-msg">${msg}</div>
+      <button class="update-popup-btn" onclick="this.closest('.update-popup-overlay').remove()">OK !</button>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+async function checkForUpdates() {
+  try {
+    const v = await dbGet('config', 'version');
+    if (!v) return;
+    if (_lastSeenVersion === 0) { _lastSeenVersion = v.number || 0; return; }
+    if (v.number && v.number > _lastSeenVersion) {
+      _lastSeenVersion = v.number;
+      showUpdatePopup(v.number, v.message || 'Une nouvelle mise à jour est disponible !');
+    }
+  } catch(e) {}
+}
+// Poll every 30 seconds for updates
+setInterval(checkForUpdates, 30000);
+
 async function initGame() {
   // Vérifier la maintenance avant tout
   const maint = await dbGet('config', 'maintenance');
@@ -746,8 +792,10 @@ async function initGame() {
     loadFromSave(saved);
     checkOfflineEarnings(saved);  // Vérifie les gains hors ligne
   }
-  updateDisplay();
   if (state.famEquipped && state.famOwned[state.famEquipped]) startFamiliar();
+  scheduleGoldenPotato(); // Démarre après init Firebase + DOM prêt
+  checkForUpdates();      // Vérifie si nouvelle version dispo
+  updateDisplay();
 }
 
 // ====================================================
@@ -1435,6 +1483,8 @@ window.openMinigame = function(bid){
   else if(b.mg==='number')renderNumberGuess(body,bid);
   else if(b.mg==='memory')renderMemory(body,bid);
   else if(b.mg==='snake')renderSnake(body,bid);
+  else if(b.mg==='reaction')renderReactionGame(body,bid);
+  else if(b.mg==='math')renderMathGame(body,bid);
   // Sur mobile : ferme le panel bâtiments pour que la modale soit visible
   if(window.innerWidth < 768){
     document.getElementById('panel-buildings').classList.remove('mob-show');
@@ -1731,6 +1781,213 @@ document.addEventListener('keydown',e=>{
 });
 
 // ====================================================
+// MINI-JEU 5 — RÉACTION : Clique au bon moment sur la cible
+// ====================================================
+function renderReactionGame(body, bid) {
+  if(window._rxState && window._rxState.iv){ clearInterval(window._rxState.iv); clearTimeout(window._rxState.spawnTimer); }
+  body.innerHTML=`<div class="minigame-container" style="text-align:center;">
+    <div class="mg-title">⚡ Réflexes</div>
+    <div class="mg-desc">Clique la cible <strong style="color:var(--accent3)">verte</strong> dès qu'elle apparaît ! Évite les rouges.<br>10 niveaux — tu as 3 vies.</div>
+    <div style="position:relative;width:280px;height:200px;background:var(--bg);border:1px solid var(--border);border-radius:12px;margin:0.75rem auto;overflow:hidden;" id="rx-arena"></div>
+    <div style="display:flex;justify-content:center;gap:2rem;margin-bottom:0.5rem;">
+      <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--accent3);">Score : <span id="rx-score">0</span></div>
+      <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--red);">Vies : <span id="rx-lives">❤️❤️❤️</span></div>
+    </div>
+    <button class="mg-start-btn" id="rx-start">▶ Commencer</button>
+  </div>`;
+
+  window._rxState = { score:0, lives:3, round:0, maxRounds:10, running:false, iv:null, spawnTimer:null, bid };
+
+  const startBtn = document.getElementById('rx-start');
+  const startH = (e) => { e.stopPropagation(); e.preventDefault(); rxStart(); };
+  startBtn.addEventListener('click', startH);
+  startBtn.addEventListener('touchstart', startH, {passive:false});
+}
+
+function rxStart() {
+  const s = window._rxState; if(!s || s.running) return;
+  if(s.iv){ clearInterval(s.iv); } if(s.spawnTimer){ clearTimeout(s.spawnTimer); }
+  s.score=0; s.lives=3; s.round=0; s.running=true;
+  document.getElementById('rx-score').textContent='0';
+  document.getElementById('rx-lives').textContent='❤️❤️❤️';
+  document.getElementById('rx-start').style.display='none';
+  rxSpawnNext();
+}
+
+function rxSpawnNext() {
+  const s = window._rxState; if(!s || !s.running) return;
+  s.round++;
+  if(s.round > s.maxRounds) { rxEnd(true); return; }
+  const arena = document.getElementById('rx-arena'); if(!arena) return;
+  arena.innerHTML='';
+  const isGreen = Math.random() > 0.35; // 65% verte, 35% rouge
+  const size = 44 + Math.floor(Math.random()*20);
+  const x = 10 + Math.random()*(260-size);
+  const y = 10 + Math.random()*(180-size);
+  const delay = 600 + Math.random()*800; // délai avant apparition
+  const lifetime = 900 - s.round*50; // plus difficile avec les rounds
+
+  s.spawnTimer = setTimeout(()=>{
+    const target = document.createElement('div');
+    target.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${size}px;height:${size}px;border-radius:50%;background:${isGreen?'#22c55e':'#ef4444'};cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 0 20px ${isGreen?'rgba(34,197,94,0.6)':'rgba(239,68,68,0.6)'};animation:rxPop 0.2s ease;user-select:none;-webkit-user-select:none;`;
+    target.textContent = isGreen ? '✅' : '❌';
+    arena.appendChild(target);
+
+    let clicked = false;
+    const kill = () => {
+      if(clicked) return; clicked=true;
+      clearTimeout(missTimer);
+      target.remove();
+      arena.innerHTML='';
+      if(isGreen){ s.score++; document.getElementById('rx-score').textContent=s.score; }
+      else { rxLoseLife(); }
+      if(s.running) setTimeout(rxSpawnNext, 300);
+    };
+    target.addEventListener('click', kill);
+    target.addEventListener('touchstart', e=>{ e.preventDefault(); kill(); }, {passive:false});
+
+    // Miss: cible disparaît toute seule
+    const missTimer = setTimeout(()=>{
+      if(clicked) return; clicked=true;
+      target.remove(); arena.innerHTML='';
+      if(isGreen) rxLoseLife(); // raté une verte = vie perdue
+      if(s.running) setTimeout(rxSpawnNext, 300);
+    }, lifetime);
+  }, delay);
+}
+
+function rxLoseLife() {
+  const s = window._rxState; if(!s) return;
+  s.lives--;
+  const hearts = ['','❤️','❤️❤️','❤️❤️❤️'];
+  const el = document.getElementById('rx-lives');
+  if(el) el.textContent = hearts[Math.max(0,s.lives)];
+  if(s.lives <= 0){ rxEnd(false); }
+}
+
+function rxEnd(won) {
+  const s = window._rxState; if(!s) return;
+  s.running=false;
+  clearTimeout(s.spawnTimer);
+  const arena = document.getElementById('rx-arena');
+  if(arena) arena.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;height:100%;font-family:'Space Mono',monospace;font-size:0.85rem;color:${won?'var(--green)':'var(--red)'};">${won?'🏆 Parfait !':'💀 Game Over'}</div>`;
+  const reward = s.score * 25 * (won?2:1);
+  mgReward(s.bid, reward);
+  const startBtn = document.getElementById('rx-start');
+  if(startBtn){ startBtn.textContent='↺ Rejouer'; startBtn.style.display='inline-block'; s.running=false; }
+}
+
+// CSS pour le pop des cibles
+(function(){
+  if(document.getElementById('rx-css')) return;
+  const st=document.createElement('style'); st.id='rx-css';
+  st.textContent=`@keyframes rxPop{from{transform:scale(0);}to{transform:scale(1);}}`;
+  document.head.appendChild(st);
+})();
+
+// ====================================================
+// MINI-JEU 6 — MATHS ÉCLAIR : Calcul mental rapide
+// ====================================================
+function renderMathGame(body, bid) {
+  if(window._mathState && window._mathState.iv){ clearInterval(window._mathState.iv); }
+  body.innerHTML=`<div class="minigame-container" style="text-align:center;">
+    <div class="mg-title">🧮 Maths Éclair</div>
+    <div class="mg-desc">Résous 8 calculs le plus vite possible !<br>Moins tu prends de temps, plus tu gagnes.</div>
+    <div style="font-size:2.2rem;font-weight:800;color:var(--text);margin:1rem 0;min-height:2.8rem;" id="math-question">?</div>
+    <div style="display:flex;justify-content:center;gap:2rem;margin-bottom:0.75rem;">
+      <span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--accent3);">Q : <span id="math-q">0</span>/8</span>
+      <span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--accent2);">⏱ <span id="math-timer">0.0</span>s</span>
+      <span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--green);">✓ <span id="math-correct">0</span></span>
+    </div>
+    <div class="mg-guess" style="margin-bottom:0;">
+      <input type="number" id="math-input" placeholder="Ta réponse..." style="width:160px;padding:0.6rem;text-align:center;" autocomplete="off">
+    </div>
+    <div style="font-family:'Space Mono',monospace;font-size:0.75rem;min-height:1.2rem;margin:0.4rem 0;" id="math-feedback"></div>
+    <button class="mg-start-btn" id="math-start">▶ Commencer</button>
+  </div>`;
+
+  window._mathState = { q:0, correct:0, totalMs:0, running:false, iv:null, startTime:0, bid, answer:0 };
+
+  const startBtn = document.getElementById('math-start');
+  const startH = (e) => { e.stopPropagation(); e.preventDefault(); mathStart(); };
+  startBtn.addEventListener('click', startH);
+  startBtn.addEventListener('touchstart', startH, {passive:false});
+
+  const inp = document.getElementById('math-input');
+  inp.addEventListener('keydown', e=>{ if(e.key==='Enter') mathGuess(); });
+}
+
+function mathGenQuestion(difficulty) {
+  const ops = difficulty < 3 ? ['+','-'] : difficulty < 6 ? ['+','-','×'] : ['+','-','×','÷'];
+  const op = ops[Math.floor(Math.random()*ops.length)];
+  let a, b, ans;
+  if(op==='+'){  a=Math.floor(Math.random()*(10*difficulty))+1; b=Math.floor(Math.random()*(10*difficulty))+1; ans=a+b; }
+  else if(op==='-'){ a=Math.floor(Math.random()*(10*difficulty))+10; b=Math.floor(Math.random()*a)+1; ans=a-b; }
+  else if(op==='×'){ a=Math.floor(Math.random()*10)+2; b=Math.floor(Math.random()*10)+2; ans=a*b; }
+  else { b=Math.floor(Math.random()*9)+2; ans=Math.floor(Math.random()*10)+1; a=b*ans; }
+  return { text:`${a} ${op} ${b} = ?`, answer: ans };
+}
+
+function mathStart() {
+  const s = window._mathState; if(!s||s.running) return;
+  if(s.iv) clearInterval(s.iv);
+  s.q=0; s.correct=0; s.totalMs=0; s.running=true;
+  document.getElementById('math-start').style.display='none';
+  document.getElementById('math-correct').textContent='0';
+  document.getElementById('math-feedback').textContent='';
+  mathNextQuestion();
+  s.iv = setInterval(()=>{
+    const el=document.getElementById('math-timer');
+    if(el&&s.startTime) el.textContent=((Date.now()-s.startTime)/1000).toFixed(1);
+  }, 100);
+}
+
+function mathNextQuestion() {
+  const s = window._mathState; if(!s||!s.running) return;
+  s.q++;
+  if(s.q > 8){ mathEnd(); return; }
+  document.getElementById('math-q').textContent=s.q;
+  const {text, answer} = mathGenQuestion(s.q);
+  document.getElementById('math-question').textContent=text;
+  s.answer=answer; s.startTime=Date.now();
+  const inp=document.getElementById('math-input');
+  if(inp){inp.value=''; inp.focus();}
+}
+
+function mathGuess() {
+  const s=window._mathState; if(!s||!s.running) return;
+  const val=parseInt(document.getElementById('math-input').value);
+  if(isNaN(val)) return;
+  const elapsed=Date.now()-s.startTime;
+  s.totalMs+=elapsed;
+  const fb=document.getElementById('math-feedback');
+  if(val===s.answer){
+    s.correct++;
+    document.getElementById('math-correct').textContent=s.correct;
+    if(fb){fb.textContent='✓ Correct !';fb.style.color='var(--green)';}
+  } else {
+    if(fb){fb.textContent=`✗ C'était ${s.answer}`;fb.style.color='var(--red)';}
+  }
+  setTimeout(mathNextQuestion, 400);
+}
+window.mathGuess = mathGuess;
+
+function mathEnd() {
+  const s=window._mathState; if(!s) return;
+  s.running=false;
+  if(s.iv){clearInterval(s.iv);s.iv=null;}
+  const avgMs=s.totalMs/8;
+  const speedBonus=Math.max(1, Math.floor(5000/avgMs)); // plus rapide = plus de bonus
+  const reward=s.correct*30*speedBonus;
+  mgReward(s.bid,reward);
+  document.getElementById('math-question').textContent=`${s.correct}/8 ✓`;
+  document.getElementById('math-feedback').textContent=`Temps moyen : ${(avgMs/1000).toFixed(1)}s`;
+  document.getElementById('math-feedback').style.color='var(--accent2)';
+  const startBtn=document.getElementById('math-start');
+  if(startBtn){startBtn.textContent='↺ Rejouer';startBtn.style.display='inline-block';}
+}
+
+// ====================================================
 // TOAST & RESET
 // ====================================================
 let toastTimer;
@@ -1860,8 +2117,7 @@ window.potatoClick = function() {
   showToast('🥔✨ Patate dorée ! +'+formatNum(bonus)+' cookies | +1 patate dorée');
   updateDisplay(); scheduleGoldenPotato();
 };
-scheduleGoldenPotato();
-
+// golden potato scheduled after initGame
 
 // ====================================================
 // GOLDEN POTATO SHOP RENDER
@@ -1941,23 +2197,35 @@ function startFamiliar() {
   const bar = document.getElementById('fam-bar');
   if (!pet || !state.famOwned[pet.id]) { bar.innerHTML=''; return; }
 
-  const sprite = document.createElement('div');
-  sprite.className = 'fam-sprite';
-  sprite.id = 'fam-sprite';
-  sprite.textContent = pet.emoji;
-  sprite.title = pet.name;
-  sprite.onclick = () => petTap();
+  // ── Canvas sprite (bien animé, pas un emoji)
+  const cvs = document.createElement('canvas');
+  cvs.id = 'fam-canvas';
+  cvs.width = 54; cvs.height = 54;
+  cvs.style.cssText='position:absolute;bottom:0;left:0;cursor:pointer;image-rendering:pixelated;filter:drop-shadow(0 3px 8px rgba(0,0,0,0.5));';
+  cvs.title = pet.name;
   bar.innerHTML = '';
-  bar.appendChild(sprite);
+  bar.appendChild(cvs);
 
-  // Bouton équiper visible
   const eqBtn = document.getElementById('fam-equip-btn');
   if (eqBtn) eqBtn.style.display = 'block';
 
-  famAnim = { x: 60, dir: 1, sleeping: false, sleepTimer: null, giftTimer: null };
+  famAnim = {
+    x: 60, dir: 1,
+    sleeping: false, sleepTimer: null, giftTimer: null, zzEl: null,
+    frame: 0, frameTick: 0, walkCycle: 0,
+    bounce: 0, bounceDir: 1,
+    tailWag: 0,
+    blinkTimer: 0, blinking: false,
+  };
+
   scheduleGift(pet);
   scheduleSleeep(pet);
-  runFamLoop(pet, sprite);
+
+  const tapH = (e)=>{ e.stopPropagation(); petTap(); };
+  cvs.addEventListener('click', tapH);
+  cvs.addEventListener('touchstart', tapH, {passive:false});
+
+  runFamLoop(pet, cvs);
 }
 
 function stopFamiliar() {
@@ -1973,18 +2241,229 @@ function stopFamiliar() {
   }
 }
 
-// ── Boucle d'animation (déplacement)
-function runFamLoop(pet, sprite) {
-  if (!famAnim) return;
-  const maxX = window.innerWidth - 60;
-  if (!famAnim.sleeping) {
-    famAnim.x += famAnim.dir * pet.speed * 1.2;
-    if (famAnim.x >= maxX) { famAnim.x = maxX; famAnim.dir = -1; }
-    if (famAnim.x <= 20)   { famAnim.x = 20;   famAnim.dir =  1; }
-    sprite.style.left = famAnim.x + 'px';
-    sprite.style.transform = famAnim.dir < 0 ? 'scaleX(-1)' : 'scaleX(1)';
+// ── Palettes par familier
+const PET_PALETTES = {
+  axolotl: { body:'#f472b6', belly:'#fbcfe8', eye:'#1e1e2e', outline:'#be185d', detail:'#f9a8d4', fin:'#f9a8d4' },
+  dragon:  { body:'#ef4444', belly:'#fca5a5', eye:'#fef08a', outline:'#991b1b', detail:'#fca5a5', fin:'#f97316' },
+  cat:     { body:'#f59e0b', belly:'#fde68a', eye:'#06b6d4', outline:'#92400e', detail:'#fde68a', fin:'#f59e0b' },
+  ghost:   { body:'#e2e8f0', belly:'#f8fafc', eye:'#7c3aed', outline:'#94a3b8', detail:'#cbd5e1', fin:'#cbd5e1' },
+  penguin: { body:'#1e293b', belly:'#f8fafc', eye:'#ef4444', outline:'#0f172a', detail:'#f59e0b', fin:'#1e293b' },
+  unicorn: { body:'#c084fc', belly:'#f3e8ff', eye:'#7c3aed', outline:'#7c3aed', detail:'#f0abfc', fin:'#fb7185' },
+  robot:   { body:'#64748b', belly:'#94a3b8', eye:'#06b6d4', outline:'#334155', detail:'#06b6d4', fin:'#64748b' },
+  alien:   { body:'#86efac', belly:'#dcfce7', eye:'#ef4444', outline:'#166534', detail:'#4ade80', fin:'#4ade80' },
+};
+
+function drawPetSprite(ctx, petId, anim, hunger) {
+  const pal = PET_PALETTES[petId] || PET_PALETTES.axolotl;
+  ctx.clearRect(0,0,54,54);
+
+  const S = 54;
+  const cx = S/2;
+  // Bounce offset quand il marche
+  const by = anim.sleeping ? 0 : Math.sin(anim.walkCycle)*2.5;
+  const by2 = anim.sleeping ? 4 : by; // dormir = posé
+
+  const hunger01 = hunger/100;
+  const alpha = 0.4 + hunger01*0.6; // Fondu si faim basse
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+
+  // ── Corps principal (ovale)
+  ctx.fillStyle = pal.body;
+  ctx.strokeStyle = pal.outline;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.ellipse(cx, 30+by2, 17, 14, 0, 0, Math.PI*2);
+  ctx.fill(); ctx.stroke();
+
+  // ── Ventre (ovale clair)
+  ctx.fillStyle = pal.belly;
+  ctx.beginPath();
+  ctx.ellipse(cx, 32+by2, 10, 9, 0, 0, Math.PI*2);
+  ctx.fill();
+
+  // ── Spécifique par pet
+  if(petId==='axolotl'){
+    // Branchies (3 petites tiges roses sur le dessus)
+    for(let i=-1;i<=1;i++){
+      ctx.fillStyle='#f9a8d4'; ctx.strokeStyle='#f472b6'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.moveTo(cx+i*5,18+by2); ctx.lineTo(cx+i*5,10+by2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx+i*5,9+by2,3,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    }
+    // Queue ondulante
+    const tw=Math.sin(anim.tailWag)*6;
+    ctx.strokeStyle=pal.outline; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(cx+15,30+by2); ctx.quadraticCurveTo(cx+26,28+by2+tw,cx+30,24+by2+tw); ctx.stroke();
+    ctx.fillStyle=pal.fin; ctx.beginPath(); ctx.ellipse(cx+30,23+by2+tw,4,3,0.5,0,Math.PI*2); ctx.fill();
+  } else if(petId==='dragon'){
+    // Ailes
+    const wf=Math.sin(anim.walkCycle)*4;
+    ctx.fillStyle=pal.fin; ctx.strokeStyle=pal.outline; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(cx-12,22+by2); ctx.lineTo(cx-24,12+by2+wf); ctx.lineTo(cx-8,25+by2); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx+12,22+by2); ctx.lineTo(cx+24,12+by2+wf); ctx.lineTo(cx+8,25+by2); ctx.closePath(); ctx.fill(); ctx.stroke();
+    // Cornes
+    ctx.strokeStyle=pal.outline; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(cx-5,17+by2); ctx.lineTo(cx-7,9+by2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx+5,17+by2); ctx.lineTo(cx+7,9+by2); ctx.stroke();
+    // Queue
+    const tw=Math.sin(anim.tailWag)*7;
+    ctx.strokeStyle=pal.outline; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(cx+14,32+by2); ctx.quadraticCurveTo(cx+28,30+tw+by2,cx+32,22+tw+by2); ctx.stroke();
+  } else if(petId==='cat'){
+    // Oreilles
+    ctx.fillStyle=pal.body; ctx.strokeStyle=pal.outline; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(cx-12,18+by2); ctx.lineTo(cx-8,8+by2); ctx.lineTo(cx-3,16+by2); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx+12,18+by2); ctx.lineTo(cx+8,8+by2); ctx.lineTo(cx+3,16+by2); ctx.closePath(); ctx.fill(); ctx.stroke();
+    // Queue courbe
+    const tw=Math.sin(anim.tailWag)*8;
+    ctx.strokeStyle=pal.outline; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(cx+14,34+by2); ctx.quadraticCurveTo(cx+30,26+tw+by2,cx+24,16+tw+by2); ctx.stroke();
+    // Moustaches
+    ctx.strokeStyle='rgba(255,255,255,0.7)'; ctx.lineWidth=1;
+    for(let s of[-1,1]){ for(let i=0;i<2;i++){ ctx.beginPath(); ctx.moveTo(cx+s*6,33+by2+i*3); ctx.lineTo(cx+s*16,32+by2+i*2); ctx.stroke(); } }
+  } else if(petId==='ghost'){
+    // Bas du fantôme ondulé
+    ctx.fillStyle=pal.body; ctx.strokeStyle=pal.outline; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(cx-17,30+by2);
+    ctx.quadraticCurveTo(cx-17,42+by2,cx-11,42+by2);
+    ctx.quadraticCurveTo(cx-5,42+by2,cx,38+by2);
+    ctx.quadraticCurveTo(cx+5,42+by2,cx+11,42+by2);
+    ctx.quadraticCurveTo(cx+17,42+by2,cx+17,30+by2);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    // Bras flottants
+    const bf=Math.sin(anim.walkCycle)*4;
+    ctx.fillStyle=pal.body; ctx.strokeStyle=pal.outline;
+    ctx.beginPath(); ctx.ellipse(cx-21,28+by2+bf,5,4,0.3,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(cx+21,28+by2-bf,5,4,-0.3,0,Math.PI*2); ctx.fill(); ctx.stroke();
+  } else if(petId==='penguin'){
+    // Bras/palettes
+    ctx.fillStyle=pal.body; ctx.strokeStyle=pal.outline; ctx.lineWidth=1.5;
+    const pa=Math.sin(anim.walkCycle)*0.4;
+    ctx.save(); ctx.translate(cx-14,30+by2); ctx.rotate(-0.5+pa); ctx.beginPath(); ctx.ellipse(0,0,4,9,0,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.restore();
+    ctx.save(); ctx.translate(cx+14,30+by2); ctx.rotate(0.5-pa); ctx.beginPath(); ctx.ellipse(0,0,4,9,0,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.restore();
+    // Pieds oranges
+    ctx.fillStyle=pal.detail; ctx.strokeStyle=pal.outline; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.ellipse(cx-6,43+by2,5,3,0.3,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(cx+6,43+by2,5,3,-0.3,0,Math.PI*2); ctx.fill(); ctx.stroke();
+  } else if(petId==='unicorn'){
+    // Crinière dégradée
+    const gr=ctx.createLinearGradient(cx-10,10+by2,cx+10,24+by2);
+    gr.addColorStop(0,'#fb7185'); gr.addColorStop(0.5,'#c084fc'); gr.addColorStop(1,'#60a5fa');
+    ctx.fillStyle=gr; ctx.strokeStyle=pal.outline; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.ellipse(cx-2,18+by2,10,8,0.3,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    // Corne
+    ctx.fillStyle='#fde68a'; ctx.strokeStyle='#d97706'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(cx,6+by2); ctx.lineTo(cx-4,16+by2); ctx.lineTo(cx+4,16+by2); ctx.closePath(); ctx.fill(); ctx.stroke();
+    // Queue arc-en-ciel
+    const tw=Math.sin(anim.tailWag)*6;
+    for(let i=0;i<3;i++){
+      const cols=['#fb7185','#c084fc','#60a5fa'];
+      ctx.strokeStyle=cols[i]; ctx.lineWidth=2-i*0.4;
+      ctx.beginPath(); ctx.moveTo(cx+14+i,30+by2); ctx.quadraticCurveTo(cx+28+i,24+tw+by2,cx+26+i,14+tw+by2); ctx.stroke();
+    }
+  } else if(petId==='robot'){
+    // Corps carré
+    ctx.fillStyle=pal.body; ctx.strokeStyle=pal.outline; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.roundRect(cx-15,18+by2,30,22,4); ctx.fill(); ctx.stroke();
+    // Tête carrée
+    ctx.beginPath(); ctx.roundRect(cx-12,8+by2,24,14,3); ctx.fill(); ctx.stroke();
+    // Antenne
+    ctx.strokeStyle=pal.outline; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(cx,8+by2); ctx.lineTo(cx,3+by2); ctx.stroke();
+    ctx.fillStyle='#f59e0b'; ctx.beginPath(); ctx.arc(cx,2+by2,2.5,0,Math.PI*2); ctx.fill();
+    // Bras
+    const ra=Math.sin(anim.walkCycle)*0.5;
+    ctx.fillStyle=pal.body; ctx.strokeStyle=pal.outline;
+    ctx.save(); ctx.translate(cx-17,26+by2); ctx.rotate(ra); ctx.beginPath(); ctx.roundRect(-3,-6,6,12,2); ctx.fill(); ctx.stroke(); ctx.restore();
+    ctx.save(); ctx.translate(cx+17,26+by2); ctx.rotate(-ra); ctx.beginPath(); ctx.roundRect(-3,-6,6,12,2); ctx.fill(); ctx.stroke(); ctx.restore();
+  } else if(petId==='alien'){
+    // Grande tête
+    ctx.fillStyle=pal.body; ctx.strokeStyle=pal.outline; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.ellipse(cx,20+by2,16,14,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    // Antennes
+    ctx.strokeStyle=pal.outline; ctx.lineWidth=1.5;
+    for(let s of[-1,1]){
+      ctx.beginPath(); ctx.moveTo(cx+s*8,8+by2); ctx.lineTo(cx+s*14,1+by2); ctx.stroke();
+      ctx.fillStyle=pal.detail; ctx.beginPath(); ctx.arc(cx+s*14,0+by2,2.5,0,Math.PI*2); ctx.fill();
+    }
+    // Petits bras
+    const ra=Math.sin(anim.walkCycle)*0.5;
+    ctx.fillStyle=pal.body; ctx.strokeStyle=pal.outline;
+    ctx.save(); ctx.translate(cx-18,32+by2); ctx.rotate(ra); ctx.beginPath(); ctx.ellipse(0,0,3,8,0,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.restore();
+    ctx.save(); ctx.translate(cx+18,32+by2); ctx.rotate(-ra); ctx.beginPath(); ctx.ellipse(0,0,3,8,0,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.restore();
   }
-  requestAnimationFrame(() => runFamLoop(pet, sprite));
+
+  // ── Tête / visage (par-dessus le corps)
+  ctx.fillStyle = pal.body;
+  ctx.strokeStyle = pal.outline;
+  ctx.lineWidth = 2;
+  const isGhostOrRobot = petId==='ghost'||petId==='robot'||petId==='alien';
+  if(!isGhostOrRobot){
+    ctx.beginPath();
+    ctx.ellipse(cx, 20+by2, 14, 12, 0, 0, Math.PI*2);
+    ctx.fill(); ctx.stroke();
+  }
+
+  // ── Yeux
+  const eyeY = (petId==='robot'?14:petId==='alien'?19:petId==='ghost'?23:20) + by2;
+  const blinkH = anim.blinking ? 1 : 5;
+  ctx.fillStyle = pal.eye;
+  ctx.beginPath(); ctx.ellipse(cx-5,eyeY,3.5,blinkH,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx+5,eyeY,3.5,blinkH,0,0,Math.PI*2); ctx.fill();
+  // Reflet
+  ctx.fillStyle='rgba(255,255,255,0.7)';
+  ctx.beginPath(); ctx.arc(cx-4,eyeY-1.5,1.2,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx+6,eyeY-1.5,1.2,0,Math.PI*2); ctx.fill();
+
+  // ── Bouche (sourire ou 'zzz' si dort)
+  const mouthY = eyeY + (petId==='ghost'?4:6);
+  if(anim.sleeping){
+    ctx.strokeStyle=pal.outline; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(cx-4,mouthY); ctx.lineTo(cx+4,mouthY); ctx.stroke();
+  } else {
+    ctx.strokeStyle=pal.outline; ctx.lineWidth=1.8;
+    ctx.beginPath(); ctx.arc(cx,mouthY-2,4,0.3,Math.PI-0.3); ctx.stroke();
+  }
+
+  // ── Joues roses si heureux
+  if(!anim.sleeping && hunger>60){
+    ctx.fillStyle='rgba(251,113,133,0.35)';
+    ctx.beginPath(); ctx.ellipse(cx-10,mouthY-1,4,3,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx+10,mouthY-1,4,3,0,0,Math.PI*2); ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+// ── Boucle d'animation canvas
+function runFamLoop(pet, cvs) {
+  if (!famAnim) return;
+  const ctx = cvs.getContext('2d');
+  const maxX = window.innerWidth - 60;
+
+  // Tick d'animation
+  famAnim.frameTick++;
+  if(!famAnim.sleeping){
+    famAnim.walkCycle += 0.12 * pet.speed;
+    famAnim.tailWag   += 0.08;
+    famAnim.x += famAnim.dir * pet.speed * 1.5;
+    if(famAnim.x >= maxX){ famAnim.x=maxX; famAnim.dir=-1; }
+    if(famAnim.x <= 20)  { famAnim.x=20;   famAnim.dir=1;  }
+  }
+  // Clignement naturel toutes ~3s
+  famAnim.blinkTimer++;
+  if(famAnim.blinkTimer > 180){ famAnim.blinking=true; }
+  if(famAnim.blinkTimer > 186){ famAnim.blinking=false; famAnim.blinkTimer=0; }
+
+  // Position du canvas
+  cvs.style.left = (famAnim.x - 27) + 'px';
+  if(famAnim.dir < 0){ cvs.style.transform='scaleX(-1)'; }
+  else               { cvs.style.transform='scaleX(1)';  }
+
+  drawPetSprite(ctx, pet.id, famAnim, state.famHunger);
+
+  requestAnimationFrame(() => runFamLoop(pet, cvs));
 }
 
 // ── Sommeil aléatoire
@@ -2083,10 +2562,7 @@ function petTap() {
 setInterval(() => {
   if (!state.famEquipped) return;
   state.famHunger = Math.max(0, state.famHunger - 1);
-  if (state.famHunger === 0) {
-    const sprite = document.getElementById('fam-sprite');
-    if (sprite) sprite.style.filter = 'grayscale(80%) drop-shadow(0 2px 6px rgba(0,0,0,0.5))';
-  }
+  // Le rendu canvas se met à jour automatiquement via globalAlpha dans drawPetSprite
 }, 60000);
 
 // ── Render boutique familier

@@ -212,8 +212,8 @@
           <div class="field-label">Message (optionnel)</div>
           <input class="field-input" id="update-msg" placeholder="ex: Nouvelle mise à jour disponible !">
         </div>
-        <button onclick="pushUpdate()" style="width:100%;padding:0.75rem;background:var(--accent2);color:#000;border:none;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.85rem;font-weight:700;cursor:pointer;transition:all 0.2s;margin-top:0.25rem;">
-          🚀 Déployer &amp; Recharger tous les joueurs
+        <button id="push-update-btn" style="width:100%;padding:0.75rem;background:var(--accent2);color:#000;border:none;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.85rem;font-weight:700;cursor:pointer;transition:all 0.2s;margin-top:0.25rem;">
+          🚀 Déployer &amp; Notifier tous les joueurs
         </button>
       </div>
     </div>
@@ -612,31 +612,36 @@ window.pushUpdate = async function() {
   const msg = (document.getElementById('update-msg').value || '').trim();
   const current = await loadVersionInfo();
   const newVer = current + 1;
-  if (!confirm('🚀 Déployer la version ' + newVer + ' ?\n\nTous les joueurs connectés verront un banner et leur page se rechargera automatiquement dans 10 secondes après avoir sauvegardé leur progression.')) return;
+  if (!confirm('🚀 Déployer la version ' + newVer + ' ?\n\nTous les joueurs verront une popup de mise à jour sur leur écran immédiatement.')) return;
 
-  const btn = event.target;
-  btn.textContent = '⏳ Déploiement...'; btn.disabled = true;
+  const btn = document.querySelector('[onclick="pushUpdate()"]');
+  if (btn) { btn.textContent = '⏳ Déploiement...'; btn.disabled = true; }
 
   try {
     await dbSet('config', 'version', {
       number: newVer,
-      message: msg,
+      message: msg || 'Une nouvelle mise à jour est disponible !',
       deployedAt: Date.now(),
       by: 'admin',
     });
     document.getElementById('ver-num').textContent = 'v' + newVer;
     document.getElementById('update-msg').value = '';
     addLog('ok', 'Mise à jour v' + newVer + ' déployée' + (msg ? ' — ' + msg : ''));
-    showToast('🚀 Version ' + newVer + ' déployée ! Les joueurs rechargent dans ~5 min.');
+    showToast('🚀 Version ' + newVer + ' déployée ! Popup envoyée à tous les joueurs.');
   } catch(e) {
     showToast('❌ Erreur Firebase : ' + e.message);
+    addLog('err', 'Erreur déploiement : ' + e.message);
   }
 
-  btn.textContent = '🚀 Déployer & Recharger tous les joueurs'; btn.disabled = false;
+  if (btn) { btn.textContent = '🚀 Déployer & Notifier tous les joueurs'; btn.disabled = false; }
 };
 
 renderLogs();
 loadVersionInfo();
+
+// Wire up buttons that need module scope
+const pushBtn = document.getElementById('push-update-btn');
+if (pushBtn) pushBtn.addEventListener('click', window.pushUpdate);
 </script>
 </body>
 </html>
