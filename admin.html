@@ -199,6 +199,22 @@
         <button class="act-btn danger" style="width:100%;padding:0.65rem;margin-bottom:0.5rem;" onclick="purgeAllSaves()">💣 Reset TOUTES les sauvegardes</button>
         <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--muted);">Remet à zéro la progression de TOUS les joueurs. Irréversible.</div>
       </div>
+      <div style="background:var(--surface);border:2px solid var(--accent2);border-radius:12px;padding:1.5rem;">
+        <div style="font-weight:700;margin-bottom:0.5rem;color:var(--accent2);">🚀 Forcer le reload de tous les joueurs</div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--muted);line-height:1.7;margin-bottom:1rem;">
+          Incrémente la version dans Firebase. Tous les joueurs connectés verront un banner et leur page se rechargera automatiquement après avoir sauvegardé.
+        </div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--accent2);margin-bottom:0.75rem;">
+          Version actuelle : <strong id="ver-num">chargement...</strong>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Message (optionnel)</div>
+          <input class="field-input" id="update-msg" placeholder="ex: Nouvelle mise à jour disponible !">
+        </div>
+        <button onclick="pushUpdate()" style="width:100%;padding:0.75rem;background:var(--accent2);color:#000;border:none;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.85rem;font-weight:700;cursor:pointer;transition:all 0.2s;margin-top:0.25rem;">
+          🚀 Déployer &amp; Recharger tous les joueurs
+        </button>
+      </div>
     </div>
   </div>
 </main>
@@ -271,59 +287,31 @@ function formatDate(ts){if(!ts)return'—';return new Date(ts).toLocaleDateStrin
 // ====================================================
 function simpleHash(str){let h=5381;for(let i=0;i<str.length;i++)h=((h<<5)+h)^str.charCodeAt(i);return(h>>>0).toString(16);}
 
-// Mot de passe maître local (fallback si le compte Firebase n'est pas encore admin)
-const MASTER_PW = 'axoboys2026';
-
 window.checkAdmin = async function() {
   const username = (document.getElementById('admin-user').value||'').trim();
   const password = document.getElementById('admin-pw').value;
   const errEl = document.getElementById('auth-err');
   errEl.style.display='none';
   if(!username||!password){errEl.textContent='Remplis tous les champs.';errEl.style.display='block';return;}
-
   const btn = document.querySelector('.auth-btn');
   btn.textContent='Vérification...'; btn.disabled=true;
-
-  // ── Méthode 1 : mot de passe maître local ──────────────────────────────
-  // Utile si le compte n'est pas encore marqué isAdmin dans Firebase
-  if(password === MASTER_PW) {
-    btn.textContent='Accéder →'; btn.disabled=false;
-    grantAccess(username + ' (master pw)');
-    return;
-  }
-
-  // ── Méthode 2 : compte Firebase avec isAdmin:true ──────────────────────
   const user = await dbGet('users', username.toLowerCase());
   btn.textContent='Accéder →'; btn.disabled=false;
-
-  if(!user){
-    errEl.textContent="Compte introuvable. Utilise le mot de passe maître si besoin.";
-    errEl.style.display='block';
-    addLog('err','Compte introuvable : '+username);
-    return;
-  }
-  if(user.password !== simpleHash(password)){
-    errEl.textContent='Mot de passe incorrect.';
-    errEl.style.display='block';
-    addLog('err','Mauvais mot de passe : '+username);
+  if(!user||user.password!==simpleHash(password)){
+    errEl.textContent='Identifiants incorrects.';errEl.style.display='block';
+    addLog('err','Tentative connexion admin échouée : '+username);
     return;
   }
   if(!user.isAdmin){
-    errEl.textContent="Ce compte n'a pas les droits admin. Utilise le mot de passe maître : axoboys2026";
-    errEl.style.display='block';
+    errEl.textContent="Ce compte n'a pas les droits admin.";errEl.style.display='block';
     addLog('err','Accès refusé (non-admin) : '+username);
     return;
   }
-
-  grantAccess(username);
-};
-
-function grantAccess(label) {
   document.getElementById('auth-gate').style.display='none';
   document.getElementById('main-content').style.display='block';
   loadData(); loadSaves(); loadSysInfo(); loadMaintenanceStatus();
-  addLog('info','Connexion admin réussie : '+label);
-}
+  addLog('info','Connexion admin réussie : '+username);
+};
 
 window.changeAdminPw = function(){ showToast('ℹ️ Modifie isAdmin dans Firebase directement.'); };
 
@@ -524,7 +512,16 @@ function addLog(type,msg){const logs=getLogs();logs.unshift({type,msg,ts:Date.no
 function renderLogs(){const logs=getLogs();const box=document.getElementById('log-box');if(!logs.length){box.innerHTML='<div style="color:var(--muted);">Aucune action.</div>';return;}box.innerHTML=logs.map(l=>`<div class="log-line ${l.type}">[${formatDate(l.ts)}] ${l.msg}</div>`).join('');}
 window.clearLogs = function(){localStorage.removeItem(LOG_KEY);renderLogs();showToast('Logs vidés.');};
 
-function loadSysInfo(){document.getElementById('sys-info').innerHTML=`Version : AxoClicker v3.0<br>Stockage : Firebase Firestore<br>Auth : Compte admin Firebase<br>Heure : ${new Date().toLocaleString('fr-FR')}`;}
+async function loadSysInfo(){
+  const v = await dbGet('config', 'version');
+  document.getElementById('sys-info').innerHTML = `
+    Jeu : AxoClicker<br>
+    Version déployée : <strong style="color:var(--accent2);">${v ? 'v' + v.number : 'non définie'}</strong><br>
+    ${v && v.deployedAt ? 'Dernier déploiement : ' + formatDate(v.deployedAt) + '<br>' : ''}
+    Stockage : Firebase Firestore<br>
+    Heure : ${new Date().toLocaleString('fr-FR')}
+  `;
+}
 
 let toastTimer;
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2500);}
@@ -597,7 +594,48 @@ window.purgeAllSaves = async function() {
   loadSaves();
 };
 
+// ====================================================
+// VERSION / RELOAD FORCÉ
+// ====================================================
+async function loadVersionInfo() {
+  try {
+    const v = await dbGet('config', 'version');
+    const num = v ? v.number : 0;
+    const el = document.getElementById('ver-num');
+    if (el) el.textContent = num ? 'v' + num : 'non définie';
+    return num || 0;
+  } catch(e) { return 0; }
+}
+
+window.pushUpdate = async function() {
+  const msg = (document.getElementById('update-msg').value || '').trim();
+  const current = await loadVersionInfo();
+  const newVer = current + 1;
+  if (!confirm('🚀 Déployer la version ' + newVer + ' ?\n\nTous les joueurs connectés verront un banner et leur page se rechargera automatiquement dans 10 secondes après avoir sauvegardé leur progression.')) return;
+
+  const btn = event.target;
+  btn.textContent = '⏳ Déploiement...'; btn.disabled = true;
+
+  try {
+    await dbSet('config', 'version', {
+      number: newVer,
+      message: msg,
+      deployedAt: Date.now(),
+      by: 'admin',
+    });
+    document.getElementById('ver-num').textContent = 'v' + newVer;
+    document.getElementById('update-msg').value = '';
+    addLog('ok', 'Mise à jour v' + newVer + ' déployée' + (msg ? ' — ' + msg : ''));
+    showToast('🚀 Version ' + newVer + ' déployée ! Les joueurs rechargent dans ~5 min.');
+  } catch(e) {
+    showToast('❌ Erreur Firebase : ' + e.message);
+  }
+
+  btn.textContent = '🚀 Déployer & Recharger tous les joueurs'; btn.disabled = false;
+};
+
 renderLogs();
+loadVersionInfo();
 </script>
 </body>
 </html>
