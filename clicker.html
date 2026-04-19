@@ -239,6 +239,29 @@
     .offline-claim-btn{width:100%;padding:1rem;background:linear-gradient(135deg,var(--accent3),#d97706);color:#000;border:none;border-radius:10px;font-family:'Space Mono',monospace;font-size:0.95rem;font-weight:700;cursor:pointer;transition:all 0.2s;box-shadow:0 0 30px rgba(245,158,11,0.3);}
     .offline-claim-btn:hover{transform:translateY(-2px);box-shadow:0 0 50px rgba(245,158,11,0.5);}
     .offline-claim-btn:active{transform:scale(0.98);}
+    /* ── GOLDEN COOKIES CURRENCY BAR ── */
+    .gc-bar{display:flex;align-items:center;gap:0.5rem;padding:0.3rem 0.75rem;background:rgba(245,158,11,0.08);border-bottom:1px solid rgba(245,158,11,0.2);flex-shrink:0;justify-content:space-between;}
+    .gc-balance{display:flex;align-items:center;gap:0.4rem;font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--accent3);font-weight:700;}
+    .gc-balance span{font-size:1rem;}
+    .gc-shop-btn{padding:0.28rem 0.75rem;background:linear-gradient(135deg,#d97706,#f59e0b);color:#000;border:none;border-radius:6px;font-family:'Space Mono',monospace;font-size:0.62rem;font-weight:700;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+    .gc-shop-btn:active{transform:scale(0.95);}
+
+    /* ── GOLDEN SHOP ITEMS ── */
+    .gs-item{display:flex;align-items:center;gap:0.75rem;padding:0.85rem 1rem;border-radius:12px;border:1px solid var(--border);background:var(--surface);margin-bottom:0.4rem;cursor:pointer;transition:all 0.15s;}
+    .gs-item.can-buy{border-color:#f59e0b;background:rgba(245,158,11,0.05);}
+    .gs-item.can-buy:active{transform:scale(0.98);}
+    .gs-item.bought{opacity:0.35;cursor:default;border-color:var(--green);}
+    .gs-item.too-exp{opacity:0.4;cursor:not-allowed;}
+    .gs-emoji{font-size:1.6rem;flex-shrink:0;}
+    .gs-info{flex:1;min-width:0;}
+    .gs-name{font-size:0.82rem;font-weight:700;}
+    .gs-desc{font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--muted);margin-top:0.1rem;}
+    .gs-cost{font-family:'Space Mono',monospace;font-size:0.65rem;color:#f59e0b;margin-top:0.15rem;}
+
+    /* ── GOLDEN COOKIE DROP ANIM ── */
+    .gc-drop{position:fixed;pointer-events:none;z-index:999;font-size:1.1rem;animation:gcFloat 1.2s ease-out forwards;}
+    @keyframes gcFloat{0%{opacity:1;transform:translateY(0) scale(1.2);}100%{opacity:0;transform:translateY(-80px) scale(0.7);}}
+
   </style>
 </head>
 <body>
@@ -254,6 +277,13 @@
 </nav>
 
 <div id="login-banner-wrap"></div>
+
+
+<!-- GOLDEN COOKIES BAR -->
+<div class="gc-bar" id="gc-bar">
+  <div class="gc-balance"><span>🍪✨</span> <span id="gc-count">0</span> cookies dorées</div>
+  <button class="gc-shop-btn" onclick="openModal('gshop')">✨ Boutique Dorée</button>
+</div>
 
 <div class="game-wrapper">
   <!-- LEFT: UPGRADES -->
@@ -312,6 +342,19 @@
 
 <div class="golden-cookie" id="golden-cookie" onclick="goldenClick()">✨</div>
 <div class="toast" id="toast"></div>
+
+
+<!-- ===== GOLDEN SHOP MODAL ===== -->
+<div class="modal-overlay" id="modal-gshop" onclick="closeModalIfOutside(event,'gshop')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">✨ Boutique Dorée</div>
+      <button class="modal-close" onclick="closeModal('gshop')">✕</button>
+    </div>
+    <div class="modal-body" id="gshop-body"></div>
+  </div>
+</div>
 
 <!-- ===== LEADERBOARD MODAL ===== -->
 <div class="modal-overlay" id="modal-lb" onclick="closeLbIfOutside(event)">
@@ -571,12 +614,41 @@ const REBIRTH_ITEMS = [
   { id:'rb_mg20',   emoji:'🎮', name:'Débloquer mini-jeu Neurone',    cost:9, desc:'Accès au mini-jeu Neurone',   effect:'minigame', bid:'cortex',      max:1 },
 ];
 
+
+// ====================================================
+// GOLDEN SHOP — acheté avec des cookies dorées 🍪✨
+// effect: 'gcRate'   → augmente la fréquence des drops de cookies dorées
+//         'gcBonus'  → multiplie les gains des cookies dorées cliquées
+//         'cpsBoost' → bonus permanent de production globale
+//         'gcDrop'   → augmente la chance de drop d'un cookie doré lors d'un clic normal
+// ====================================================
+const GOLDEN_ITEMS = [
+  // ── FRÉQUENCE DES DROPS ──────────────────────────
+  { id:'gs_freq1', emoji:'⏱', name:'Temps réduit I',      cost:3,   desc:'Cookies dorées apparaissent 25% plus souvent',       effect:'gcRate',   val:0.75, max:1 },
+  { id:'gs_freq2', emoji:'⚡', name:'Temps réduit II',     cost:8,   desc:'Cookies dorées apparaissent 40% plus souvent',       effect:'gcRate',   val:0.60, max:1 },
+  { id:'gs_freq3', emoji:'🌪', name:'Pluie dorée',         cost:20,  desc:'Cookies dorées apparaissent 2× plus souvent',        effect:'gcRate',   val:0.50, max:1 },
+  // ── VALEUR DES COOKIES DORÉES CLIQUÉES ─────────
+  { id:'gs_val1',  emoji:'💰', name:'Lingot d'or I',      cost:2,   desc:'Cookies dorées valent 50% de plus',                  effect:'gcBonus',  val:1.5,  max:1 },
+  { id:'gs_val2',  emoji:'👑', name:'Lingot d'or II',     cost:6,   desc:'Cookies dorées valent 2× plus',                      effect:'gcBonus',  val:2.0,  max:1 },
+  { id:'gs_val3',  emoji:'💎', name:'Trésor divin',        cost:15,  desc:'Cookies dorées valent 4× plus',                      effect:'gcBonus',  val:4.0,  max:1 },
+  // ── BONUS PRODUCTION BÂTIMENTS ─────────────────
+  { id:'gs_cps1',  emoji:'🏭', name:'Huile d'or I',       cost:5,   desc:'+25% de production de tous les bâtiments',           effect:'cpsBoost', val:1.25, max:1 },
+  { id:'gs_cps2',  emoji:'🌟', name:'Huile d'or II',      cost:12,  desc:'+50% de production de tous les bâtiments',           effect:'cpsBoost', val:1.50, max:1 },
+  { id:'gs_cps3',  emoji:'🌌', name:'Alchimie dorée',      cost:30,  desc:'+100% de production de tous les bâtiments',          effect:'cpsBoost', val:2.00, max:1 },
+  // ── CHANCE DE DROP AU CLIC ─────────────────────
+  { id:'gs_drop1', emoji:'🎲', name:'Doigt chanceux I',    cost:4,   desc:'Chaque clic a 2% de chance de dropper un cookie doré', effect:'gcDrop', val:0.02, max:1 },
+  { id:'gs_drop2', emoji:'🍀', name:'Doigt chanceux II',   cost:10,  desc:'Chaque clic a 5% de chance de dropper un cookie doré', effect:'gcDrop', val:0.05, max:1 },
+  { id:'gs_drop3', emoji:'🌠', name:'Main enchantée',      cost:25,  desc:'Chaque clic a 10% de chance de dropper un cookie doré',effect:'gcDrop', val:0.10, max:1 },
+];
+
 // ====================================================
 // STATE
 // ====================================================
 let state = {
   cookies:0, totalCookies:0, totalClicks:0,
   cookiesThisLife:0,
+  goldenCookies:0,  // 2e monnaie
+  goldenShop:{},
   buildings:{}, upgrades:{},
   // Rebirth
   rebirths:0, rebirthPoints:0, rebirthShop:{},
@@ -729,6 +801,8 @@ function loadFromSave(saved) {
   state.rebirths      = saved.rebirths      || 0;
   state.rebirthPoints = saved.rebirthPoints || 0;
   state.cookiesThisLife = saved.cookiesThisLife || 0;
+  state.goldenCookies  = saved.goldenCookies  || 0;
+  state.goldenShop     = saved.goldenShop     || {};
   state.rebirthShop   = saved.rebirthShop   || {};
   state.minigameUnlocks= saved.minigameUnlocks || {};
   if (saved.buildings) Object.assign(state.buildings, saved.buildings);
@@ -746,6 +820,8 @@ function getStateToSave() {
     rebirths: state.rebirths, rebirthPoints: state.rebirthPoints,
     rebirthShop: {...state.rebirthShop},
     minigameUnlocks: {...state.minigameUnlocks},
+    goldenCookies: state.goldenCookies,
+    goldenShop: {...(state.goldenShop||{})},
     lastSave: Date.now(),
   };
 }
@@ -787,6 +863,18 @@ function recomputeMultipliers() {
     if (item.effect==='globalMult') state.rebirthGlobalBonus *= item.val;
     if (item.effect==='autoclicker') state.autoclickerCps = Math.max(state.autoclickerCps, item.val);
   });
+  // Golden shop bonuses
+  state.gcRateMult    = 1;   // multiplicateur du timer (< 1 = plus fréquent)
+  state.gcBonusMult   = 1;   // multiplicateur valeur golden cookie cliquée
+  state.gcCpsBoost    = 1;   // multiplicateur CPS bâtiments
+  state.gcDropChance  = 0;   // chance/clic de dropper un cookie doré
+  GOLDEN_ITEMS.forEach(item => {
+    if (!(state.goldenShop||{})[item.id]) return;
+    if (item.effect==='gcRate')   state.gcRateMult   *= item.val;
+    if (item.effect==='gcBonus')  state.gcBonusMult  *= item.val;
+    if (item.effect==='cpsBoost') state.gcCpsBoost   *= item.val;
+    if (item.effect==='gcDrop')   state.gcDropChance += item.val;
+  });
 }
 
 // ====================================================
@@ -818,7 +906,7 @@ function computeCps() {
   BUILDINGS.forEach(b => cps += (state.buildings[b.id]||0) * b.baseCps * (state.buildingMult[b.id]||1));
   // Rebirth global bonus = +50% per rebirth level
   const rebirthBonus = 1 + (state.rebirths * 0.2);
-  return cps * state.globalMult * rebirthBonus * state.rebirthGlobalBonus;
+  return cps * state.globalMult * rebirthBonus * state.rebirthGlobalBonus * (state.gcCpsBoost||1);
 }
 
 function getClickValue() {
@@ -840,6 +928,17 @@ function handleClick(cx, cy) {
   const val = getClickValue();
   state.cookies += val; state.totalCookies += val; state.cookiesThisLife += val; state.totalClicks++;
   spawnParticle(cx, cy, '+' + formatNum(val));
+  // Chance de dropper un cookie doré via le shop
+  if ((state.gcDropChance||0) > 0 && Math.random() < state.gcDropChance) {
+    state.goldenCookies += 1;
+    const el = document.createElement('div');
+    el.className = 'gc-drop';
+    el.textContent = '🍪✨ +1';
+    el.style.left = (cx + (Math.random()-0.5)*40) + 'px';
+    el.style.top  = (cy - 20) + 'px';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1200);
+  }
   updateDisplay();
 }
 
@@ -985,7 +1084,7 @@ function renderRebirthShop() {
 // GOLDEN COOKIE
 // ====================================================
 let goldenTimer=null;
-function scheduleGoldenCookie(){clearTimeout(goldenTimer);goldenTimer=setTimeout(showGoldenCookie,60000+Math.random()*120000);}
+function scheduleGoldenCookie(){clearTimeout(goldenTimer);const rate=(state.gcRateMult||1);goldenTimer=setTimeout(showGoldenCookie,(60000+Math.random()*120000)*rate);}
 function showGoldenCookie(){
   const gc=document.getElementById('golden-cookie');
   gc.style.display='block';
@@ -995,12 +1094,18 @@ function showGoldenCookie(){
   setTimeout(()=>{gc.style.display='none';scheduleGoldenCookie();},10000);
 }
 window.goldenClick = function(){
-  const bonus=Math.max(13,computeCps()*20);
-  state.cookies+=bonus;state.totalCookies+=bonus;
+  const bonus=Math.floor(Math.max(13,computeCps()*20) * (state.gcBonusMult||1));
+  const gcEarned = 1;
+  state.cookies+=bonus; state.totalCookies+=bonus;
+  state.goldenCookies += gcEarned;
   document.getElementById('golden-cookie').style.display='none';
   spawnParticle(window.innerWidth/2,window.innerHeight/2,'✨ +'+formatNum(bonus));
-  showToast('✨ Cookie doré ! +'+formatNum(bonus));
-  scheduleGoldenCookie();updateDisplay();
+  const gcEl = document.createElement('div');
+  gcEl.className='gc-drop'; gcEl.textContent='🍪✨ +1';
+  gcEl.style.left=(window.innerWidth/2+30)+'px'; gcEl.style.top=(window.innerHeight/2-40)+'px';
+  document.body.appendChild(gcEl); setTimeout(()=>gcEl.remove(),1200);
+  showToast('✨ Cookie doré ! +'+formatNum(bonus)+' 🍪 et +1 🍪✨');
+  scheduleGoldenCookie(); updateDisplay();
 }
 scheduleGoldenCookie();
 
@@ -1098,6 +1203,7 @@ function updateDisplay(){
   else rInfo.style.display='none';
   let bldTotal=0;Object.values(state.buildings).forEach(v=>bldTotal+=v||0);
   document.getElementById('bld-total').textContent=bldTotal+' total';
+  const gcEl=document.getElementById('gc-count');if(gcEl)gcEl.textContent=Math.floor(state.goldenCookies||0);
   const boughtUpg=UPGRADES.filter(u=>state.upgrades[u.id]).length;
   document.getElementById('upg-count').textContent=boughtUpg+'/'+UPGRADES.length;
   renderBuildings();renderUpgrades();updateTabDots();
@@ -1213,10 +1319,52 @@ window.openModal = function(id) {
   if(id==='lb')renderLeaderboard();
   if(id==='rebirth')openRebirthModal();
   if(id==='rshop')renderRebirthShop();
+  if(id==='gshop')renderGoldenShop();
 }
 window.closeModal = function(id) { document.getElementById('modal-'+id).classList.remove('open'); }
 window.closeLbIfOutside = function(e){if(e.target===document.getElementById('modal-lb'))closeModal('lb');}
 window.closeModalIfOutside = function(e,id){if(e.target===document.getElementById('modal-'+id))closeModal(id);}
+
+// ====================================================
+// GOLDEN SHOP RENDER
+// ====================================================
+function renderGoldenShop() {
+  const body = document.getElementById('gshop-body');
+  const gc = state.goldenCookies || 0;
+  let html = `<div style="padding:0.75rem;">
+    <div style="font-family:'Space Mono',monospace;font-size:0.78rem;color:#f59e0b;margin-bottom:0.5rem;">🍪✨ Cookies dorées disponibles : <strong>${gc}</strong></div>
+    <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:1rem;line-height:1.6;">
+      Gagne des cookies dorées en cliquant sur les cookies dorés qui apparaissent sur l'écran, ou via le shop "Doigt chanceux".
+    </div>`;
+  GOLDEN_ITEMS.forEach(item => {
+    const bought = !!(state.goldenShop||{})[item.id];
+    const canBuy = !bought && gc >= item.cost;
+    const cls = bought ? 'bought' : canBuy ? 'can-buy' : 'too-exp';
+    html += `<div class="gs-item ${cls}" onclick="buyGoldenItem('${item.id}')">
+      <div class="gs-emoji">${item.emoji}</div>
+      <div class="gs-info">
+        <div class="gs-name">${item.name}</div>
+        <div class="gs-desc">${item.desc}</div>
+        <div class="gs-cost">${bought ? '✓ Acheté' : '🍪✨ ' + item.cost + ' cookie' + (item.cost > 1 ? 's' : '') + ' dorée' + (item.cost > 1 ? 's' : '')}</div>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  body.innerHTML = html;
+}
+
+window.buyGoldenItem = function(id) {
+  const item = GOLDEN_ITEMS.find(x => x.id === id); if (!item) return;
+  if (!state.goldenShop) state.goldenShop = {};
+  if (state.goldenShop[id]) return;
+  if ((state.goldenCookies||0) < item.cost) { showToast('❌ Pas assez de cookies dorées !'); return; }
+  state.goldenCookies -= item.cost;
+  state.goldenShop[id] = true;
+  recomputeMultipliers();
+  showToast(item.emoji + ' ' + item.name + ' acheté !');
+  renderGoldenShop();
+  updateDisplay();
+};
 
 // ====================================================
 // LEADERBOARD — reads all saves from shared storage
