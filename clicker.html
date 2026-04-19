@@ -411,116 +411,117 @@ window.switchMobTab = function(tab) {
 // GAME DATA
 // ====================================================
 const BUILDINGS = [
-  // Coût de base / CPS de base — ratio cible : récupère le coût en ~100-150s avec 10 unités
-  { id:'cursor',     emoji:'🖱', name:'Curseur',         baseCost:15,      baseCps:0.1,    desc:'Clique tout seul',      mg:'clickrush' },
-  { id:'grandma',    emoji:'👵', name:'Grand-mère',      baseCost:100,     baseCps:0.5,    desc:'Fait des cookies avec amour', mg:'number' },
-  { id:'farm',       emoji:'🌾', name:'Ferme',           baseCost:500,     baseCps:4,      desc:'Cultive des cookies',   mg:'memory' },
-  { id:'mine',       emoji:'⛏',  name:'Mine',            baseCost:2000,    baseCps:10,     desc:'Extrait des pépites',   mg:'snake' },
-  { id:'factory',    emoji:'🏭', name:'Usine',           baseCost:8000,    baseCps:40,     desc:'Produit en masse',      mg:'clickrush' },
-  { id:'bank',       emoji:'🏦', name:'Banque',          baseCost:40000,   baseCps:100,    desc:'Génère des intérêts',   mg:'number' },
-  { id:'temple',     emoji:'⛩',  name:'Temple',          baseCost:200000,  baseCps:400,    desc:'Cookies bénis',         mg:'memory' },
-  { id:'wizard',     emoji:'🧙', name:'Tour de mage',    baseCost:1e6,     baseCps:1600,   desc:'Cookies magiques',      mg:'snake' },
-  { id:'ship',       emoji:'🚀', name:'Vaisseau',        baseCost:5e6,     baseCps:6500,   desc:'Mine des planètes',     mg:'clickrush' },
-  { id:'lab',        emoji:'🔬', name:'Labo temporel',   baseCost:2.5e7,   baseCps:28000,  desc:'Vole dans le passé',    mg:'number' },
-  { id:'portal',     emoji:'🌀', name:'Portail',         baseCost:1.2e8,   baseCps:120000, desc:'Ouvre des dimensions',  mg:'memory' },
-  { id:'dragon',     emoji:'🐉', name:'Dragon',          baseCost:6e8,     baseCps:500000, desc:'Crache des cookies',    mg:'clickrush' },
-  { id:'heaven',     emoji:'☁️', name:'Paradis',         baseCost:3e9,     baseCps:1.5e6,  desc:'Cookies célestes',      mg:'number' },
-  { id:'antimatter', emoji:'⚛️', name:'Antimatière',     baseCost:1.5e10,  baseCps:6e6,    desc:'Annihile la faim',      mg:'snake' },
-  { id:'prism',      emoji:'🌈', name:'Prisme',          baseCost:7e10,    baseCps:2.5e7,  desc:'Lumière en cookies',    mg:'memory' },
-  { id:'chancemaker',emoji:'🍀', name:'Trèfle magique',  baseCost:3.5e11,  baseCps:1e8,    desc:'Chance infinie',        mg:'clickrush' },
-  { id:'fractal',    emoji:'🔮', name:'Fractale',        baseCost:1.7e12,  baseCps:3.5e8,  desc:'Cookies récursifs',     mg:'number' },
-  { id:'javascript', emoji:'💻', name:'Serveur JS',      baseCost:8e12,    baseCps:1.5e9,  desc:'Compile des cookies',   mg:'snake' },
-  { id:'idleverse',  emoji:'🌌', name:'Idleverse',       baseCost:4e13,    baseCps:6e9,    desc:'Univers de cookies',    mg:'memory' },
-  { id:'cortex',     emoji:'🧠', name:'Neurone',         baseCost:2e14,    baseCps:2.5e10, desc:'Pense en cookies',      mg:'clickrush' },
+  // Ratio cible : ~400-600s pour récupérer le coût de 10 unités
+  // CPS bien plus faibles, coûts bien plus élevés
+  { id:'cursor',     emoji:'🖱', name:'Curseur',         baseCost:15,       baseCps:0.1,     desc:'Clique tout seul',      mg:'clickrush' },
+  { id:'grandma',    emoji:'👵', name:'Grand-mère',      baseCost:200,      baseCps:0.5,     desc:'Fait des cookies avec amour', mg:'number' },
+  { id:'farm',       emoji:'🌾', name:'Ferme',           baseCost:2000,     baseCps:3,       desc:'Cultive des cookies',   mg:'memory' },
+  { id:'mine',       emoji:'⛏',  name:'Mine',            baseCost:15000,    baseCps:8,       desc:'Extrait des pépites',   mg:'snake' },
+  { id:'factory',    emoji:'🏭', name:'Usine',           baseCost:100000,   baseCps:25,      desc:'Produit en masse',      mg:'clickrush' },
+  { id:'bank',       emoji:'🏦', name:'Banque',          baseCost:1.4e6,    baseCps:80,      desc:'Génère des intérêts',   mg:'number' },
+  { id:'temple',     emoji:'⛩',  name:'Temple',          baseCost:2e7,      baseCps:300,     desc:'Cookies bénis',         mg:'memory' },
+  { id:'wizard',     emoji:'🧙', name:'Tour de mage',    baseCost:3.3e8,    baseCps:1200,    desc:'Cookies magiques',      mg:'snake' },
+  { id:'ship',       emoji:'🚀', name:'Vaisseau',        baseCost:5.1e9,    baseCps:5000,    desc:'Mine des planètes',     mg:'clickrush' },
+  { id:'lab',        emoji:'🔬', name:'Labo temporel',   baseCost:7.5e10,   baseCps:20000,   desc:'Vole dans le passé',    mg:'number' },
+  { id:'portal',     emoji:'🌀', name:'Portail',         baseCost:1e12,     baseCps:80000,   desc:'Ouvre des dimensions',  mg:'memory' },
+  { id:'dragon',     emoji:'🐉', name:'Dragon',          baseCost:1.5e13,   baseCps:300000,  desc:'Crache des cookies',    mg:'clickrush' },
+  { id:'heaven',     emoji:'☁️', name:'Paradis',         baseCost:2.5e14,   baseCps:1e6,     desc:'Cookies célestes',      mg:'number' },
+  { id:'antimatter', emoji:'⚛️', name:'Antimatière',     baseCost:4e15,     baseCps:4e6,     desc:'Annihile la faim',      mg:'snake' },
+  { id:'prism',      emoji:'🌈', name:'Prisme',          baseCost:6e16,     baseCps:1.5e7,   desc:'Lumière en cookies',    mg:'memory' },
+  { id:'chancemaker',emoji:'🍀', name:'Trèfle magique',  baseCost:9e17,     baseCps:6e7,     desc:'Chance infinie',        mg:'clickrush' },
+  { id:'fractal',    emoji:'🔮', name:'Fractale',        baseCost:1.5e19,   baseCps:2.5e8,   desc:'Cookies récursifs',     mg:'number' },
+  { id:'javascript', emoji:'💻', name:'Serveur JS',      baseCost:2.5e20,   baseCps:1e9,     desc:'Compile des cookies',   mg:'snake' },
+  { id:'idleverse',  emoji:'🌌', name:'Idleverse',       baseCost:4e21,     baseCps:4e9,     desc:'Univers de cookies',    mg:'memory' },
+  { id:'cortex',     emoji:'🧠', name:'Neurone',         baseCost:7e22,     baseCps:1.5e10,  desc:'Pense en cookies',      mg:'clickrush' },
 ];
 
 const UPGRADES = [
-  // CLICS
-  { id:'click1', emoji:'👆', name:"Doigt d'acier",       cost:50,      desc:'×2/clic',    effect:'click',    mult:2 },
-  { id:'click2', emoji:'👊', name:'Poing de fer',         cost:500,     desc:'×2/clic',    effect:'click',    mult:2 },
-  { id:'click3', emoji:'🤛', name:'Frappe divine',        cost:5000,    desc:'×2/clic',    effect:'click',    mult:2 },
-  { id:'click4', emoji:'⚡', name:'Éclair de clic',       cost:50000,   desc:'×3/clic',    effect:'click',    mult:3 },
-  { id:'click5', emoji:'🌩', name:'Tonnerre de doigt',    cost:500000,  desc:'×5/clic',    effect:'click',    mult:5 },
-  { id:'click6', emoji:'☄️', name:'Météore digital',      cost:5e6,     desc:'×5/clic',    effect:'click',    mult:5 },
+  // CLICS — bien plus chers, les clics ne doivent pas exploser
+  { id:'click1', emoji:'👆', name:"Doigt d'acier",       cost:200,     desc:'×2/clic',    effect:'click',    mult:2 },
+  { id:'click2', emoji:'👊', name:'Poing de fer',         cost:5000,    desc:'×2/clic',    effect:'click',    mult:2 },
+  { id:'click3', emoji:'🤛', name:'Frappe divine',        cost:100000,  desc:'×2/clic',    effect:'click',    mult:2 },
+  { id:'click4', emoji:'⚡', name:'Éclair de clic',       cost:4e6,     desc:'×3/clic',    effect:'click',    mult:3 },
+  { id:'click5', emoji:'🌩', name:'Tonnerre de doigt',    cost:2e8,     desc:'×3/clic',    effect:'click',    mult:3 },
+  { id:'click6', emoji:'☄️', name:'Météore digital',      cost:1e10,    desc:'×4/clic',    effect:'click',    mult:4 },
   // CURSEUR
-  { id:'cur1',   emoji:'🖱', name:'Souris rapide',        cost:100,     desc:'Curseurs ×2', effect:'building', bid:'cursor',      mult:2 },
-  { id:'cur2',   emoji:'🖱', name:'Souris optique',       cost:800,     desc:'Curseurs ×2', effect:'building', bid:'cursor',      mult:2 },
+  { id:'cur1',   emoji:'🖱', name:'Souris rapide',        cost:500,     desc:'Curseurs ×2', effect:'building', bid:'cursor',      mult:2 },
+  { id:'cur2',   emoji:'🖱', name:'Souris optique',       cost:10000,   desc:'Curseurs ×2', effect:'building', bid:'cursor',      mult:2 },
   // GRAND-MÈRE
-  { id:'gma1',   emoji:'👵', name:'Tablier brodé',        cost:500,     desc:'GM ×2',       effect:'building', bid:'grandma',     mult:2 },
-  { id:'gma2',   emoji:'👵', name:'Lunettes magiques',    cost:4000,    desc:'GM ×2',       effect:'building', bid:'grandma',     mult:2 },
-  { id:'gma3',   emoji:'👵', name:'Prothèses turbo',      cost:30000,   desc:'GM ×2',       effect:'building', bid:'grandma',     mult:2 },
+  { id:'gma1',   emoji:'👵', name:'Tablier brodé',        cost:3000,    desc:'GM ×2',       effect:'building', bid:'grandma',     mult:2 },
+  { id:'gma2',   emoji:'👵', name:'Lunettes magiques',    cost:60000,   desc:'GM ×2',       effect:'building', bid:'grandma',     mult:2 },
+  { id:'gma3',   emoji:'👵', name:'Prothèses turbo',      cost:1.5e6,   desc:'GM ×2',       effect:'building', bid:'grandma',     mult:2 },
   // FERME
-  { id:'frm1',   emoji:'🌾', name:'Engrais ultra',        cost:3500,    desc:'Fermes ×2',   effect:'building', bid:'farm',        mult:2 },
-  { id:'frm2',   emoji:'🌾', name:'OGM Cookies',          cost:25000,   desc:'Fermes ×2',   effect:'building', bid:'farm',        mult:2 },
+  { id:'frm1',   emoji:'🌾', name:'Engrais ultra',        cost:20000,   desc:'Fermes ×2',   effect:'building', bid:'farm',        mult:2 },
+  { id:'frm2',   emoji:'🌾', name:'OGM Cookies',          cost:600000,  desc:'Fermes ×2',   effect:'building', bid:'farm',        mult:2 },
   // MINE
-  { id:'min1',   emoji:'⛏',  name:'Dynamite cookies',    cost:14000,   desc:'Mines ×2',    effect:'building', bid:'mine',        mult:2 },
-  { id:'min2',   emoji:'⛏',  name:'Laser mineur',        cost:100000,  desc:'Mines ×2',    effect:'building', bid:'mine',        mult:2 },
+  { id:'min1',   emoji:'⛏',  name:'Dynamite cookies',    cost:150000,  desc:'Mines ×2',    effect:'building', bid:'mine',        mult:2 },
+  { id:'min2',   emoji:'⛏',  name:'Laser mineur',        cost:4e6,     desc:'Mines ×2',    effect:'building', bid:'mine',        mult:2 },
   // USINE
-  { id:'fct1',   emoji:'🏭', name:'Chaîne automatique',  cost:55000,   desc:'Usines ×2',   effect:'building', bid:'factory',     mult:2 },
-  { id:'fct2',   emoji:'🏭', name:'IA industrielle',     cost:400000,  desc:'Usines ×2',   effect:'building', bid:'factory',     mult:2 },
+  { id:'fct1',   emoji:'🏭', name:'Chaîne automatique',  cost:1e6,     desc:'Usines ×2',   effect:'building', bid:'factory',     mult:2 },
+  { id:'fct2',   emoji:'🏭', name:'IA industrielle',     cost:3e7,     desc:'Usines ×2',   effect:'building', bid:'factory',     mult:2 },
   // BANQUE
-  { id:'bnk1',   emoji:'🏦', name:'Taux préférentiel',   cost:280000,  desc:'Banques ×2',  effect:'building', bid:'bank',        mult:2 },
-  { id:'bnk2',   emoji:'🏦', name:'Crypto-cookies',      cost:2e6,     desc:'Banques ×2',  effect:'building', bid:'bank',        mult:2 },
+  { id:'bnk1',   emoji:'🏦', name:'Taux préférentiel',   cost:1.5e7,   desc:'Banques ×2',  effect:'building', bid:'bank',        mult:2 },
+  { id:'bnk2',   emoji:'🏦', name:'Crypto-cookies',      cost:4e8,     desc:'Banques ×2',  effect:'building', bid:'bank',        mult:2 },
   // TEMPLE
-  { id:'tmp1',   emoji:'⛩',  name:'Rituel sacré',        cost:1.4e6,   desc:'Temples ×2',  effect:'building', bid:'temple',      mult:2 },
-  { id:'tmp2',   emoji:'⛩',  name:'Oracle cookie',       cost:1e7,     desc:'Temples ×2',  effect:'building', bid:'temple',      mult:2 },
+  { id:'tmp1',   emoji:'⛩',  name:'Rituel sacré',        cost:2e8,     desc:'Temples ×2',  effect:'building', bid:'temple',      mult:2 },
+  { id:'tmp2',   emoji:'⛩',  name:'Oracle cookie',       cost:5e9,     desc:'Temples ×2',  effect:'building', bid:'temple',      mult:2 },
   // TOUR DE MAGE
-  { id:'wzd1',   emoji:'🧙', name:'Grimoire cookie',     cost:7e6,     desc:'Tours ×2',    effect:'building', bid:'wizard',      mult:2 },
-  { id:'wzd2',   emoji:'🧙', name:'Sort du millénaire',  cost:5e7,     desc:'Tours ×2',    effect:'building', bid:'wizard',      mult:2 },
+  { id:'wzd1',   emoji:'🧙', name:'Grimoire cookie',     cost:3e9,     desc:'Tours ×2',    effect:'building', bid:'wizard',      mult:2 },
+  { id:'wzd2',   emoji:'🧙', name:'Sort du millénaire',  cost:8e10,    desc:'Tours ×2',    effect:'building', bid:'wizard',      mult:2 },
   // VAISSEAU
-  { id:'shp1',   emoji:'🚀', name:'Moteur ionique',      cost:3.5e7,   desc:'Vaisseaux ×2',effect:'building', bid:'ship',        mult:2 },
-  { id:'shp2',   emoji:'🚀', name:'Warp cookie',         cost:2.5e8,   desc:'Vaisseaux ×2',effect:'building', bid:'ship',        mult:2 },
+  { id:'shp1',   emoji:'🚀', name:'Moteur ionique',      cost:5e10,    desc:'Vaisseaux ×2',effect:'building', bid:'ship',        mult:2 },
+  { id:'shp2',   emoji:'🚀', name:'Warp cookie',         cost:1.5e12,  desc:'Vaisseaux ×2',effect:'building', bid:'ship',        mult:2 },
   // LABO
-  { id:'lab1',   emoji:'🔬', name:'Paradoxe cookie',     cost:1.7e8,   desc:'Labos ×2',    effect:'building', bid:'lab',         mult:2 },
-  { id:'lab2',   emoji:'🔬', name:'Chrono-four',         cost:1.2e9,   desc:'Labos ×2',    effect:'building', bid:'lab',         mult:2 },
+  { id:'lab1',   emoji:'🔬', name:'Paradoxe cookie',     cost:8e11,    desc:'Labos ×2',    effect:'building', bid:'lab',         mult:2 },
+  { id:'lab2',   emoji:'🔬', name:'Chrono-four',         cost:2e13,    desc:'Labos ×2',    effect:'building', bid:'lab',         mult:2 },
   // PORTAIL
-  { id:'prt1',   emoji:'🌀', name:'Portail calibré',     cost:8e8,     desc:'Portails ×2', effect:'building', bid:'portal',      mult:2 },
-  { id:'prt2',   emoji:'🌀', name:'Portail quantique',   cost:6e9,     desc:'Portails ×2', effect:'building', bid:'portal',      mult:2 },
+  { id:'prt1',   emoji:'🌀', name:'Portail calibré',     cost:1.2e13,  desc:'Portails ×2', effect:'building', bid:'portal',      mult:2 },
+  { id:'prt2',   emoji:'🌀', name:'Portail quantique',   cost:3e14,    desc:'Portails ×2', effect:'building', bid:'portal',      mult:2 },
   // DRAGON
-  { id:'drg1',   emoji:'🐉', name:'Écailles de feu',     cost:4.5e9,   desc:'Dragons ×2',  effect:'building', bid:'dragon',      mult:2 },
-  { id:'drg2',   emoji:'🐉', name:'Souffle infini',      cost:3.5e10,  desc:'Dragons ×2',  effect:'building', bid:'dragon',      mult:2 },
+  { id:'drg1',   emoji:'🐉', name:'Écailles de feu',     cost:2e14,    desc:'Dragons ×2',  effect:'building', bid:'dragon',      mult:2 },
+  { id:'drg2',   emoji:'🐉', name:'Souffle infini',      cost:5e15,    desc:'Dragons ×2',  effect:'building', bid:'dragon',      mult:2 },
   // PARADIS
-  { id:'hvn1',   emoji:'☁️', name:'Halo doré',           cost:2.2e10,  desc:'Paradis ×2',  effect:'building', bid:'heaven',      mult:2 },
-  { id:'hvn2',   emoji:'☁️', name:'Ambroisie cookie',    cost:1.7e11,  desc:'Paradis ×2',  effect:'building', bid:'heaven',      mult:2 },
+  { id:'hvn1',   emoji:'☁️', name:'Halo doré',           cost:3e15,    desc:'Paradis ×2',  effect:'building', bid:'heaven',      mult:2 },
+  { id:'hvn2',   emoji:'☁️', name:'Ambroisie cookie',    cost:8e16,    desc:'Paradis ×2',  effect:'building', bid:'heaven',      mult:2 },
   // ANTIMATIÈRE
-  { id:'atm1',   emoji:'⚛️', name:'Accélérateur',        cost:1.1e11,  desc:'AM ×2',       effect:'building', bid:'antimatter',  mult:2 },
-  { id:'atm2',   emoji:'⚛️', name:'Collisionneur sucré', cost:8.5e11,  desc:'AM ×2',       effect:'building', bid:'antimatter',  mult:2 },
+  { id:'atm1',   emoji:'⚛️', name:'Accélérateur',        cost:5e16,    desc:'AM ×2',       effect:'building', bid:'antimatter',  mult:2 },
+  { id:'atm2',   emoji:'⚛️', name:'Collisionneur sucré', cost:1.5e18,  desc:'AM ×2',       effect:'building', bid:'antimatter',  mult:2 },
   // PRISME
-  { id:'prm1',   emoji:'🌈', name:'Diffraction parfaite',cost:5e11,    desc:'Prismes ×2',  effect:'building', bid:'prism',       mult:2 },
-  { id:'prm2',   emoji:'🌈', name:'Arc-en-ciel infini',  cost:4e12,    desc:'Prismes ×2',  effect:'building', bid:'prism',       mult:2 },
+  { id:'prm1',   emoji:'🌈', name:'Diffraction parfaite',cost:8e17,    desc:'Prismes ×2',  effect:'building', bid:'prism',       mult:2 },
+  { id:'prm2',   emoji:'🌈', name:'Arc-en-ciel infini',  cost:2.5e19,  desc:'Prismes ×2',  effect:'building', bid:'prism',       mult:2 },
   // TRÈFLE
-  { id:'clk1',   emoji:'🍀', name:'Porte-bonheur',       cost:2.5e12,  desc:'Trèfles ×2',  effect:'building', bid:'chancemaker', mult:2 },
-  { id:'clk2',   emoji:'🍀', name:'Champ de trèfles',    cost:2e13,    desc:'Trèfles ×2',  effect:'building', bid:'chancemaker', mult:2 },
+  { id:'clk1',   emoji:'🍀', name:'Porte-bonheur',       cost:1.2e19,  desc:'Trèfles ×2',  effect:'building', bid:'chancemaker', mult:2 },
+  { id:'clk2',   emoji:'🍀', name:'Champ de trèfles',    cost:4e20,    desc:'Trèfles ×2',  effect:'building', bid:'chancemaker', mult:2 },
   // FRACTALE
-  { id:'frc1',   emoji:'🔮', name:'Récursion II',         cost:1.3e13,  desc:'Fractales ×2',effect:'building', bid:'fractal',     mult:2 },
-  { id:'frc2',   emoji:'🔮', name:'Mandelbrot cookie',   cost:1e14,    desc:'Fractales ×2',effect:'building', bid:'fractal',     mult:2 },
+  { id:'frc1',   emoji:'🔮', name:'Récursion II',         cost:2e20,    desc:'Fractales ×2',effect:'building', bid:'fractal',     mult:2 },
+  { id:'frc2',   emoji:'🔮', name:'Mandelbrot cookie',   cost:7e21,    desc:'Fractales ×2',effect:'building', bid:'fractal',     mult:2 },
   // SERVEUR JS
-  { id:'js1',    emoji:'💻', name:'Node.js cookie',      cost:6e13,    desc:'Serveurs ×2', effect:'building', bid:'javascript',  mult:2 },
-  { id:'js2',    emoji:'💻', name:'Cookie.ts strict',    cost:5e14,    desc:'Serveurs ×2', effect:'building', bid:'javascript',  mult:2 },
+  { id:'js1',    emoji:'💻', name:'Node.js cookie',      cost:3e21,    desc:'Serveurs ×2', effect:'building', bid:'javascript',  mult:2 },
+  { id:'js2',    emoji:'💻', name:'Cookie.ts strict',    cost:1e23,    desc:'Serveurs ×2', effect:'building', bid:'javascript',  mult:2 },
   // IDLEVERSE
-  { id:'idl1',   emoji:'🌌', name:'Multivers sucré',     cost:3e14,    desc:'Idleverses ×2',effect:'building',bid:'idleverse',   mult:2 },
-  { id:'idl2',   emoji:'🌌', name:'Big Crunch cookie',   cost:2.5e15,  desc:'Idleverses ×2',effect:'building',bid:'idleverse',   mult:2 },
+  { id:'idl1',   emoji:'🌌', name:'Multivers sucré',     cost:5e22,    desc:'Idleverses ×2',effect:'building',bid:'idleverse',   mult:2 },
+  { id:'idl2',   emoji:'🌌', name:'Big Crunch cookie',   cost:2e24,    desc:'Idleverses ×2',effect:'building',bid:'idleverse',   mult:2 },
   // NEURONE
-  { id:'ctx1',   emoji:'🧠', name:'Synapse cookie',      cost:1.5e15,  desc:'Neurones ×2', effect:'building', bid:'cortex',      mult:2 },
-  { id:'ctx2',   emoji:'🧠', name:'Superintelligence',   cost:1.2e16,  desc:'Neurones ×2', effect:'building', bid:'cortex',      mult:2 },
-  // GLOBAL
-  { id:'glob1',  emoji:'✨', name:'Magie des cookies',   cost:20000,   desc:'Prod ×2',     effect:'global',   mult:2 },
-  { id:'glob2',  emoji:'🌟', name:'Frappe cosmique',     cost:2e6,     desc:'Prod ×2',     effect:'global',   mult:2 },
-  { id:'glob3',  emoji:'🌌', name:'Singularité',         cost:2e8,     desc:'Prod ×3',     effect:'global',   mult:3 },
-  { id:'glob4',  emoji:'🌠', name:'Big Bang sucré',      cost:2e10,    desc:'Prod ×2',     effect:'global',   mult:2 },
-  { id:'golden1',emoji:'🌕', name:'Cookie doré',         cost:60000,   desc:'Bonus rare+', effect:'golden' },
-  { id:'axo1',   emoji:'🦎', name:"Bénédiction d'Axo",  cost:2.5e6,   desc:'Tout ×1.5',   effect:'global',   mult:1.5 },
-  { id:'axo2',   emoji:'🦎', name:"Éveil d'Axo",         cost:2.5e9,   desc:'Tout ×1.5',   effect:'global',   mult:1.5 },
-  { id:'axo3',   emoji:'🦎', name:"Transcendance d'Axo", cost:2.5e12,  desc:'Tout ×2',     effect:'global',   mult:2 },
+  { id:'ctx1',   emoji:'🧠', name:'Synapse cookie',      cost:8e23,    desc:'Neurones ×2', effect:'building', bid:'cortex',      mult:2 },
+  { id:'ctx2',   emoji:'🧠', name:'Superintelligence',   cost:3e25,    desc:'Neurones ×2', effect:'building', bid:'cortex',      mult:2 },
+  // GLOBAL — bien plus chers, ne doivent pas tripler la prod trop tôt
+  { id:'glob1',  emoji:'✨', name:'Magie des cookies',   cost:5e6,     desc:'Prod ×1.5',   effect:'global',   mult:1.5 },
+  { id:'glob2',  emoji:'🌟', name:'Frappe cosmique',     cost:5e9,     desc:'Prod ×1.5',   effect:'global',   mult:1.5 },
+  { id:'glob3',  emoji:'🌌', name:'Singularité',         cost:5e12,    desc:'Prod ×2',     effect:'global',   mult:2 },
+  { id:'glob4',  emoji:'🌠', name:'Big Bang sucré',      cost:5e15,    desc:'Prod ×2',     effect:'global',   mult:2 },
+  { id:'golden1',emoji:'🌕', name:'Cookie doré',         cost:5e6,     desc:'Bonus rare+', effect:'golden' },
+  { id:'axo1',   emoji:'🦎', name:"Bénédiction d'Axo",  cost:1e9,     desc:'Tout ×1.3',   effect:'global',   mult:1.3 },
+  { id:'axo2',   emoji:'🦎', name:"Éveil d'Axo",         cost:1e12,    desc:'Tout ×1.3',   effect:'global',   mult:1.3 },
+  { id:'axo3',   emoji:'🦎', name:"Transcendance d'Axo", cost:1e15,    desc:'Tout ×1.5',   effect:'global',   mult:1.5 },
 ];
 
-// REBIRTH SHOP — bought with rebirthPoints
+// REBIRTH SHOP// REBIRTH SHOP — bought with rebirthPoints
 const REBIRTH_ITEMS = [
-  { id:'rb_boost1', emoji:'⚡', name:'Boost Niveau I',    cost:1, desc:'+50% production permanent',    effect:'globalMult',  val:1.5, max:1 },
-  { id:'rb_boost2', emoji:'🌩', name:'Boost Niveau II',   cost:3, desc:'+100% production permanent',   effect:'globalMult',  val:2.0, max:1 },
-  { id:'rb_boost3', emoji:'🌌', name:'Boost Niveau III',  cost:7, desc:'+200% production permanent',   effect:'globalMult',  val:3.0, max:1 },
-  { id:'rb_click1', emoji:'👆', name:'Clic Renforcé I',   cost:1, desc:'+100% puissance de clic',      effect:'clickMult',   val:2.0, max:1 },
-  { id:'rb_click2', emoji:'👊', name:'Clic Renforcé II',  cost:3, desc:'+300% puissance de clic',      effect:'clickMult',   val:4.0, max:1 },
+  { id:'rb_boost1', emoji:'⚡', name:'Boost Niveau I',    cost:1, desc:'+20% production permanent',    effect:'globalMult',  val:1.2, max:1 },
+  { id:'rb_boost2', emoji:'🌩', name:'Boost Niveau II',   cost:3, desc:'+40% production permanent',    effect:'globalMult',  val:1.4, max:1 },
+  { id:'rb_boost3', emoji:'🌌', name:'Boost Niveau III',  cost:7, desc:'+60% production permanent',    effect:'globalMult',  val:1.6, max:1 },
+  { id:'rb_click1', emoji:'👆', name:'Clic Renforcé I',   cost:1, desc:'+50% puissance de clic',       effect:'clickMult',   val:1.5, max:1 },
+  { id:'rb_click2', emoji:'👊', name:'Clic Renforcé II',  cost:3, desc:'+100% puissance de clic',      effect:'clickMult',   val:2.0, max:1 },
   { id:'rb_start1', emoji:'🎁', name:'Starter Pack I',    cost:2, desc:'Commence avec 100 curseurs',   effect:'startBonus',  bid:'cursor',  val:100, max:1 },
   { id:'rb_start2', emoji:'🎁', name:'Starter Pack II',   cost:4, desc:'Commence avec 10 grand-mères', effect:'startBonus',  bid:'grandma', val:10,  max:1 },
   { id:'rb_mg1',    emoji:'🎮', name:'Débloquer mini-jeu Curseur',   cost:1, desc:'Accès au mini-jeu Curseur',   effect:'minigame', bid:'cursor',  max:1 },
@@ -667,24 +668,24 @@ function getBulkCost(b) {
   // Somme des coûts pour n achats successifs : baseCost * 1.15^owned * (1.15^n - 1) / 0.15
   const owned = state.buildings[b.id] || 0;
   if (bulkQty === 1) return getBuildingCost(b);
-  return Math.ceil(b.baseCost * Math.pow(1.15, owned) * (Math.pow(1.15, bulkQty) - 1) / 0.15);
+  return Math.ceil(b.baseCost * Math.pow(1.20, owned) * (Math.pow(1.20, bulkQty) - 1) / 0.20);
 }
 
 function canAffordBulk(b) { return state.cookies >= getBulkCost(b); }
 
-function getBuildingCost(b) { return Math.ceil(b.baseCost * Math.pow(1.15, state.buildings[b.id]||0)); }
+function getBuildingCost(b) { return Math.ceil(b.baseCost * Math.pow(1.20, state.buildings[b.id]||0)); }
 
 function computeCps() {
   let cps=0;
   BUILDINGS.forEach(b => cps += (state.buildings[b.id]||0) * b.baseCps * (state.buildingMult[b.id]||1));
   // Rebirth global bonus = +50% per rebirth level
-  const rebirthBonus = 1 + (state.rebirths * 0.5);
+  const rebirthBonus = 1 + (state.rebirths * 0.2);
   return cps * state.globalMult * rebirthBonus * state.rebirthGlobalBonus;
 }
 
 function getClickValue() {
-  const rebirthBonus = 1 + (state.rebirths * 0.5);
-  return Math.max(1, computeCps()*0.01) * state.clickMult * rebirthBonus * state.rebirthClickBonus;
+  const rebirthBonus = 1 + (state.rebirths * 0.2);
+  return Math.max(1, computeCps()*0.002) * state.clickMult * rebirthBonus * state.rebirthClickBonus;
 }
 
 function getRebirthPointsEarned() {
@@ -754,13 +755,13 @@ window.buyRebirthItem = function(id) {
 // REBIRTH
 // ====================================================
 function getRebirthRequirement() {
-  // R0→R1: 500K | R1→R2: 5M | R2→R3: 50M | R3→R4: 500M | etc.
-  return 500000 * Math.pow(10, state.rebirths);
+  // R0→R1: 5M | R1→R2: 75M | R2→R3: ~1.1B | R3→R4: ~17B ...
+  return 5e6 * Math.pow(15, state.rebirths);
 }
 
 function openRebirthModal() {
   const pts = getRebirthPointsEarned();
-  const bonus = ((state.rebirths + 1) * 0.5 * 100).toFixed(0);
+  const bonus = ((state.rebirths + 1) * 0.2 * 100).toFixed(0);
   const req = getRebirthRequirement();
   const canRebirth = state.totalCookies >= req;
   const progress = Math.min(100, (state.totalCookies / req * 100)).toFixed(1);
@@ -849,7 +850,7 @@ function showGoldenCookie(){
   setTimeout(()=>{gc.style.display='none';scheduleGoldenCookie();},10000);
 }
 window.goldenClick = function(){
-  const bonus=Math.max(13,computeCps()*77);
+  const bonus=Math.max(13,computeCps()*20);
   state.cookies+=bonus;state.totalCookies+=bonus;
   document.getElementById('golden-cookie').style.display='none';
   spawnParticle(window.innerWidth/2,window.innerHeight/2,'✨ +'+formatNum(bonus));
@@ -891,7 +892,7 @@ function updateDisplay(){
   rb.style.display=state.rebirths>0?'inline':'none';
   rb.textContent='🌀 R'+state.rebirths;
   const rInfo=document.getElementById('rebirth-info');
-  if(state.rebirths>0){rInfo.style.display='block';rInfo.textContent='🌀 Bonus rebirth: +'+(state.rebirths*50)+'% production';}
+  if(state.rebirths>0){rInfo.style.display='block';rInfo.textContent='🌀 Bonus rebirth: +'+(state.rebirths*20)+'% production';}
   else rInfo.style.display='none';
   let bldTotal=0;Object.values(state.buildings).forEach(v=>bldTotal+=v||0);
   document.getElementById('bld-total').textContent=bldTotal+' total';
@@ -960,7 +961,7 @@ function renderBuildings(){
   if(!bldBuilt)buildBuildingDOM();
   BUILDINGS.forEach(b=>{
     const count=state.buildings[b.id]||0,cost=getBuildingCost(b),canBuy=state.cookies>=cost;
-    const realCps=b.baseCps*(state.buildingMult[b.id]||1)*state.globalMult*(1+state.rebirths*0.5)*state.rebirthGlobalBonus;
+    const realCps=b.baseCps*(state.buildingMult[b.id]||1)*state.globalMult*(1+state.rebirths*0.2)*state.rebirthGlobalBonus;
     const el=document.getElementById('bld-'+b.id);if(!el)return;
     const bulkCost=getBulkCost(b),canAfford=state.cookies>=bulkCost;
     el.className='building-item '+(canAfford?'can-buy':'too-exp');
