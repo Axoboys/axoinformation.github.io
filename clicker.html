@@ -217,6 +217,26 @@
     body.prestige .cookie-btn{animation:prestigeGlow 2s ease infinite;}
     @keyframes prestigeGlow{0%,100%{box-shadow:0 0 40px rgba(217,119,6,0.4);}50%{box-shadow:0 0 80px rgba(217,119,6,0.9),0 0 120px rgba(124,58,237,0.5);}}
     footer{display:none;}
+
+    /* ── OFFLINE EARNINGS MODAL ── */
+    .offline-overlay{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:1rem;animation:fadeIn 0.3s ease;}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .offline-modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;width:min(440px,96vw);overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.6);animation:slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);}
+    @keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .offline-header{background:linear-gradient(135deg,rgba(124,58,237,0.25),rgba(6,182,212,0.15));border-bottom:1px solid var(--border);padding:1.5rem 1.75rem 1.25rem;text-align:center;}
+    .offline-icon{font-size:3rem;margin-bottom:0.5rem;filter:drop-shadow(0 0 20px rgba(245,158,11,0.5));}
+    .offline-title{font-size:1.4rem;font-weight:800;margin-bottom:0.25rem;}
+    .offline-subtitle{font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--muted);}
+    .offline-body{padding:1.5rem 1.75rem;}
+    .offline-time{display:flex;align-items:center;justify-content:center;gap:0.5rem;font-family:'Space Mono',monospace;font-size:0.8rem;color:var(--muted);margin-bottom:1.25rem;padding:0.6rem 1rem;background:var(--bg);border-radius:8px;border:1px solid var(--border);}
+    .offline-reward{display:flex;align-items:center;justify-content:center;gap:1rem;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:14px;padding:1.25rem;margin-bottom:1.25rem;}
+    .offline-cookie{font-size:3rem;filter:drop-shadow(0 0 15px rgba(245,158,11,0.6));}
+    .offline-amount{font-family:'Space Mono',monospace;font-size:1.8rem;font-weight:700;color:var(--accent3);line-height:1;}
+    .offline-amount-label{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);margin-top:0.2rem;}
+    .offline-cps-info{font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--muted);text-align:center;margin-bottom:1.25rem;}
+    .offline-claim-btn{width:100%;padding:1rem;background:linear-gradient(135deg,var(--accent3),#d97706);color:#000;border:none;border-radius:10px;font-family:'Space Mono',monospace;font-size:0.95rem;font-weight:700;cursor:pointer;transition:all 0.2s;box-shadow:0 0 30px rgba(245,158,11,0.3);}
+    .offline-claim-btn:hover{transform:translateY(-2px);box-shadow:0 0 50px rgba(245,158,11,0.5);}
+    .offline-claim-btn:active{transform:scale(0.98);}
   </style>
 </head>
 <body>
@@ -597,9 +617,104 @@ async function initGame() {
     return;
   }
   const saved = await dbGet('saves', userKey);
-  if (saved) loadFromSave(saved);
+  if (saved) {
+    loadFromSave(saved);
+    checkOfflineEarnings(saved);  // Vérifie les gains hors ligne
+  }
   updateDisplay();
 }
+
+// ====================================================
+// GAINS HORS LIGNE
+// ====================================================
+const OFFLINE_THRESHOLD_MS = 5 * 60 * 1000;   // 5 min → considéré hors ligne
+const OFFLINE_MAX_MS       = 2 * 60 * 60 * 1000; // 2h max de gains
+
+function checkOfflineEarnings(saved) {
+  if (!saved.lastSave) return;
+  const elapsed = Date.now() - saved.lastSave;
+
+  // Moins de 5 min → pas hors ligne, rien à faire
+  if (elapsed < OFFLINE_THRESHOLD_MS) return;
+
+  const cps = computeCps();
+  if (cps <= 0) return; // Pas de production → rien à donner
+
+  // Plafond à 2h
+  const effectiveMs = Math.min(elapsed, OFFLINE_MAX_MS);
+  const effectiveSec = effectiveMs / 1000;
+  const earned = Math.floor(cps * effectiveSec);
+
+  if (earned <= 0) return;
+
+  showOfflineModal(elapsed, effectiveSec, cps, earned);
+}
+
+function formatDuration(ms) {
+  const totalSec = Math.floor(ms / 1000);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  if (h > 0) return h + 'h ' + m + 'min';
+  if (m > 0) return m + 'min ' + s + 's';
+  return s + 's';
+}
+
+function showOfflineModal(elapsedMs, effectiveSec, cps, earned) {
+  const wasCapped = elapsedMs > OFFLINE_MAX_MS;
+  const realDuration = formatDuration(elapsedMs);
+  const effectiveDuration = formatDuration(effectiveSec * 1000);
+
+  const overlay = document.createElement('div');
+  overlay.className = 'offline-overlay';
+  overlay.id = 'offline-overlay';
+  overlay.innerHTML = `
+    <div class="offline-modal">
+      <div class="offline-header">
+        <div class="offline-icon">🌙</div>
+        <div class="offline-title">Bienvenue de retour !</div>
+        <div class="offline-subtitle">Tu étais absent depuis ${realDuration}${wasCapped ? ' (max 2h comptées)' : ''}</div>
+      </div>
+      <div class="offline-body">
+        <div class="offline-time">
+          ⏱ Absent : <strong>${realDuration}</strong>
+          ${wasCapped ? '&nbsp;→&nbsp; plafonné à <strong>2h</strong>' : ''}
+        </div>
+        <div class="offline-reward">
+          <div class="offline-cookie">🍪</div>
+          <div>
+            <div class="offline-amount">+${formatNum(earned)}</div>
+            <div class="offline-amount-label">cookies gagnés hors ligne</div>
+          </div>
+        </div>
+        <div class="offline-cps-info">
+          Basé sur ${formatNum(cps)}/sec × ${effectiveDuration}
+        </div>
+        <button class="offline-claim-btn" onclick="claimOffline(${earned})">
+          🍪 Récupérer mes cookies !
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+window.claimOffline = function(earned) {
+  state.cookies      += earned;
+  state.totalCookies += earned;
+  if (typeof state.cookiesThisLife !== 'undefined') state.cookiesThisLife += earned;
+  updateDisplay();
+  saveGame(true);
+
+  // Animation de claim
+  const overlay = document.getElementById('offline-overlay');
+  if (overlay) {
+    overlay.style.transition = 'opacity 0.4s';
+    overlay.style.opacity = '0';
+    setTimeout(() => overlay.remove(), 400);
+  }
+
+  showToast('🍪 +' + formatNum(earned) + ' cookies récupérés !');
+};
 
 function loadFromSave(saved) {
   state.cookies       = saved.cookies       || 0;
@@ -642,8 +757,7 @@ window.saveGame = async function(silent=false) {
   }
 }
 
-// Sauvegarde automatique toutes les 5 minutes
-setInterval(() => saveGame(true), 5 * 60 * 1000);
+setInterval(() => saveGame(true), 30000);
 
 // ====================================================
 // GAME LOGIC
@@ -1358,69 +1472,15 @@ window.confirmReset = function(){
 // ====================================================
 updateDisplay();
 
-// ====================================================
-// AUTO-RELOAD QUAND UNE NOUVELLE VERSION EST DÉPLOYÉE
-// ====================================================
-// Dans Firebase Firestore, crée un doc : config/version { number: 1 }
-// Pour forcer un reload chez tous les joueurs, incrémente number dans l'admin.
-let _currentVersion = null;
-
-async function checkVersion() {
-  if (!currentUser) return;
-  try {
-    const v = await dbGet('config', 'version');
-    if (!v) return;
-    if (_currentVersion === null) {
-      // Premier check : on mémorise la version actuelle
-      _currentVersion = v.number;
-      return;
-    }
-    if (v.number !== _currentVersion) {
-      // Nouvelle version détectée : on sauvegarde d'abord, puis on recharge
-      await saveGame(true);
-      showUpdateBanner(v.number, v.message || '');
-    }
-  } catch(e) {}
-}
-
-function showUpdateBanner(newVer, msg) {
-  // Évite d'afficher le banner plusieurs fois
-  if (document.getElementById('update-banner')) return;
-  const banner = document.createElement('div');
-  banner.id = 'update-banner';
-  banner.style.cssText = `
-    position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
-    background:linear-gradient(135deg,#7c3aed,#06b6d4);
-    color:#fff;border-radius:12px;padding:0.85rem 1.5rem;
-    font-family:'Space Mono',monospace;font-size:0.78rem;
-    z-index:9999;box-shadow:0 8px 30px rgba(0,0,0,0.5);
-    display:flex;align-items:center;gap:1rem;max-width:90vw;
-    animation:slideUp 0.4s ease;
-  `;
-  banner.innerHTML = `
-    <span>🚀 Mise à jour v${newVer} disponible${msg ? ' — '+msg : ''}</span>
-    <button onclick="location.reload()" style="
-      background:#fff;color:#7c3aed;border:none;border-radius:6px;
-      padding:0.35rem 0.85rem;font-family:'Space Mono',monospace;
-      font-size:0.75rem;font-weight:700;cursor:pointer;white-space:nowrap;
-    ">Recharger →</button>
-  `;
-  document.body.appendChild(banner);
-  // Auto-reload dans 10 secondes
-  setTimeout(() => location.reload(), 10000);
-}
-
-// Vérification toutes les 5 minutes (en même temps que la sauvegarde)
-setInterval(checkVersion, 5 * 60 * 1000);
-// Premier check au démarrage (après 5s pour laisser le jeu se charger)
-setTimeout(checkVersion, 5000);
-
 // Recharge depuis Firebase quand l'onglet redevient visible
+// (utile après une modif admin ou retour depuis une autre page)
 document.addEventListener('visibilitychange', async () => {
   if (document.visibilityState === 'visible' && currentUser) {
     const saved = await dbGet('saves', userKey);
-    if (saved) { loadFromSave(saved); updateDisplay(); }
-    checkVersion();
+    if (saved) {
+      loadFromSave(saved);
+      updateDisplay();
+    }
   }
 });
 </script>
