@@ -294,42 +294,9 @@
     .fshop-hunger{display:flex;align-items:center;gap:0.5rem;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:0.6rem 0.8rem;margin-bottom:0.6rem;}
     .fshop-hunger-bar-wrap{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden;}
     .fshop-hunger-bar{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--green),var(--accent3));transition:width 0.5s;}
-    .fam-equip-btn{position:fixed;bottom:56px;right:8px;z-index:155;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:0.65rem;font-family:'Space Mono',monospace;color:var(--muted);padding:0.3rem 0.5rem;cursor:pointer;transition:all 0.2s;display:none;}
-    .fam-equip-btn:hover{border-color:var(--accent);color:var(--accent);}
+    .fam-equip-btn{display:none;align-items:center;gap:0.3rem;font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--accent3);background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.35);border-radius:6px;padding:0.18rem 0.5rem;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+    .fam-equip-btn:hover{background:rgba(245,158,11,0.2);border-color:var(--accent3);}
 
-
-    /* ── ADMIN TEST BUTTON ── */
-    .admin-test-btn{position:fixed;top:calc(var(--nav-h) + 8px);right:8px;z-index:300;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;border:none;border-radius:8px;padding:0.35rem 0.8rem;font-family:'Space Mono',monospace;font-size:0.65rem;font-weight:700;cursor:pointer;box-shadow:0 2px 12px rgba(239,68,68,0.4);transition:all 0.2s;display:none;letter-spacing:0.05em;}
-    .admin-test-btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(239,68,68,0.6);}
-
-    /* ── CHAT WIDGET ── */
-    .chat-btn{position:fixed;bottom:calc(var(--tab-h) + 0.75rem);right:0.75rem;z-index:400;width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.3rem;box-shadow:0 4px 20px rgba(124,58,237,0.45);transition:transform 0.2s;touch-action:manipulation;}
-    @media(min-width:768px){.chat-btn{bottom:1.5rem;}}
-    .chat-btn:active{transform:scale(0.9);}
-    .chat-unread{position:absolute;top:-3px;right:-3px;background:var(--red);color:#fff;font-family:'Space Mono',monospace;font-size:0.55rem;font-weight:700;border-radius:999px;padding:0.1rem 0.32rem;min-width:16px;text-align:center;display:none;pointer-events:none;}
-    .chat-panel{position:fixed;bottom:calc(var(--tab-h) + 4.5rem);right:0.75rem;width:min(340px,94vw);max-height:400px;background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.7);z-index:399;display:none;flex-direction:column;overflow:hidden;}
-    @media(min-width:768px){.chat-panel{bottom:4.5rem;}}
-    .chat-panel.open{display:flex;}
-    .chat-header{display:flex;align-items:center;justify-content:space-between;padding:0.65rem 1rem;background:linear-gradient(135deg,rgba(124,58,237,0.18),rgba(6,182,212,0.08));border-bottom:1px solid var(--border);flex-shrink:0;}
-    .chat-header-title{font-size:0.82rem;font-weight:800;display:flex;align-items:center;gap:0.4rem;}
-    .chat-close{width:26px;height:26px;border-radius:50%;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:0.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-    .chat-msgs{flex:1;overflow-y:auto;padding:0.6rem 0.75rem;display:flex;flex-direction:column;gap:0.4rem;scroll-behavior:smooth;}
-    .chat-msgs::-webkit-scrollbar{width:3px;}
-    .chat-msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
-    .chat-msg{display:flex;flex-direction:column;gap:0.1rem;max-width:88%;}
-    .chat-msg.me{align-self:flex-end;align-items:flex-end;}
-    .chat-msg.other{align-self:flex-start;}
-    .chat-msg-meta{font-family:'Space Mono',monospace;font-size:0.55rem;color:var(--muted);padding:0 0.35rem;}
-    .chat-msg-bubble{padding:0.42rem 0.68rem;border-radius:12px;font-family:'Space Mono',monospace;font-size:0.72rem;line-height:1.45;word-break:break-word;}
-    .chat-msg.me .chat-msg-bubble{background:var(--accent);color:#fff;border-radius:12px 12px 4px 12px;}
-    .chat-msg.other .chat-msg-bubble{background:var(--bg);border:1px solid var(--border);border-radius:12px 12px 12px 4px;}
-    .chat-msg-name{font-size:0.58rem;color:var(--accent2);font-weight:700;}
-    .chat-system{text-align:center;font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--muted);padding:0.2rem;}
-    .chat-input-row{display:flex;gap:0.4rem;padding:0.5rem 0.6rem;border-top:1px solid var(--border);flex-shrink:0;}
-    .chat-input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.42rem 0.65rem;color:var(--text);font-family:'Space Mono',monospace;font-size:0.72rem;outline:none;transition:border-color 0.2s;}
-    .chat-input:focus{border-color:var(--accent);}
-    .chat-send{padding:0.42rem 0.75rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.7rem;cursor:pointer;touch-action:manipulation;}
-    .chat-empty{text-align:center;padding:1.5rem;font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);}
   </style>
 </head>
 <body>
@@ -339,6 +306,7 @@
   <div class="nav-right">
     <span class="save-indicator" id="save-indicator">✓ Sauvé</span>
     <span class="rebirth-badge" id="rebirth-badge">🌀 R0</span>
+    <button class="fam-equip-btn" id="fam-equip-btn" onclick="openModal('fshop')">🐾 <span id="fam-equip-name">Familier</span></button>
     <span class="gold-display" id="gold-display" onclick="openModal('gshop')" title="Boutique Patates Dorées"><span class="gold-icon">🥔</span>&nbsp;<span class="gold-val" id="gold-count">0</span></span>
     <a href="profile.html" id="nav-user-link">Mon profil</a>
     <a href="index.html">Hub</a>
@@ -405,25 +373,10 @@
 </div>
 
 <div class="golden-cookie" id="golden-cookie" onclick="goldenClick()">✨</div>
-<div class="golden-potato" id="golden-potato" onclick="potatoClick()">🥔</div>
+<div class="golden-potato" id="golden-potato">🥔</div>
 <div class="fam-bar" id="fam-bar"></div>
-<button class="fam-equip-btn" id="fam-equip-btn" onclick="openModal('fshop')">🎽 Équiper</button>
+<!-- fam-equip-btn moved to nav -->
 <div class="toast" id="toast"></div>
-<button class="admin-test-btn" id="admin-test-btn" onclick="openTestLogin()" title="Connexion compte test">⚠ TEST</button>
-<button class="chat-btn" id="chat-toggle-btn" onclick="toggleChat()" style="position:fixed;">
-  💬<span class="chat-unread" id="chat-unread"></span>
-</button>
-<div class="chat-panel" id="chat-panel">
-  <div class="chat-header">
-    <div class="chat-header-title">💬 Chat Global</div>
-    <button class="chat-close" onclick="toggleChat()">✕</button>
-  </div>
-  <div class="chat-msgs" id="chat-msgs"><div class="chat-empty">Chargement...</div></div>
-  <div class="chat-input-row">
-    <input class="chat-input" id="chat-input" placeholder="Message..." maxlength="200" autocomplete="off">
-    <button class="chat-send" onclick="sendChatMsg()">→</button>
-  </div>
-</div>
 
 <!-- ===== LEADERBOARD MODAL ===== -->
 <div class="modal-overlay" id="modal-lb" onclick="closeLbIfOutside(event)">
@@ -517,7 +470,7 @@
 // https://console.firebase.google.com → Paramètres → Général → Tes apps
 // ====================================================
 import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyAODYOz_M_CAr4ReMZzhMi71qU_DASgBls",
@@ -841,98 +794,10 @@ async function initGame() {
     checkOfflineEarnings(saved);  // Vérifie les gains hors ligne
   }
   if (state.famEquipped && state.famOwned[state.famEquipped]) startFamiliar();
-  scheduleGoldenPotato();
-  checkForUpdates();
+  scheduleGoldenPotato(); // Démarre après init Firebase + DOM prêt
+  checkForUpdates();      // Vérifie si nouvelle version dispo
   updateDisplay();
-  checkAdminButton();
 }
-
-async function checkAdminButton() {
-  if (!currentUser) return;
-  const user = await dbGet('users', userKey);
-  if (user && user.isAdmin === true) {
-    const btn = document.getElementById('admin-test-btn');
-    if (btn) btn.style.display = 'block';
-  }
-}
-
-// ── Compte test : identifiants fixes, invisible dans le classement
-const TEST_ACCOUNT_KEY = '__axo_test__';
-
-window.openTestLogin = function() {
-  const existing = document.getElementById('test-login-overlay');
-  if (existing) { existing.remove(); return; }
-  const overlay = document.createElement('div');
-  overlay.id = 'test-login-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.88);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:1rem;';
-  overlay.innerHTML = `
-    <div style="background:#111118;border:2px solid #ef4444;border-radius:16px;width:min(420px,96vw);padding:1.75rem;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
-        <div style="font-size:1rem;font-weight:800;color:#ef4444;">⚠ Compte Test Admin</div>
-        <button onclick="document.getElementById('test-login-overlay').remove()" style="background:transparent;border:1px solid #1e1e2e;border-radius:50%;width:28px;height:28px;color:#64748b;cursor:pointer;">✕</button>
-      </div>
-      <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:#64748b;line-height:1.7;margin-bottom:1.25rem;padding:0.75rem;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:8px;">
-        Le compte test est invisible dans le classement.<br>
-        Tu peux activer/désactiver tout ce que tu veux dessus.
-      </div>
-      <div style="display:flex;flex-direction:column;gap:0.75rem;">
-        <button onclick="loginTestAccount()" style="padding:0.8rem;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.35);border-radius:8px;color:#22c55e;font-family:'Space Mono',monospace;font-size:0.78rem;font-weight:700;cursor:pointer;">▶ Se connecter sur le compte test</button>
-        <button onclick="openAdminQuickTools()" style="padding:0.8rem;background:rgba(124,58,237,0.12);border:1px solid rgba(124,58,237,0.35);border-radius:8px;color:#a78bfa;font-family:'Space Mono',monospace;font-size:0.78rem;cursor:pointer;">🔧 Outils rapides (compte actuel)</button>
-        <a href="admin.html" style="display:block;padding:0.8rem;background:rgba(239,68,68,0.1);border:1px solid #ef4444;border-radius:8px;color:#ef4444;font-family:'Space Mono',monospace;font-size:0.78rem;text-decoration:none;text-align:center;">🔐 Panel Admin complet</a>
-      </div>
-    </div>`;
-  document.body.appendChild(overlay);
-};
-
-window.loginTestAccount = async function() {
-  // Sauvegarde la session actuelle pour pouvoir revenir
-  const currentSession = localStorage.getItem('axo_session');
-  if (currentSession) localStorage.setItem('axo_session_backup', currentSession);
-
-  // Crée/récupère le compte test dans Firebase
-  let testUser = await dbGet('users', TEST_ACCOUNT_KEY);
-  if (!testUser) {
-    testUser = { username: '__TEST__', isAdmin: true, isTestAccount: true, createdAt: Date.now(), password: '' };
-    await dbSet('users', TEST_ACCOUNT_KEY, testUser);
-  }
-  let testSave = await dbGet('saves', TEST_ACCOUNT_KEY);
-  if (!testSave) {
-    testSave = { username: '__TEST__', cookies: 1e12, totalCookies: 1e12, cookiesThisLife: 1e12,
-      totalClicks: 0, cps: 0, buildings: {}, upgrades: {}, rebirths: 5, rebirthPoints: 50,
-      rebirthShop: {}, minigameUnlocks: {}, goldenPotatoes: 100, goldShop: {},
-      famOwned: { axolotl: true, dragon: true, cat: true }, famEquipped: null, famHunger: 100,
-      famFood: {}, lastSave: Date.now() };
-    await dbSet('saves', TEST_ACCOUNT_KEY, testSave);
-  }
-
-  // Bascule sur le compte test
-  localStorage.setItem('axo_session', JSON.stringify({ username: '__TEST__', ts: Date.now(), isTest: true }));
-  document.getElementById('test-login-overlay')?.remove();
-  showToast('🧪 Connecté sur le compte test !');
-  setTimeout(() => window.location.reload(), 800);
-};
-
-window.openAdminQuickTools = function() {
-  document.getElementById('test-login-overlay')?.remove();
-  const overlay = document.createElement('div');
-  overlay.id = 'quick-tools-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.88);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:1rem;';
-  overlay.innerHTML = `
-    <div style="background:#111118;border:2px solid #7c3aed;border-radius:16px;width:min(420px,96vw);padding:1.75rem;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
-        <div style="font-size:1rem;font-weight:800;color:#a78bfa;">🔧 Outils rapides</div>
-        <button onclick="document.getElementById('quick-tools-overlay').remove()" style="background:transparent;border:1px solid #1e1e2e;border-radius:50%;width:28px;height:28px;color:#64748b;cursor:pointer;">✕</button>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:0.5rem;">
-        <button onclick="state.cookies+=1e9;state.totalCookies+=1e9;state.cookiesThisLife+=1e9;updateDisplay();saveGame(true);showToast('🍪 +1B cookies');document.getElementById('quick-tools-overlay').remove();" style="padding:0.65rem;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;color:#22c55e;font-family:'Space Mono',monospace;font-size:0.75rem;cursor:pointer;">🍪 +1 Milliard de cookies</button>
-        <button onclick="if(!state.goldenPotatoes)state.goldenPotatoes=0;state.goldenPotatoes+=50;updateDisplay();saveGame(true);showToast('🥔 +50 patates');document.getElementById('quick-tools-overlay').remove();" style="padding:0.65rem;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;color:#f59e0b;font-family:'Space Mono',monospace;font-size:0.75rem;cursor:pointer;">🥔 +50 patates dorées</button>
-        <button onclick="state.rebirthPoints+=10;updateDisplay();saveGame(true);showToast('🌀 +10 pts rebirth');document.getElementById('quick-tools-overlay').remove();" style="padding:0.65rem;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);border-radius:8px;color:#a855f7;font-family:'Space Mono',monospace;font-size:0.75rem;cursor:pointer;">🌀 +10 points rebirth</button>
-        <button onclick="document.getElementById('quick-tools-overlay').remove();spawnGoldenPotato();" style="padding:0.65rem;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;color:#f59e0b;font-family:'Space Mono',monospace;font-size:0.75rem;cursor:pointer;">🥔 Spawner une patate dorée</button>
-        <button onclick="document.getElementById('quick-tools-overlay').remove();showGoldenCookie();" style="padding:0.65rem;background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.3);border-radius:8px;color:#06b6d4;font-family:'Space Mono',monospace;font-size:0.75rem;cursor:pointer;">✨ Spawner un cookie doré</button>
-      </div>
-    </div>`;
-  document.body.appendChild(overlay);
-};
 
 // ====================================================
 // GAINS HORS LIGNE
@@ -1638,12 +1503,8 @@ window.stopMinigame = function(){
 }
 
 function mgReward(bid, score){
-  const cps = computeCps();
-  // Si CPS > 0 : bonus basé sur la prod. Sinon bonus fixe pour pas frustrer le joueur
-  const bonus = cps > 0
-    ? Math.max(50, Math.floor(score * cps * 5))
-    : Math.max(50, score * 20);
-  state.cookies+=bonus; state.totalCookies+=bonus; state.cookiesThisLife+=bonus;
+  const bonus=Math.max(10, Math.floor(score * computeCps() * 5));
+  state.cookies+=bonus;state.totalCookies+=bonus;
   showToast('🎮 +'+formatNum(bonus)+' cookies gagnés !');
   updateDisplay();
 }
@@ -1664,20 +1525,11 @@ function renderClickRush(body,bid){
   </div>`;
   window._crState={clicks:0,timer:10,started:false,iv:null,bid};
 
-  // Bouton principal de clic — touch + click (touch prend priorité)
+  // Bouton principal de clic — touch + click
   const crBtn = document.getElementById('cr-btn');
-  let crTouchActive = false;
-  const clickHandler = (e) => {
-    if (e && e.type === 'touchstart') { crTouchActive = true; e.preventDefault(); }
-    else if (crTouchActive && e && e.type === 'click') return; // évite double-count
-    const s=window._crState; if(!s||!s.started)return;
-    s.clicks++;
-    const scoreEl = document.getElementById('cr-score');
-    if (scoreEl) scoreEl.textContent='Clics : '+s.clicks;
-  };
-  crBtn.addEventListener('touchstart', e => { e.preventDefault(); clickHandler(e); }, {passive:false});
-  crBtn.addEventListener('touchend',   e => { e.preventDefault(); crTouchActive=false; }, {passive:false});
-  crBtn.addEventListener('click',      clickHandler);
+  const clickHandler = () => { const s=window._crState; if(!s||!s.started)return; s.clicks++; document.getElementById('cr-score').textContent='Clics : '+s.clicks; };
+  crBtn.addEventListener('click', clickHandler);
+  crBtn.addEventListener('touchstart', e => { e.preventDefault(); clickHandler(); }, {passive:false});
 
   // Bouton Commencer / Rejouer
   const startBtn = document.getElementById('cr-start');
@@ -1969,12 +1821,12 @@ function rxSpawnNext() {
   if(s.round > s.maxRounds) { rxEnd(true); return; }
   const arena = document.getElementById('rx-arena'); if(!arena) return;
   arena.innerHTML='';
-  const isGreen = Math.random() > 0.35;
-  const size = 54 + Math.floor(Math.random()*16); // cibles plus grandes
-  const x = 8 + Math.random()*(256-size);
-  const y = 8 + Math.random()*(176-size);
-  const delay = 150 + Math.random()*300;           // délai court : 150-450ms
-  const lifetime = Math.max(1000, 2000 - s.round*80); // min 1s, max 2s
+  const isGreen = Math.random() > 0.35; // 65% verte, 35% rouge
+  const size = 44 + Math.floor(Math.random()*20);
+  const x = 10 + Math.random()*(260-size);
+  const y = 10 + Math.random()*(180-size);
+  const delay = 600 + Math.random()*800; // délai avant apparition
+  const lifetime = 900 - s.round*50; // plus difficile avec les rounds
 
   s.spawnTimer = setTimeout(()=>{
     const target = document.createElement('div');
@@ -2266,6 +2118,20 @@ window.potatoClick = function() {
   showToast('🥔✨ Patate dorée ! +'+formatNum(bonus)+' cookies | +1 patate dorée');
   updateDisplay(); scheduleGoldenPotato();
 };
+// ── Listeners touch+click sur la patate (mobile fix)
+(function(){
+  const gp = document.getElementById('golden-potato');
+  if (!gp) return;
+  let ptouched = false;
+  gp.addEventListener('touchstart', function(e){
+    e.preventDefault(); ptouched = true;
+    window.potatoClick();
+  }, {passive:false});
+  gp.addEventListener('click', function(){
+    if (ptouched) { ptouched = false; return; } // évite double
+    window.potatoClick();
+  });
+})();
 // golden potato scheduled after initGame
 
 // ====================================================
@@ -2356,7 +2222,11 @@ function startFamiliar() {
   bar.appendChild(cvs);
 
   const eqBtn = document.getElementById('fam-equip-btn');
-  if (eqBtn) eqBtn.style.display = 'block';
+  if (eqBtn) {
+    eqBtn.style.display = 'inline-flex';
+    const nameEl = document.getElementById('fam-equip-name');
+    if (nameEl && pet) nameEl.textContent = pet.emoji + ' ' + pet.name;
+  }
 
   famAnim = {
     x: 60, dir: 1,
@@ -2660,11 +2530,11 @@ function dropGift() {
   gift.style.bottom = '55px';
   document.body.appendChild(gift);
   showFamBubble('🎁 Cadeau !', x);
-  let giftClaimed = false;
-  const claimGift = (e) => {
+  let _giftClaimed = false;
+  const _collectGift = (e) => {
     if (e) e.preventDefault();
-    if (giftClaimed) return;
-    giftClaimed = true;
+    if (_giftClaimed) return;
+    _giftClaimed = true;
     const cBonus = Math.max(10, Math.floor(computeCps() * 120));
     const gpBonus = Math.random() < 0.3 ? 1 : 0;
     state.cookies += cBonus; state.totalCookies += cBonus; state.cookiesThisLife += cBonus;
@@ -2676,12 +2546,12 @@ function dropGift() {
       showToast('🎁 +' + formatNum(cBonus) + ' cookies !');
     }
     spawnParticle(x, window.innerHeight - 80, '🎁 +' + formatNum(cBonus));
-    gift.remove();
+    if (gift.parentNode) gift.remove();
     updateDisplay();
     saveGame(true);
   };
-  gift.addEventListener('touchstart', claimGift, {passive:false});
-  gift.addEventListener('click', claimGift);
+  gift.addEventListener('touchstart', _collectGift, {passive:false});
+  gift.addEventListener('click', (e) => { if (!_giftClaimed) _collectGift(e); });
   // Disparaît après 30s si pas cliqué
   setTimeout(() => { if (gift.parentNode) gift.remove(); }, 30000);
 }
@@ -2844,99 +2714,6 @@ window.famFeed = function(id) {
   updateDisplay();
   saveGame(true);
 };
-
-
-// ====================================================
-// CHAT GLOBAL — Firebase realtime
-// ====================================================
-let chatOpen=false, chatUnread=0, chatLastSend=0, chatUnsub=null, chatReady=false;
-
-window.toggleChat = function() {
-  chatOpen = !chatOpen;
-  const panel = document.getElementById('chat-panel');
-  if (!panel) return;
-  panel.classList.toggle('open', chatOpen);
-  if (chatOpen) {
-    chatUnread = 0;
-    const badge = document.getElementById('chat-unread');
-    if (badge) badge.style.display = 'none';
-    setTimeout(() => {
-      const msgs = document.getElementById('chat-msgs');
-      if (msgs) msgs.scrollTop = msgs.scrollHeight;
-      const inp = document.getElementById('chat-input');
-      if (inp) inp.focus();
-    }, 60);
-    if (!chatReady) initChat();
-  }
-};
-
-function initChat() {
-  chatReady = true;
-  try {
-    const q = query(collection(_db, 'chat'), orderBy('ts','asc'), limit(60));
-    chatUnsub = onSnapshot(q, snap => {
-      renderChatMsgs(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-    }, err => {
-      const el = document.getElementById('chat-msgs');
-      if (el) el.innerHTML = '<div class="chat-empty">❌ Chat indisponible.<br>Vérifie les règles Firestore.</div>';
-    });
-  } catch(e) { console.error('[chat]', e); }
-}
-
-function renderChatMsgs(msgs) {
-  const box = document.getElementById('chat-msgs');
-  if (!box) return;
-  const atBottom = box.scrollHeight - box.scrollTop <= box.clientHeight + 50;
-  const me = currentUser ? currentUser.toLowerCase() : null;
-  if (!msgs.length) { box.innerHTML = '<div class="chat-empty">Aucun message. Sois le premier !</div>'; return; }
-  box.innerHTML = msgs.map(msg => {
-    if (msg.system) return '<div class="chat-system">' + escHtml(msg.text||'') + '</div>';
-    const isMe = me && (msg.user||'').toLowerCase() === me;
-    const name = escHtml(msg.user||'?');
-    const text = escHtml(msg.text||'');
-    const time = msg.ts&&msg.ts.toDate ? fmtTime(msg.ts.toDate()) : '';
-    return '<div class="chat-msg ' + (isMe?'me':'other') + '">'
-      + (isMe ? '<div class="chat-msg-meta">' + time + '</div>'
-               : '<div class="chat-msg-meta"><span class="chat-msg-name">' + name + '</span> ' + time + '</div>')
-      + '<div class="chat-msg-bubble">' + text + '</div></div>';
-  }).join('');
-  if (!chatOpen) {
-    const last = msgs[msgs.length-1];
-    if (last && !last.system && (last.user||'').toLowerCase() !== me) {
-      chatUnread++;
-      const badge = document.getElementById('chat-unread');
-      if (badge) { badge.textContent = chatUnread > 9 ? '9+' : chatUnread; badge.style.display = 'block'; }
-    }
-  }
-  if (atBottom || !chatOpen) box.scrollTop = box.scrollHeight;
-}
-
-window.sendChatMsg = async function() {
-  if (!currentUser) { showToast('🔐 Connecte-toi pour chatter !'); return; }
-  const inp = document.getElementById('chat-input');
-  const text = (inp ? inp.value : '').trim();
-  if (!text) return;
-  if (text.length > 200) { showToast('❌ Message trop long !'); return; }
-  const now = Date.now();
-  if (now - chatLastSend < 2000) { showToast('⏳ Doucement !'); return; }
-  chatLastSend = now;
-  if (inp) inp.value = '';
-  try {
-    await addDoc(collection(_db, 'chat'), { user: currentUser, text, ts: serverTimestamp() });
-  } catch(e) {
-    showToast('❌ Erreur envoi');
-    if (inp) inp.value = text;
-  }
-};
-
-function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-function fmtTime(d) { return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0'); }
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && document.activeElement === document.getElementById('chat-input')) {
-    e.preventDefault(); window.sendChatMsg();
-  }
-});
 
 </script>
 </body>
