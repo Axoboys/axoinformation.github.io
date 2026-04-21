@@ -88,6 +88,11 @@
     .maint-toggle.activate:hover{background:#dc2626;}
     .maint-toggle.deactivate{background:var(--green);color:#fff;}
     .maint-toggle.deactivate:hover{background:#16a34a;}
+    /* TEMPBAN MODAL */
+    .tempban-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);}
+    .tempban-modal.open{display:flex;}
+    .tempban-box{background:var(--surface);border:2px solid var(--red);border-radius:16px;width:min(440px,95vw);padding:2rem;}
+    .tempban-title{font-size:1.1rem;font-weight:800;margin-bottom:1.25rem;color:var(--red);display:flex;align-items:center;justify-content:space-between;}
   </style>
 </head>
 <body>
@@ -244,6 +249,45 @@
   <div class="edit-box" id="edit-box"></div>
 </div>
 
+<!-- TEMPBAN MODAL -->
+<div class="tempban-modal" id="tempban-modal">
+  <div class="tempban-box">
+    <div class="tempban-title">
+      🚫 Bannissement temporaire
+      <button class="edit-close" onclick="closeTempBan()">✕</button>
+    </div>
+    <div class="field-group">
+      <div class="field-label">Joueur</div>
+      <input class="field-input" id="tb-username" readonly style="opacity:0.6;">
+    </div>
+    <div class="field-group">
+      <div class="field-label">Durée</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+        <div>
+          <input type="number" class="field-input" id="tb-duration" value="1" min="1" placeholder="Durée...">
+        </div>
+        <div>
+          <select class="field-input" id="tb-unit" style="cursor:pointer;">
+            <option value="minutes">Minutes</option>
+            <option value="hours" selected>Heures</option>
+            <option value="days">Jours</option>
+            <option value="permanent">Permanent</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="field-group">
+      <div class="field-label">Raison (visible du joueur)</div>
+      <input class="field-input" id="tb-reason" placeholder="ex: Triche, comportement inapproprié...">
+    </div>
+    <div id="tb-current-ban" style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--red);margin-bottom:1rem;display:none;"></div>
+    <div style="display:flex;gap:0.5rem;">
+      <button class="save-btn" id="tb-apply-btn" onclick="applyTempBan()" style="background:var(--red);">🚫 Appliquer le ban</button>
+      <button class="save-btn" id="tb-unban-btn" onclick="applyUnban()" style="background:var(--green);display:none;">✅ Débannir</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script type="module">
@@ -364,7 +408,7 @@ function renderAccounts(){
   if(!allUsers.length){tbody.innerHTML='<tr><td colspan="6" class="loading-row">Aucun compte.</td></tr>';return;}
   tbody.innerHTML=allUsers.map(u=>`
     <tr>
-      <td><strong>${u.username||u.id}</strong></td>
+      <td><strong>${u.username||u.id}</strong>${u.tempBanUntil&&u.tempBanUntil>Date.now()?` <span style="background:rgba(239,68,68,0.15);border:1px solid var(--red);color:var(--red);border-radius:999px;font-family:'Space Mono',monospace;font-size:0.58rem;padding:0.1rem 0.4rem;">🚫 BANNI</span>`:''}</td>
       <td><span class="badge ${u.isAdmin?'badge-admin':'badge-user'}">${u.isAdmin?'Admin':'Joueur'}</span></td>
       <td style="font-family:'Space Mono',monospace;font-size:0.7rem;">${formatDate(u.createdAt)}</td>
       <td id="acc-cookies-${u.id}">—</td>
@@ -372,6 +416,8 @@ function renderAccounts(){
       <td><div class="action-row">
         <button class="act-btn primary" onclick="editUser('${u.id}')">✏️ Modifier</button>
         <button class="act-btn ${u.isAdmin?'danger':'success'}" onclick="toggleAdmin('${u.id}')">${u.isAdmin?'Rétrograder':'Promouvoir'}</button>
+        ${u.isAdmin?`<button class="act-btn" style="border-color:#a855f7;color:#a855f7;" onclick="loginAsTest('${u.id}')">🧪 Test</button>`:''}
+        <button class="act-btn danger" onclick="openTempBan('${u.id}','${u.username||u.id}')" title="Bannir temporairement">${u.tempBanUntil&&u.tempBanUntil>Date.now()?'🔓 Débannir':'🚫 TempBan'}</button>
         <button class="act-btn danger" onclick="deleteUser('${u.id}')">🗑 Supprimer</button>
       </div></td>
     </tr>`).join('');
@@ -661,6 +707,167 @@ loadVersionInfo();
 // Wire up buttons that need module scope
 const pushBtn = document.getElementById('push-update-btn');
 if (pushBtn) pushBtn.addEventListener('click', window.pushUpdate);
+
+// ====================================================
+// TEMPBAN
+// ====================================================
+let _tbUserId = null;
+
+window.openTempBan = async function(id, username) {
+  _tbUserId = id;
+  document.getElementById('tb-username').value = username;
+  document.getElementById('tb-duration').value = 1;
+  document.getElementById('tb-unit').value = 'hours';
+  document.getElementById('tb-reason').value = '';
+  // Vérifier si déjà banni
+  const u = await dbGet('users', id);
+  const curBan = document.getElementById('tb-current-ban');
+  const unbanBtn = document.getElementById('tb-unban-btn');
+  const applyBtn = document.getElementById('tb-apply-btn');
+  if (u && u.tempBanUntil && u.tempBanUntil > Date.now()) {
+    curBan.style.display = 'block';
+    curBan.textContent = '⚠️ Déjà banni jusqu\'au ' + formatDate(u.tempBanUntil) + (u.tempBanReason ? ' — ' + u.tempBanReason : '');
+    unbanBtn.style.display = 'block';
+    applyBtn.textContent = '🚫 Modifier le ban';
+  } else {
+    curBan.style.display = 'none';
+    unbanBtn.style.display = 'none';
+    applyBtn.textContent = '🚫 Appliquer le ban';
+  }
+  document.getElementById('tempban-modal').classList.add('open');
+};
+
+window.closeTempBan = function() {
+  document.getElementById('tempban-modal').classList.remove('open');
+  _tbUserId = null;
+};
+
+window.applyTempBan = async function() {
+  if (!_tbUserId) return;
+  const duration = parseInt(document.getElementById('tb-duration').value) || 1;
+  const unit = document.getElementById('tb-unit').value;
+  const reason = document.getElementById('tb-reason').value.trim() || 'Sanction administrative';
+
+  let banMs;
+  if (unit === 'permanent') {
+    banMs = Date.now() + 100 * 365 * 24 * 3600 * 1000; // 100 ans = permanent
+  } else if (unit === 'minutes') {
+    banMs = Date.now() + duration * 60 * 1000;
+  } else if (unit === 'hours') {
+    banMs = Date.now() + duration * 3600 * 1000;
+  } else if (unit === 'days') {
+    banMs = Date.now() + duration * 86400 * 1000;
+  }
+
+  const u = await dbGet('users', _tbUserId);
+  if (!u) { showToast('Utilisateur introuvable.'); return; }
+  u.tempBanUntil = banMs;
+  u.tempBanReason = reason;
+  await dbSet('users', _tbUserId, u);
+  const label = unit === 'permanent' ? 'définitivement' : `pour ${duration} ${unit}`;
+  addLog('err', `TempBan de ${u.username} ${label} — ${reason}`);
+  showToast(`🚫 ${u.username} banni ${label}.`);
+  closeTempBan();
+  loadData();
+};
+
+window.applyUnban = async function() {
+  if (!_tbUserId) return;
+  const u = await dbGet('users', _tbUserId);
+  if (!u) return;
+  u.tempBanUntil = null;
+  u.tempBanReason = null;
+  await dbSet('users', _tbUserId, u);
+  addLog('ok', `Débannissement de ${u.username}`);
+  showToast(`✅ ${u.username} débanni.`);
+  closeTempBan();
+  loadData();
+};
+
+document.getElementById('tempban-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('tempban-modal')) closeTempBan();
+});
+
+// ====================================================
+// BOUTON TEST — connexion sur compte test depuis admin
+// ====================================================
+window.loginAsTest = function(id) {
+  if (!confirm('🧪 Activer le mode TEST ?\n\nTu vas être redirigé sur le clicker en mode test (compte invisible, achats gratuits, rien sauvegardé).')) return;
+  // Stocker la session admin pour pouvoir y revenir
+  const currentSession = JSON.parse(localStorage.getItem('axo_session') || 'null');
+  if (currentSession) localStorage.setItem('axo_session_backup', JSON.stringify(currentSession));
+  localStorage.setItem('axo_session', JSON.stringify({ username: '_axo_test', isTest: true }));
+  showToast('🧪 Redirection vers le mode test...');
+  setTimeout(() => { window.location.href = 'clicker.html'; }, 800);
+};
+
+// ====================================================
+// CHAT MODERATION — implémentation complète
+// ====================================================
+window.loadChatMsgs = async function() {
+  document.getElementById('chat-tbody').innerHTML = '<tr><td colspan="4" class="loading-row">⏳ Chargement...</td></tr>';
+  document.getElementById('chat-msg-count').textContent = 'Chargement...';
+  try {
+    const snap = await dbGet('chat', 'messages');
+    const msgs = (snap && snap.list) ? snap.list : [];
+    document.getElementById('chat-msg-count').textContent = msgs.length + ' message(s)';
+    if (!msgs.length) {
+      document.getElementById('chat-tbody').innerHTML = '<tr><td colspan="4" class="loading-row">Aucun message.</td></tr>';
+      return;
+    }
+    // Trier du plus récent au plus ancien
+    msgs.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+    document.getElementById('chat-tbody').innerHTML = msgs.map((m, i) => `
+      <tr>
+        <td style="font-family:'Space Mono',monospace;font-size:0.65rem;">${formatDate(m.ts)}</td>
+        <td>
+          <strong>${escapeAdminHtml(m.author)}</strong>
+          ${m.isAdmin ? '<span class="badge badge-admin" style="margin-left:0.3rem;">Admin</span>' : ''}
+        </td>
+        <td style="font-size:0.8rem;max-width:300px;word-break:break-word;">${escapeAdminHtml(m.text)}</td>
+        <td>
+          <button class="act-btn danger" onclick="deleteChatMsg(${i})">🗑 Suppr.</button>
+        </td>
+      </tr>`).join('');
+    // Stocker les msgs pour la suppression
+    window._chatMsgs = msgs;
+  } catch(e) {
+    document.getElementById('chat-tbody').innerHTML = '<tr><td colspan="4" class="loading-row" style="color:var(--red);">❌ Erreur : ' + e.message + '</td></tr>';
+    document.getElementById('chat-msg-count').textContent = 'Erreur';
+  }
+};
+
+function escapeAdminHtml(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+window.deleteChatMsg = async function(index) {
+  if (!window._chatMsgs) return;
+  // Les msgs sont triés du plus récent, on retrouve l'index original
+  const msgs = (await dbGet('chat', 'messages'))?.list || [];
+  // Identifier le message par ts et author
+  const target = window._chatMsgs[index];
+  const newList = msgs.filter(m => !(m.ts === target.ts && m.author === target.author && m.text === target.text));
+  await dbSet('chat', 'messages', { list: newList });
+  addLog('err', `Message supprimé de ${target.author} : "${target.text.substring(0,40)}"`);
+  showToast('🗑 Message supprimé.');
+  loadChatMsgs();
+};
+
+window.clearAllChat = async function() {
+  if (!confirm('🗑 Vider TOUT le chat ?\n\nTous les messages seront définitivement supprimés.')) return;
+  await dbSet('chat', 'messages', { list: [] });
+  addLog('err', 'Chat entièrement vidé par admin');
+  showToast('🗑 Chat vidé.');
+  loadChatMsgs();
+};
+
+// Charger le chat quand on clique sur l'onglet
+const _origSwitchTab = window.switchTab;
+window.switchTab = function(id) {
+  _origSwitchTab(id);
+  if (id === 'chat') loadChatMsgs();
+};
 </script>
 </body>
 </html>
