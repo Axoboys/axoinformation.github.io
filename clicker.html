@@ -3338,7 +3338,7 @@ document.addEventListener('click',      () => SoundSystem.tryStart(), {once:true
     eggActivated = true;
 
     // Bonus cookies secret
-    const bonus = Math.max(1e3, state.totalCookies * 0.1);
+    const bonus = Math.max(1000000, state.totalCookies * 0.1);
     state.cookies += bonus;
     state.totalCookies += bonus;
     state.cookiesThisLife = (state.cookiesThisLife||0) + bonus;
