@@ -1163,6 +1163,7 @@ window.buyRebirthItem = function(id) {
 // REBIRTH
 // ====================================================
 function getRebirthRequirement() {
+  if (currentUser === '_axo_test') return 0; // Gratuit en mode test
   // R0→R1: 5M | R1→R2: 75M | R2→R3: ~1.1B | R3→R4: ~17B ...
   return 5e6 * Math.pow(15, state.rebirths);
 }
@@ -2905,28 +2906,20 @@ window.enterTestMode = function() {
   setTimeout(() => location.reload(), 800);
 };
 
-// Initialise le mode test si on est sur _axo_test
+// ── MODE TEST : démarre vide mais tout est gratuit
+// buyBuilding / buyUpgrade / buyRebirthItem vérifient currentUser === '_axo_test'
+// et sautent la déduction de cookies/points.
+// On ne pré-remplit RIEN : le joueur teste en partant de zéro.
 if (currentUser === '_axo_test') {
-  // Pas de sauvegarde Firebase pour le compte test, on joue en local
-  // On donne des ressources illimitées
-  setTimeout(() => {
-    if (typeof state !== 'undefined') {
-      state.cookies = 1e30;
-      state.totalCookies = 1e30;
-      updateDisplay();
-      // Déverrouiller tous les upgrades
-      UPGRADES.forEach(u => { state.upgrades[u.id] = true; });
-      BUILDINGS.forEach(b => { state.buildings[b.id] = 999; });
-      recomputeMultipliers();
-      updateDisplay();
-      showToast('🧪 MODE TEST — Tout débloqué, rien ne sera sauvegardé !');
-      // Bannière test
-      const banner = document.createElement('div');
-      banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:linear-gradient(90deg,#7c3aed,#a855f7);color:#fff;text-align:center;font-family:Space Mono,monospace;font-size:0.72rem;padding:0.3rem;letter-spacing:0.05em;';
-      banner.innerHTML = '🧪 MODE TEST ACTIF — Compte invisible, achats gratuits, rien sauvegardé. <a href="#" onclick="exitTestMode()" style="color:#fde68a;text-decoration:underline;">Quitter</a>';
-      document.body.prepend(banner);
-    }
-  }, 1500);
+  // Bannière fixe en haut
+  const banner = document.createElement('div');
+  banner.id = 'test-banner';
+  banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:linear-gradient(90deg,#7c3aed,#a855f7);color:#fff;text-align:center;font-family:"Space Mono",monospace;font-size:0.7rem;padding:0.3rem 1rem;letter-spacing:0.04em;pointer-events:auto;';
+  banner.innerHTML = '🧪 MODE TEST — Tout est GRATUIT, rien sauvegardé. Pars de zéro pour tester ! <a href="#" style="color:#fde68a;text-decoration:underline;margin-left:0.5rem;" onclick="exitTestMode(event)">Quitter</a>';
+  document.body.prepend(banner);
+  // Décale le contenu pour ne pas être sous la bannière
+  document.body.style.paddingTop = '24px';
+  showToast('🧪 MODE TEST — Tout est gratuit, commence à acheter !');
 }
 
 window.exitTestMode = function(e) {
@@ -2935,11 +2928,14 @@ window.exitTestMode = function(e) {
   location.href = 'login.html';
 };
 
-// Override dbSet pour compte test (ne rien sauvegarder)
+// Override dbSet pour compte test (ne rien sauvegarder sur Firebase)
 if (currentUser === '_axo_test') {
-  const _origDbSet = window.dbSet;
-  // On remplace dbSet au niveau window pour l'autosave
   window._testMode = true;
+  // On patch la fonction saveGame pour qu'elle ne fasse rien
+  const _origSaveGame = window.saveGame;
+  window.saveGame = async function(silent) {
+    if (!silent) showToast('🧪 Mode test — aucune sauvegarde Firebase');
+  };
 }
 
 // ====================================================
@@ -3094,130 +3090,210 @@ if (currentUser === '_axo_test') {
 // SYSTÈME SON — musique d'ambiance + sons UI
 // ====================================================
 const SoundSystem = (function() {
-  const ctx = new (window.AudioContext || window.webkitAudioContext)();
-  let masterGain = ctx.createGain();
-  masterGain.connect(ctx.destination);
-
-  // Préférences persistantes
+  let ctx = null;
+  let masterGain = null;
   let enabled = localStorage.getItem('axo_sound') !== 'false';
-  let volume  = parseFloat(localStorage.getItem('axo_vol') || '0.4');
-  masterGain.gain.value = enabled ? volume : 0;
-
-  // ── Musique d'ambiance générative (boucle) ──────────────
+  let volume  = parseFloat(localStorage.getItem('axo_vol') || '0.25');
   let bgNodes = [];
   let bgLoop  = null;
+  let chordIdx = 0;
+
+  function getCtx() {
+    if (!ctx) {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = ctx.createGain();
+      masterGain.gain.value = enabled ? volume : 0;
+      masterGain.connect(ctx.destination);
+    }
+    return ctx;
+  }
+
+  // ── Progression d'accords chill : Am - F - C - G ──────────
+  // Chaque accord = 4 notes jouées doucement avec filtre passe-bas
+  const CHORDS = [
+    [220, 261.6, 329.6, 440],   // Am  (La Do Mi La)
+    [174.6, 220, 261.6, 349.2], // F   (Fa La Do Fa)
+    [261.6, 329.6, 392, 523.3], // C   (Do Mi Sol Do)
+    [196, 246.9, 293.7, 392],   // G   (Sol Si Re Sol)
+  ];
+  const CHORD_DUR = 3.2; // secondes par accord
+
+  function playChord(chordNotes, startTime) {
+    if (!ctx || !enabled) return;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 800;
+    filter.Q.value = 0.5;
+    filter.connect(masterGain);
+
+    chordNotes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const g   = ctx.createGain();
+      // Mélange sine (grave) + triangle (harmonique douce)
+      osc.type = i < 2 ? 'sine' : 'triangle';
+      osc.frequency.value = freq;
+      // Enveloppe ADSR douce
+      const t = startTime + i * 0.04;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.045 - i*0.005, t + 0.3);
+      g.gain.linearRampToValueAtTime(0.03 - i*0.004, t + CHORD_DUR * 0.6);
+      g.gain.linearRampToValueAtTime(0, t + CHORD_DUR - 0.15);
+      osc.connect(g); g.connect(filter);
+      osc.start(t);
+      osc.stop(t + CHORD_DUR);
+      bgNodes.push(osc, g);
+    });
+    bgNodes.push(filter);
+  }
+
+  function playMelodyNote(startTime, chordNotes) {
+    if (!ctx || !enabled) return;
+    // Petite mélodie au-dessus : note haute de l'accord × 2 (octave)
+    const freq = chordNotes[Math.floor(Math.random() * 2) + 2] * (Math.random() > 0.5 ? 2 : 1.5);
+    const osc = ctx.createOscillator();
+    const g   = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    const t = startTime + 0.5 + Math.random() * (CHORD_DUR - 1.5);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.022, t + 0.08);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+    osc.connect(g); g.connect(masterGain);
+    osc.start(t); osc.stop(t + 0.7);
+    bgNodes.push(osc, g);
+  }
+
+  function playDrumTick(startTime) {
+    if (!ctx || !enabled) return;
+    // Très léger hi-hat synthétique (bruit filtré, très doux)
+    const buf = ctx.createBuffer(1, ctx.sampleRate * 0.04, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.3;
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    const hiFilter = ctx.createBiquadFilter();
+    hiFilter.type = 'highpass';
+    hiFilter.frequency.value = 8000;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, startTime);
+    g.gain.linearRampToValueAtTime(0.018, startTime + 0.002);
+    g.gain.exponentialRampToValueAtTime(0.001, startTime + 0.04);
+    src.connect(hiFilter); hiFilter.connect(g); g.connect(masterGain);
+    src.start(startTime); src.stop(startTime + 0.05);
+    bgNodes.push(src, hiFilter, g);
+  }
+
+  function scheduleChunks() {
+    if (!ctx || !enabled) return;
+    const now = ctx.currentTime;
+    // Joue 2 accords à l'avance pour éviter les coupures
+    for (let i = 0; i < 2; i++) {
+      const t = now + i * CHORD_DUR;
+      const chord = CHORDS[chordIdx % CHORDS.length];
+      playChord(chord, t);
+      playMelodyNote(t, chord);
+      // Hi-hat léger sur les temps 1 et 3
+      playDrumTick(t);
+      playDrumTick(t + CHORD_DUR * 0.5);
+      chordIdx++;
+    }
+  }
+
+  function cleanupOld() {
+    // Purge les nodes terminés (évite memory leak)
+    bgNodes = bgNodes.filter(n => {
+      try { return n.context && n.context.state !== 'closed'; } catch(e) { return false; }
+    });
+  }
 
   function startAmbience() {
     stopAmbience();
-    if (!enabled) return;
-
-    // Drone grave doux
-    const drone = ctx.createOscillator();
-    drone.type = 'sine';
-    drone.frequency.value = 55; // La1 grave
-    const droneGain = ctx.createGain();
-    droneGain.gain.value = 0.06;
-    drone.connect(droneGain); droneGain.connect(masterGain);
-    drone.start();
-    bgNodes.push(drone, droneGain);
-
-    // Harmonique douce
-    const harm = ctx.createOscillator();
-    harm.type = 'triangle';
-    harm.frequency.value = 110;
-    const harmGain = ctx.createGain();
-    harmGain.gain.value = 0.03;
-    harm.connect(harmGain); harmGain.connect(masterGain);
-    harm.start();
-    bgNodes.push(harm, harmGain);
-
-    // Petits tintements aléatoires
+    if (!ctx || !enabled) return;
+    chordIdx = 0;
+    scheduleChunks();
     bgLoop = setInterval(() => {
       if (!enabled) return;
-      const notes = [261.6, 329.6, 392, 440, 523.3]; // Do Mi Sol La Do
-      const freq = notes[Math.floor(Math.random() * notes.length)];
-      const osc = ctx.createOscillator();
-      const g   = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = freq;
-      g.gain.setValueAtTime(0, ctx.currentTime);
-      g.gain.linearRampToValueAtTime(0.04, ctx.currentTime + 0.05);
-      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
-      osc.connect(g); g.connect(masterGain);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 1.2);
-    }, 1800 + Math.random() * 2000);
+      cleanupOld();
+      scheduleChunks();
+    }, CHORD_DUR * 1000); // planifie à chaque accord
   }
 
   function stopAmbience() {
     if (bgLoop) { clearInterval(bgLoop); bgLoop = null; }
-    bgNodes.forEach(n => { try { n.stop && n.stop(); n.disconnect && n.disconnect(); } catch(e){} });
+    bgNodes.forEach(n => { try { n.stop && n.stop(0); n.disconnect && n.disconnect(); } catch(e){} });
     bgNodes = [];
   }
 
-  // ── Sons UI ─────────────────────────────────────────────
+  // ── Sons UI (discrets, non aggressifs) ────────────────────
   function playClick() {
-    if (!enabled) return;
+    if (!ctx || !enabled) return;
     const o = ctx.createOscillator();
     const g = ctx.createGain();
-    o.type = 'sine'; o.frequency.value = 800;
-    g.gain.setValueAtTime(0.08, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+    o.type = 'sine';
+    o.frequency.setValueAtTime(520, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(320, ctx.currentTime + 0.06);
+    g.gain.setValueAtTime(0.05, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
     o.connect(g); g.connect(masterGain);
-    o.start(); o.stop(ctx.currentTime + 0.08);
+    o.start(); o.stop(ctx.currentTime + 0.07);
   }
 
   function playBuy() {
-    if (!enabled) return;
-    [523.3, 659.3, 783.9].forEach((freq, i) => {
+    if (!ctx || !enabled) return;
+    // Petit arpège montant doux
+    [392, 523.3, 659.3].forEach((freq, i) => {
       const o = ctx.createOscillator();
       const g = ctx.createGain();
-      o.type = 'triangle'; o.frequency.value = freq;
-      g.gain.setValueAtTime(0, ctx.currentTime + i*0.07);
-      g.gain.linearRampToValueAtTime(0.07, ctx.currentTime + i*0.07 + 0.03);
-      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i*0.07 + 0.2);
+      o.type = 'triangle';
+      o.frequency.value = freq;
+      const t = ctx.currentTime + i * 0.08;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.055, t + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
       o.connect(g); g.connect(masterGain);
-      o.start(ctx.currentTime + i*0.07);
-      o.stop(ctx.currentTime + i*0.07 + 0.2);
+      o.start(t); o.stop(t + 0.25);
     });
   }
 
   function playGolden() {
-    if (!enabled) return;
-    [880, 1047, 1319, 1047, 880].forEach((freq, i) => {
+    if (!ctx || !enabled) return;
+    // Accord de victoire doux
+    [523.3, 659.3, 783.9, 1046.5].forEach((freq, i) => {
       const o = ctx.createOscillator();
       const g = ctx.createGain();
-      o.type = 'sine'; o.frequency.value = freq;
-      g.gain.setValueAtTime(0, ctx.currentTime + i*0.09);
-      g.gain.linearRampToValueAtTime(0.06, ctx.currentTime + i*0.09 + 0.04);
-      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i*0.09 + 0.3);
+      o.type = 'sine';
+      o.frequency.value = freq;
+      const t = ctx.currentTime + i * 0.06;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.045, t + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
       o.connect(g); g.connect(masterGain);
-      o.start(ctx.currentTime + i*0.09);
-      o.stop(ctx.currentTime + i*0.09 + 0.3);
+      o.start(t); o.stop(t + 0.55);
     });
   }
 
   function setEnabled(v) {
+    if (!ctx) getCtx();
     enabled = v;
     masterGain.gain.value = enabled ? volume : 0;
     localStorage.setItem('axo_sound', v ? 'true' : 'false');
     if (enabled) { ctx.resume().then(startAmbience); }
     else { stopAmbience(); }
-    document.getElementById('sound-btn').textContent = enabled ? '🔊' : '🔇';
+    const btn = document.getElementById('sound-btn');
+    if (btn) btn.textContent = enabled ? '🔊' : '🔇';
   }
 
   function setVolume(v) {
+    if (!ctx) getCtx();
     volume = Math.max(0, Math.min(1, v));
-    if (enabled) masterGain.gain.value = volume;
+    if (masterGain) masterGain.gain.value = enabled ? volume : 0;
     localStorage.setItem('axo_vol', volume);
   }
 
-  function toggle() {
-    setEnabled(!enabled);
-  }
+  function toggle() { setEnabled(!enabled); }
 
-  // Démarrage après interaction (politique navigateurs)
   function tryStart() {
+    getCtx();
     ctx.resume().then(() => { if (enabled) startAmbience(); });
   }
 
@@ -3230,6 +3306,107 @@ window.toggleSound = function() { SoundSystem.toggle(); };
 // Démarrer après première interaction
 document.addEventListener('touchstart', () => SoundSystem.tryStart(), {once:true, passive:true});
 document.addEventListener('click',      () => SoundSystem.tryStart(), {once:true});
+
+// ====================================================
+// 🥚 EASTER EGG — Konami Code : ↑↑↓↓←→←→BA
+// ====================================================
+(function() {
+  const CODE = [38,38,40,40,37,39,37,39,66,65];
+  let pos = 0;
+  let eggActivated = false;
+
+  document.addEventListener('keydown', e => {
+    if (e.keyCode === CODE[pos]) {
+      pos++;
+      if (pos === CODE.length) {
+        pos = 0;
+        if (!eggActivated) triggerEasterEgg();
+      }
+    } else { pos = 0; }
+  });
+
+  // Sur mobile : tap 7× rapides sur le cookie
+  let tapCount = 0; let tapTimer = null;
+  document.getElementById('cookie-btn').addEventListener('touchstart', () => {
+    tapCount++;
+    clearTimeout(tapTimer);
+    tapTimer = setTimeout(() => { tapCount = 0; }, 1200);
+    if (tapCount >= 7) { tapCount = 0; if (!eggActivated) triggerEasterEgg(); }
+  }, {passive:true});
+
+  function triggerEasterEgg() {
+    eggActivated = true;
+
+    // Bonus cookies secret
+    const bonus = Math.max(1e6, state.totalCookies * 0.1);
+    state.cookies += bonus;
+    state.totalCookies += bonus;
+    state.cookiesThisLife = (state.cookiesThisLife||0) + bonus;
+
+    // Pluie de cookies animée
+    const style = document.createElement('style');
+    style.id = 'egg-css';
+    style.textContent = `
+      .egg-cookie{position:fixed;top:-60px;font-size:2rem;pointer-events:none;z-index:9998;animation:eggFall linear forwards;}
+      @keyframes eggFall{0%{transform:translateY(0) rotate(0deg);opacity:1;}100%{transform:translateY(110vh) rotate(720deg);opacity:0;}}
+      .egg-overlay{position:fixed;inset:0;z-index:9997;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+      .egg-box{background:rgba(10,10,15,0.92);border:2px solid #7c3aed;border-radius:20px;padding:2rem 2.5rem;text-align:center;animation:eggPop 0.5s cubic-bezier(0.34,1.56,0.64,1);max-width:340px;pointer-events:auto;}
+      @keyframes eggPop{from{opacity:0;transform:scale(0.5) rotate(-10deg);}to{opacity:1;transform:scale(1) rotate(0deg);}}
+      .egg-title{font-size:1.5rem;font-weight:800;color:#e2e8f0;margin-bottom:0.5rem;}
+      .egg-msg{font-family:'Space Mono',monospace;font-size:0.78rem;color:#64748b;line-height:1.7;margin-bottom:1.25rem;}
+      .egg-close{padding:0.6rem 1.5rem;background:#7c3aed;color:#fff;border:none;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.82rem;cursor:pointer;}
+    `;
+    document.head.appendChild(style);
+
+    // Lance 40 cookies en pluie
+    for (let i = 0; i < 40; i++) {
+      setTimeout(() => {
+        const el = document.createElement('div');
+        el.className = 'egg-cookie';
+        el.textContent = ['🍪','🌟','✨','🎉','🌀','🥚'][Math.floor(Math.random()*6)];
+        el.style.left = Math.random() * 100 + 'vw';
+        el.style.animationDuration = (2 + Math.random() * 3) + 's';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 5000);
+      }, i * 80);
+    }
+
+    // Popup secrète
+    const overlay = document.createElement('div');
+    overlay.className = 'egg-overlay';
+    overlay.innerHTML = `
+      <div class="egg-box">
+        <div style="font-size:3rem;margin-bottom:0.75rem;">🥚</div>
+        <div class="egg-title">Easter Egg trouvé !</div>
+        <div class="egg-msg">
+          Tu as découvert le secret d'AxoClicker.<br>
+          Axoboys te remercie d'avoir cherché !<br><br>
+          <strong style="color:#f59e0b;">+${formatNum(bonus)} cookies</strong> ajoutés 🍪
+        </div>
+        <button class="egg-close" onclick="this.closest('.egg-overlay').remove()">Merci Axoboys ! 🎉</button>
+      </div>`;
+    document.body.appendChild(overlay);
+
+    // Son spécial
+    if (typeof SoundSystem !== 'undefined') {
+      setTimeout(() => {
+        [261.6, 329.6, 392, 523.3, 659.3, 783.9, 1046.5].forEach((f, i) => {
+          if (!SoundSystem.isEnabled()) return;
+          setTimeout(() => {
+            const o = SoundSystem._ctx?.createOscillator?.();
+            // fallback: joue playGolden plusieurs fois
+          }, i * 80);
+        });
+        SoundSystem.playGolden();
+        setTimeout(() => SoundSystem.playGolden(), 400);
+        setTimeout(() => SoundSystem.playGolden(), 800);
+      }, 200);
+    }
+
+    updateDisplay();
+    setTimeout(() => { eggActivated = false; }, 30000); // Reactivatable après 30s
+  }
+})();
 
 </script><!-- ===================== CHAT ===================== -->
 <div id="chat-container" style="display:none;">
