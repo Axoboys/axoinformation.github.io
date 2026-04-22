@@ -299,6 +299,8 @@
 
 
     /* ── ADMIN TEST BTN ── */
+    .admin-test-btn{position:fixed;top:calc(var(--nav-h) + 6px);right:8px;z-index:500;background:linear-gradient(135deg,#ef4444,#b91c1c);color:#fff;border:none;border-radius:8px;padding:0.32rem 0.75rem;font-family:'Space Mono',monospace;font-size:0.62rem;font-weight:700;cursor:pointer;box-shadow:0 2px 12px rgba(239,68,68,0.5);display:none;letter-spacing:0.05em;touch-action:manipulation;}
+
     /* ── CHAT ── */
     #chat-container{position:fixed;bottom:1rem;right:1rem;z-index:400;display:flex;flex-direction:column;width:300px;max-width:calc(100vw - 2rem);}
     #chat-toggle{align-self:flex-end;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:0.4rem 0.9rem;font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--text);cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:0.4rem;}
@@ -322,35 +324,6 @@
     #chat-send{background:var(--accent2);border:none;border-radius:6px;padding:0.35rem 0.65rem;color:#000;font-family:'Space Mono',monospace;font-size:0.68rem;font-weight:700;cursor:pointer;white-space:nowrap;}
     .chat-banned-notice{font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--red);padding:0.5rem;text-align:center;}
     @media(max-width:600px){#chat-container{width:calc(100vw - 1rem);right:0.5rem;bottom:3.5rem;}}
-
-    /* ── ACHIEVEMENTS ── */
-    .ach-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.55rem;padding:0.75rem;}
-    @media(max-width:400px){.ach-grid{grid-template-columns:1fr;}}
-    .ach-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:0.85rem;display:flex;gap:0.65rem;align-items:flex-start;transition:all 0.2s;position:relative;overflow:hidden;}
-    .ach-card.unlocked{border-color:rgba(34,197,94,0.5);background:rgba(34,197,94,0.05);}
-    .ach-card.secret:not(.unlocked){filter:grayscale(0.8);opacity:0.6;}
-    .ach-icon{font-size:1.8rem;flex-shrink:0;line-height:1;}
-    .ach-info{flex:1;min-width:0;}
-    .ach-name{font-size:0.78rem;font-weight:700;margin-bottom:0.2rem;}
-    .ach-desc{font-family:'Space Mono',monospace;font-size:0.58rem;color:var(--muted);line-height:1.4;}
-    .ach-progress{margin-top:0.35rem;}
-    .ach-progress-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:0.2rem;}
-    .ach-progress-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width 0.5s;}
-    .ach-progress-label{font-family:'Space Mono',monospace;font-size:0.55rem;color:var(--muted);}
-    .ach-check{position:absolute;top:0.5rem;right:0.5rem;font-size:0.85rem;}
-    .ach-rarity{font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.15rem;}
-    .ach-rarity.easy{color:#22c55e;} .ach-rarity.medium{color:#f59e0b;} .ach-rarity.hard{color:#ef4444;} .ach-rarity.legendary{color:#a855f7;}
-    .ach-header{display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;border-bottom:1px solid var(--border);flex-shrink:0;}
-    .ach-counter{font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--muted);}
-    .ach-filter-row{display:flex;gap:0.35rem;padding:0.5rem 0.75rem;border-bottom:1px solid var(--border);flex-wrap:wrap;flex-shrink:0;}
-    .ach-filter-btn{font-family:'Space Mono',monospace;font-size:0.6rem;padding:0.2rem 0.55rem;border-radius:999px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all 0.15s;}
-    .ach-filter-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
-    /* POPUP succès débloqué */
-    .ach-popup{position:fixed;top:calc(var(--nav-h) + 0.5rem);right:0.75rem;z-index:700;background:var(--surface);border:2px solid #22c55e;border-radius:14px;padding:0.75rem 1rem;display:flex;align-items:center;gap:0.65rem;min-width:220px;max-width:300px;transform:translateX(120%);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 8px 30px rgba(34,197,94,0.25);}
-    .ach-popup.show{transform:translateX(0);}
-    .ach-popup-icon{font-size:2rem;flex-shrink:0;}
-    .ach-popup-title{font-family:'Space Mono',monospace;font-size:0.58rem;color:#22c55e;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.15rem;}
-    .ach-popup-name{font-size:0.82rem;font-weight:700;}
 
     /* ── SOUND WIDGET ── */
     .sound-btn{background:transparent;border:1px solid var(--border);border-radius:6px;padding:0.18rem 0.45rem;font-size:0.75rem;cursor:pointer;color:var(--muted);transition:all 0.15s;line-height:1;}
@@ -403,7 +376,6 @@
       <button class="action-btn shop-btn" onclick="openModal('rshop')">🛒 Shop</button>
       <button class="action-btn" style="border-color:#f59e0b;color:#f59e0b;" onclick="openModal('fshop')">🐾 Familiers</button>
       <button class="action-btn" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);" onclick="openModal('gshop')">🥔 Patates</button>
-      <button class="action-btn" id="ach-btn" style="border-color:#22c55e;color:#22c55e;position:relative;" onclick="openModal('ach')">🎖 Succès <span id="ach-notif" style="display:none;position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;border-radius:999px;font-size:0.5rem;padding:0.1rem 0.3rem;font-family:'Space Mono',monospace;">!</span></button>
       <button class="action-btn danger" onclick="confirmReset()">🗑</button>
     </div>
   </div>
@@ -436,13 +408,6 @@
 </div>
 
 <div class="golden-cookie" id="golden-cookie" onclick="goldenClick()">✨</div>
-<div class="ach-popup" id="ach-popup">
-  <div class="ach-popup-icon" id="ach-popup-icon">🎖</div>
-  <div>
-    <div class="ach-popup-title">Succès débloqué !</div>
-    <div class="ach-popup-name" id="ach-popup-name"></div>
-  </div>
-</div>
 <div class="golden-potato" id="golden-potato">🥔</div>
 <div class="fam-bar" id="fam-bar"></div>
 <!-- fam-equip-btn moved to nav -->
@@ -521,29 +486,6 @@
   </div>
 </div>
 
-
-<!-- ===== ACHIEVEMENTS MODAL ===== -->
-<div class="modal-overlay" id="modal-ach" onclick="closeModalIfOutside(event,'ach')">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-header">
-      <div class="modal-title">🎖 Succès</div>
-      <button class="modal-close" onclick="closeModal('ach')">✕</button>
-    </div>
-    <div class="ach-header">
-      <span class="ach-counter" id="ach-counter">0 / 0 débloqués</span>
-      <div class="ach-filter-row" style="padding:0;border:none;gap:0.3rem;">
-        <button class="ach-filter-btn active" onclick="setAchFilter('all',this)">Tous</button>
-        <button class="ach-filter-btn" onclick="setAchFilter('easy',this)">🟢 Facile</button>
-        <button class="ach-filter-btn" onclick="setAchFilter('medium',this)">🟡 Moyen</button>
-        <button class="ach-filter-btn" onclick="setAchFilter('hard',this)">🔴 Difficile</button>
-        <button class="ach-filter-btn" onclick="setAchFilter('legendary',this)">💜 Légendaire</button>
-        <button class="ach-filter-btn" onclick="setAchFilter('unlocked',this)">✅ Débloqués</button>
-      </div>
-    </div>
-    <div class="modal-body" id="ach-body" style="padding:0;"></div>
-  </div>
-</div>
 
 <!-- ===== MINIGAME MODAL ===== -->
 <div class="modal-overlay" id="modal-mg" onclick="closeModalIfOutside(event,'mg')">
@@ -743,7 +685,7 @@ const GOLD_UPGRADES = [
 ];
 
 
-// REBIRTH SHOP — bought with rebirthPoints
+// REBIRTH SHOP// REBIRTH SHOP — bought with rebirthPoints
 const REBIRTH_ITEMS = [
   { id:'rb_boost1', emoji:'⚡', name:'Boost Niveau I',    cost:1, desc:'+20% production permanent',    effect:'globalMult',  val:1.2, max:1 },
   { id:'rb_boost2', emoji:'🌩', name:'Boost Niveau II',   cost:3, desc:'+40% production permanent',    effect:'globalMult',  val:1.4, max:1 },
@@ -776,205 +718,6 @@ const REBIRTH_ITEMS = [
   { id:'rb_mg19',   emoji:'🎮', name:'Débloquer mini-jeu Idleverse',  cost:9, desc:'Accès au mini-jeu Idleverse', effect:'minigame', bid:'idleverse',   max:1 },
   { id:'rb_mg20',   emoji:'🎮', name:'Débloquer mini-jeu Neurone',    cost:9, desc:'Accès au mini-jeu Neurone',   effect:'minigame', bid:'cortex',      max:1 },
 ];
-
-// ====================================================
-// SYSTÈME DE SUCCÈS
-// ====================================================
-const ACHIEVEMENTS = [
-  // ───── COOKIES — FACILE ─────
-  { id:'ck_1',       icon:'🍪', name:'Premier cookie',       desc:'Clique pour la première fois',            rarity:'easy',      check: s => s.totalClicks >= 1 },
-  { id:'ck_100',     icon:'🍪', name:'Centenaire',           desc:'Accumule 100 cookies au total',           rarity:'easy',      check: s => s.totalCookies >= 100 },
-  { id:'ck_1k',      icon:'🍪', name:'Millier doux',         desc:'Accumule 1 000 cookies au total',         rarity:'easy',      check: s => s.totalCookies >= 1e3 },
-  { id:'ck_100k',    icon:'🍪', name:'Cent milliers',        desc:'Accumule 100 000 cookies',                rarity:'easy',      check: s => s.totalCookies >= 1e5,   progress: s => [s.totalCookies, 1e5] },
-  { id:'ck_1m',      icon:'🍪', name:'Millionnaire',         desc:'Accumule 1 million de cookies',           rarity:'easy',      check: s => s.totalCookies >= 1e6,   progress: s => [s.totalCookies, 1e6] },
-  // ───── COOKIES — MOYEN ─────
-  { id:'ck_1b',      icon:'💰', name:'Milliardaire',         desc:'Accumule 1 milliard de cookies',          rarity:'medium',    check: s => s.totalCookies >= 1e9,   progress: s => [s.totalCookies, 1e9] },
-  { id:'ck_1t',      icon:'💎', name:'Trillionnaire',        desc:'Accumule 1 trillion de cookies',          rarity:'medium',    check: s => s.totalCookies >= 1e12,  progress: s => [s.totalCookies, 1e12] },
-  { id:'ck_1qa',     icon:'🌌', name:'Quadrillionnaire',     desc:'Accumule 1 quadrillion de cookies',       rarity:'hard',      check: s => s.totalCookies >= 1e15,  progress: s => [s.totalCookies, 1e15] },
-  { id:'ck_1qi',     icon:'🌠', name:'Quintillionnaire',     desc:'Accumule 1 quintillion de cookies',       rarity:'legendary', check: s => s.totalCookies >= 1e18,  progress: s => [s.totalCookies, 1e18] },
-  // ───── CLICS ─────
-  { id:'cl_10',      icon:'👆', name:'Tapoteur',             desc:'Clique 10 fois',                          rarity:'easy',      check: s => s.totalClicks >= 10 },
-  { id:'cl_100',     icon:'👆', name:'Cliqueur assidu',      desc:'Clique 100 fois',                         rarity:'easy',      check: s => s.totalClicks >= 100,    progress: s => [s.totalClicks, 100] },
-  { id:'cl_1k',      icon:'👊', name:'Mille clics',          desc:'Clique 1 000 fois',                       rarity:'easy',      check: s => s.totalClicks >= 1000,   progress: s => [s.totalClicks, 1000] },
-  { id:'cl_10k',     icon:'🤛', name:'Dix mille clics',      desc:'Clique 10 000 fois',                      rarity:'medium',    check: s => s.totalClicks >= 10000,  progress: s => [s.totalClicks, 10000] },
-  { id:'cl_100k',    icon:'⚡', name:'Cliqueur légendaire',  desc:'Clique 100 000 fois',                     rarity:'hard',      check: s => s.totalClicks >= 100000, progress: s => [s.totalClicks, 100000] },
-  { id:'cl_1m',      icon:'☄️', name:'Un million de clics',  desc:'Clique 1 000 000 fois',                   rarity:'legendary', check: s => s.totalClicks >= 1e6,    progress: s => [s.totalClicks, 1e6] },
-  // ───── BÂTIMENTS ─────
-  { id:'bld_first',  icon:'🏗', name:'Premier bâtiment',     desc:'Achète ton premier bâtiment',             rarity:'easy',      check: s => Object.values(s.buildings).some(v => v >= 1) },
-  { id:'bld_10',     icon:'🏘', name:'Petit village',        desc:'Possède 10 bâtiments au total',           rarity:'easy',      check: s => Object.values(s.buildings).reduce((a,b)=>a+b,0) >= 10, progress: s => [Object.values(s.buildings).reduce((a,b)=>a+b,0), 10] },
-  { id:'bld_50',     icon:'🏙', name:'Ville en croissance',  desc:'Possède 50 bâtiments au total',           rarity:'easy',      check: s => Object.values(s.buildings).reduce((a,b)=>a+b,0) >= 50, progress: s => [Object.values(s.buildings).reduce((a,b)=>a+b,0), 50] },
-  { id:'bld_100',    icon:'🌆', name:'Grande ville',         desc:'Possède 100 bâtiments au total',          rarity:'medium',    check: s => Object.values(s.buildings).reduce((a,b)=>a+b,0) >= 100, progress: s => [Object.values(s.buildings).reduce((a,b)=>a+b,0), 100] },
-  { id:'bld_500',    icon:'🌃', name:'Mégapole',             desc:'Possède 500 bâtiments au total',          rarity:'hard',      check: s => Object.values(s.buildings).reduce((a,b)=>a+b,0) >= 500, progress: s => [Object.values(s.buildings).reduce((a,b)=>a+b,0), 500] },
-  { id:'bld_all',    icon:'🌍', name:'Collectionneur total', desc:'Possède au moins 1 de chaque bâtiment',   rarity:'medium',    check: s => BUILDINGS.every(b => (s.buildings[b.id]||0) >= 1) },
-  { id:'bld_all10',  icon:'👑', name:'Maître bâtisseur',     desc:'Possède au moins 10 de chaque bâtiment',  rarity:'hard',      check: s => BUILDINGS.every(b => (s.buildings[b.id]||0) >= 10), progress: s => [BUILDINGS.filter(b=>(s.buildings[b.id]||0)>=10).length, BUILDINGS.length] },
-  { id:'bld_100ea',  icon:'🏆', name:'Armée de bâtiments',   desc:'Possède au moins 100 de chaque bâtiment', rarity:'legendary', check: s => BUILDINGS.every(b => (s.buildings[b.id]||0) >= 100), progress: s => [BUILDINGS.filter(b=>(s.buildings[b.id]||0)>=100).length, BUILDINGS.length] },
-  // ───── AMÉLIORATIONS ─────
-  { id:'upg_first',  icon:'✨', name:'Première amélioration', desc:'Débloque ta première amélioration',       rarity:'easy',      check: s => Object.values(s.upgrades).filter(Boolean).length >= 1 },
-  { id:'upg_10',     icon:'✨', name:'Dix améliorations',     desc:'Débloque 10 améliorations',               rarity:'easy',      check: s => Object.values(s.upgrades).filter(Boolean).length >= 10, progress: s => [Object.values(s.upgrades).filter(Boolean).length, 10] },
-  { id:'upg_all',    icon:'🌟', name:'Tout améliorer',        desc:'Débloque TOUTES les améliorations',       rarity:'legendary', check: s => UPGRADES.every(u => s.upgrades[u.id]), progress: s => [Object.values(s.upgrades).filter(Boolean).length, UPGRADES.length] },
-  // ───── CPS ─────
-  { id:'cps_1',      icon:'⚡', name:'Producteur',            desc:'Atteins 1 cookie/sec',                    rarity:'easy',      check: s => computeCps() >= 1 },
-  { id:'cps_100',    icon:'⚡', name:'Usine à cookies',       desc:'Atteins 100 cookies/sec',                 rarity:'easy',      check: s => computeCps() >= 100 },
-  { id:'cps_10k',    icon:'⚡', name:'Flux constant',         desc:'Atteins 10 000 cookies/sec',              rarity:'medium',    check: s => computeCps() >= 10000 },
-  { id:'cps_1m',     icon:'🚀', name:'Torrent sucré',         desc:'Atteins 1 million de cookies/sec',        rarity:'hard',      check: s => computeCps() >= 1e6 },
-  { id:'cps_1b',     icon:'🌌', name:'Déluge cosmique',       desc:'Atteins 1 milliard de cookies/sec',       rarity:'legendary', check: s => computeCps() >= 1e9 },
-  // ───── REBIRTH ─────
-  { id:'rb_1',       icon:'🌀', name:'Première renaissance',  desc:'Effectue ton premier Rebirth',            rarity:'medium',    check: s => s.rebirths >= 1 },
-  { id:'rb_3',       icon:'🌀', name:'Phénix',                desc:'Effectue 3 Rebirths',                     rarity:'medium',    check: s => s.rebirths >= 3,  progress: s => [s.rebirths, 3] },
-  { id:'rb_5',       icon:'🌀', name:'Cycle éternel',         desc:'Effectue 5 Rebirths',                     rarity:'hard',      check: s => s.rebirths >= 5,  progress: s => [s.rebirths, 5] },
-  { id:'rb_10',      icon:'♾️', name:'Transcendance',         desc:'Effectue 10 Rebirths',                    rarity:'legendary', check: s => s.rebirths >= 10, progress: s => [s.rebirths, 10] },
-  // ───── GOLDEN COOKIE & PATATES ─────
-  { id:'gc_first',   icon:'✨', name:'Cookie doré',           desc:'Clique ton premier cookie doré',          rarity:'easy',      check: s => (s._gcClicks||0) >= 1 },
-  { id:'gc_10',      icon:'✨', name:'Chasseur doré',         desc:'Clique 10 cookies dorés',                 rarity:'medium',    check: s => (s._gcClicks||0) >= 10,  progress: s => [(s._gcClicks||0), 10] },
-  { id:'gp_first',   icon:'🥔', name:'Patate dorée',          desc:'Collecte ta première patate dorée',       rarity:'easy',      check: s => (s.goldenPotatoes||0) >= 1 },
-  { id:'gp_10',      icon:'🥔', name:'Fermier doré',          desc:'Collecte 10 patates dorées',              rarity:'medium',    check: s => (s.goldenPotatoes||0) >= 10, progress: s => [(s.goldenPotatoes||0), 10] },
-  { id:'gp_50',      icon:'🥔', name:'Moisson dorée',         desc:'Collecte 50 patates dorées au total',     rarity:'hard',      check: s => (s._totalGP||0) >= 50,   progress: s => [(s._totalGP||0), 50] },
-  // ───── FAMILIERS ─────
-  { id:'fam_1',      icon:'🐾', name:'Ami à fourrure',        desc:'Adopte ton premier familier',             rarity:'easy',      check: s => Object.values(s.famOwned||{}).some(Boolean) },
-  { id:'fam_all',    icon:'🐾', name:'Éleveur légendaire',    desc:'Adopte TOUS les familiers',               rarity:'hard',      check: s => PETS.every(p => s.famOwned&&s.famOwned[p.id]), progress: s => [PETS.filter(p=>s.famOwned&&s.famOwned[p.id]).length, PETS.length] },
-  { id:'fam_feed',   icon:'🍖', name:'Chef cuisinier',        desc:'Nourris ton familier 10 fois',            rarity:'easy',      check: s => (s._famFeeds||0) >= 10,  progress: s => [(s._famFeeds||0), 10] },
-  // ───── SHOP REBIRTH ─────
-  { id:'rs_first',   icon:'💎', name:'Premier achat rebirth', desc:'Achète un item dans le Shop Rebirth',     rarity:'easy',      check: s => Object.values(s.rebirthShop||{}).some(Boolean) },
-  { id:'rs_all_mg',  icon:'🎮', name:'Arcade complète',       desc:'Débloque tous les mini-jeux',             rarity:'hard',      check: s => REBIRTH_ITEMS.filter(i=>i.effect==='minigame').every(i=>s.rebirthShop&&s.rebirthShop[i.id]), progress: s => [REBIRTH_ITEMS.filter(i=>i.effect==='minigame'&&s.rebirthShop&&s.rebirthShop[i.id]).length, REBIRTH_ITEMS.filter(i=>i.effect==='minigame').length] },
-  // ───── MINI-JEUX ─────
-  { id:'mg_play',    icon:'🎮', name:'Joueur',                desc:'Joue à un mini-jeu pour la première fois',rarity:'easy',      check: s => (s._mgPlays||0) >= 1 },
-  { id:'mg_10',      icon:'🎮', name:'Gamer',                 desc:'Joue à 10 mini-jeux',                     rarity:'medium',    check: s => (s._mgPlays||0) >= 10,   progress: s => [(s._mgPlays||0), 10] },
-  // ───── SPÉCIAUX ─────
-  { id:'egg_found',  icon:'🥚', name:'Easter egg trouvé',     desc:'Découvre le secret d'AxoClicker',        rarity:'legendary', check: s => (s._easterEgg||false) },
-  { id:'offline_1',  icon:'🌙', name:'Dormeur actif',         desc:'Récupère des gains hors-ligne',           rarity:'easy',      check: s => (s._offlineClaims||0) >= 1 },
-  { id:'save_10',    icon:'💾', name:'Sauvegarde manuelle',   desc:'Sauvegarde manuellement 10 fois',         rarity:'easy',      check: s => (s._manualSaves||0) >= 10, progress: s => [(s._manualSaves||0), 10] },
-];
-
-// Compteurs auxiliaires (non sauvegardés dans getStateToSave — on les ajoute)
-// _gcClicks, _totalGP, _famFeeds, _mgPlays, _easterEgg, _offlineClaims, _manualSaves
-
-// Init compteurs dans state
-function initAchCounters() {
-  if (!('_gcClicks'      in state)) state._gcClicks = 0;
-  if (!('_totalGP'       in state)) state._totalGP  = 0;
-  if (!('_famFeeds'      in state)) state._famFeeds = 0;
-  if (!('_mgPlays'       in state)) state._mgPlays  = 0;
-  if (!('_easterEgg'     in state)) state._easterEgg = false;
-  if (!('_offlineClaims' in state)) state._offlineClaims = 0;
-  if (!('_manualSaves'   in state)) state._manualSaves = 0;
-  if (!('achievements'   in state)) state.achievements = {};
-}
-
-let _achPopupTimer = null;
-let _achPendingPopups = [];
-
-function showAchPopup(ach) {
-  _achPendingPopups.push(ach);
-  if (_achPendingPopups.length === 1) _nextAchPopup();
-}
-
-function _nextAchPopup() {
-  if (!_achPendingPopups.length) return;
-  const ach = _achPendingPopups[0];
-  const popup = document.getElementById('ach-popup');
-  document.getElementById('ach-popup-icon').textContent = ach.icon;
-  document.getElementById('ach-popup-name').textContent = ach.name;
-  popup.classList.add('show');
-  clearTimeout(_achPopupTimer);
-  _achPopupTimer = setTimeout(() => {
-    popup.classList.remove('show');
-    setTimeout(() => {
-      _achPendingPopups.shift();
-      _nextAchPopup();
-    }, 450);
-  }, 3000);
-}
-
-function checkAchievements() {
-  if (!state.achievements) return false;
-  let newUnlock = false;
-  ACHIEVEMENTS.forEach(ach => {
-    if (state.achievements[ach.id]) return; // déjà débloqué
-    try {
-      if (ach.check(state)) {
-        state.achievements[ach.id] = Date.now();
-        newUnlock = true;
-        showAchPopup(ach);
-        // Notif rouge sur le bouton
-        const notif = document.getElementById('ach-notif');
-        if (notif) notif.style.display = 'inline';
-      }
-    } catch(e) {}
-  });
-  return newUnlock;
-}
-
-let _achLastCheck = 0;
-function tickAchievements() {
-  if (!state.achievements) return; // state pas encore initialisé
-  const now = Date.now();
-  if (now - _achLastCheck < 2000) return; // max 1 check/2s
-  _achLastCheck = now;
-  if (checkAchievements()) saveGame(true);
-}
-
-// Filtre actif
-let _achFilter = 'all';
-window.setAchFilter = function(f, el) {
-  _achFilter = f;
-  document.querySelectorAll('.ach-filter-btn').forEach(b => b.classList.remove('active'));
-  if (el) el.classList.add('active');
-  renderAchievements();
-};
-
-function renderAchievements() {
-  if (!state.achievements) return;
-  const body = document.getElementById('ach-body');
-  if (!body) return;
-
-  // Masquer la notif rouge
-  const notif = document.getElementById('ach-notif');
-  if (notif) notif.style.display = 'none';
-
-  const total = ACHIEVEMENTS.length;
-  const unlocked = ACHIEVEMENTS.filter(a => state.achievements && state.achievements[a.id]).length;
-  const counter = document.getElementById('ach-counter');
-  if (counter) counter.textContent = unlocked + ' / ' + total + ' débloqués';
-
-  let list = ACHIEVEMENTS;
-  if (_achFilter === 'unlocked') list = list.filter(a => state.achievements && state.achievements[a.id]);
-  else if (_achFilter !== 'all') list = list.filter(a => a.rarity === _achFilter);
-
-  if (!list.length) {
-    body.innerHTML = '<div style="text-align:center;padding:2rem;font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--muted);">Aucun succès dans cette catégorie.</div>';
-    return;
-  }
-
-  const rarityLabel = { easy:'Facile', medium:'Moyen', hard:'Difficile', legendary:'Légendaire' };
-
-  body.innerHTML = '<div class="ach-grid">' + list.map(ach => {
-    const isUnlocked = !!(state.achievements && state.achievements[ach.id]);
-    let progressHTML = '';
-    if (!isUnlocked && ach.progress) {
-      try {
-        const [cur, max] = ach.progress(state);
-        const pct = Math.min(100, (cur / max * 100)).toFixed(0);
-        const curF = cur >= 1e6 ? (cur/1e6).toFixed(1)+'M' : cur >= 1e3 ? (cur/1e3).toFixed(1)+'K' : Math.floor(cur).toString();
-        const maxF = max >= 1e6 ? (max/1e6).toFixed(1)+'M' : max >= 1e3 ? (max/1e3).toFixed(1)+'K' : max.toString();
-        progressHTML = `<div class="ach-progress">
-          <div class="ach-progress-bar"><div class="ach-progress-fill" style="width:${pct}%"></div></div>
-          <div class="ach-progress-label">${curF} / ${maxF}</div>
-        </div>`;
-      } catch(e) {}
-    }
-    return `<div class="ach-card ${isUnlocked?'unlocked':''} ${ach.rarity==='legendary'?'secret':''}">
-      <div class="ach-icon">${isUnlocked ? ach.icon : (ach.rarity==='legendary'?'❓':ach.icon)}</div>
-      <div class="ach-info">
-        <div class="ach-rarity ${ach.rarity}">${rarityLabel[ach.rarity]}</div>
-        <div class="ach-name">${isUnlocked || ach.rarity !== 'legendary' ? ach.name : '???'}</div>
-        <div class="ach-desc">${isUnlocked || ach.rarity !== 'legendary' ? ach.desc : 'Succès secret'}</div>
-        ${progressHTML}
-        ${isUnlocked ? `<div style="font-family:'Space Mono',monospace;font-size:0.55rem;color:var(--green);margin-top:0.25rem;">✓ ${new Date(state.achievements[ach.id]).toLocaleDateString('fr-FR')}</div>` : ''}
-      </div>
-      ${isUnlocked ? '<div class="ach-check">✅</div>' : ''}
-    </div>`;
-  }).join('') + '</div>';
-}
 
 // ====================================================
 // STATE
@@ -1102,9 +845,8 @@ async function initGame() {
   const saved = await dbGet('saves', userKey);
   if (saved) {
     loadFromSave(saved);
-    checkOfflineEarnings(saved);
+    checkOfflineEarnings(saved);  // Vérifie les gains hors ligne
   }
-  initAchCounters();
   if (state.famEquipped && state.famOwned[state.famEquipped]) startFamiliar();
   scheduleGoldenPotato();
   checkForUpdates();
@@ -1197,7 +939,6 @@ window.claimOffline = function(earned) {
   state.cookies      += earned;
   state.totalCookies += earned;
   if (typeof state.cookiesThisLife !== 'undefined') state.cookiesThisLife += earned;
-  state._offlineClaims = (state._offlineClaims||0) + 1;
   updateDisplay();
   saveGame(true);
 
@@ -1229,15 +970,6 @@ function loadFromSave(saved) {
   state.famFood     = saved.famFood     || {};
   if (saved.buildings) Object.assign(state.buildings, saved.buildings);
   if (saved.upgrades)  Object.assign(state.upgrades, saved.upgrades);
-  // Compteurs succès
-  state.achievements    = saved.achievements    || {};
-  state._gcClicks       = saved._gcClicks       || 0;
-  state._totalGP        = saved._totalGP        || 0;
-  state._famFeeds       = saved._famFeeds       || 0;
-  state._mgPlays        = saved._mgPlays        || 0;
-  state._easterEgg      = saved._easterEgg      || false;
-  state._offlineClaims  = saved._offlineClaims  || 0;
-  state._manualSaves    = saved._manualSaves     || 0;
   recomputeMultipliers();
 }
 
@@ -1257,15 +989,6 @@ function getStateToSave() {
     famEquipped: state.famEquipped,
     famHunger: state.famHunger,
     famFood: {...state.famFood},
-    // Compteurs succès
-    achievements:   {...(state.achievements||{})},
-    _gcClicks:      state._gcClicks      || 0,
-    _totalGP:       state._totalGP       || 0,
-    _famFeeds:      state._famFeeds      || 0,
-    _mgPlays:       state._mgPlays       || 0,
-    _easterEgg:     state._easterEgg     || false,
-    _offlineClaims: state._offlineClaims || 0,
-    _manualSaves:   state._manualSaves   || 0,
     lastSave: Date.now(),
   };
 }
@@ -1279,7 +1002,6 @@ window.saveGame = async function(silent=false) {
     if (!silent) showToast('🧪 Mode test — pas de sauvegarde.');
     return;
   }
-  if (!silent) state._manualSaves = (state._manualSaves||0) + 1;
   const ok = await dbSet('saves', userKey, getStateToSave());
   if (ok) {
     const ind = document.getElementById('save-indicator');
@@ -1543,7 +1265,6 @@ window.goldenClick = function(){
   spawnParticle(window.innerWidth/2,window.innerHeight/2,'✨ +'+formatNum(bonus));
   if(typeof SoundSystem !== 'undefined') SoundSystem.playGolden();
   showToast('✨ Cookie doré ! +'+formatNum(bonus));
-  state._gcClicks = (state._gcClicks||0) + 1;
   scheduleGoldenCookie();updateDisplay();
 }
 scheduleGoldenCookie();
@@ -1630,7 +1351,6 @@ function formatNum(n){
 }
 
 function updateDisplay(){
-  tickAchievements();
   const cps=computeCps();
   document.getElementById('cookie-count').textContent=formatNum(state.cookies);
   document.getElementById('cps-display').textContent=formatNum(cps)+'/sec';
@@ -1765,7 +1485,6 @@ window.openModal = function(id) {
   if(id==='rshop')renderRebirthShop();
   if(id==='fshop')renderFamiliarShop();
   if(id==='gshop')renderGoldShop();
-  if(id==='ach'){renderAchievements();}
 }
 window.closeModal = function(id) { document.getElementById('modal-'+id).classList.remove('open'); }
 window.closeLbIfOutside = function(e){if(e.target===document.getElementById('modal-lb'))closeModal('lb');}
@@ -1842,7 +1561,6 @@ let snakeInterval=null;
 
 window.openMinigame = function(bid){
   if(!state.minigameUnlocks[bid]){showToast('🔒 Achète le mini-jeu dans le Shop Rebirth !');return;}
-  state._mgPlays = (state._mgPlays||0) + 1;
   const b=BUILDINGS.find(x=>x.id===bid);if(!b)return;
   document.getElementById('mg-title').textContent=b.emoji+' Mini-jeu : '+b.name;
   stopMinigame();
@@ -2476,7 +2194,6 @@ window.potatoClick = function() {
   document.getElementById('golden-potato').style.display = 'none';
   clearTimeout(potatoTimer);
   state.goldenPotatoes++;
-  state._totalGP = (state._totalGP||0) + 1;
   // Bonus cookie = 5min de prod * multiplicateur gold shop
   let bonusMult = 1;
   GOLD_UPGRADES.filter(u => u.effect==='clickBonus' && state.goldShop[u.id]).forEach(u => bonusMult = u.val);
@@ -3076,7 +2793,6 @@ window.famFeed = function(id) {
   if (!state.famEquipped) { showToast('Équipe d\'abord un familier !'); return; }
   state.famFood[id]--;
   state.famHunger = Math.min(100, state.famHunger + food.hunger);
-  state._famFeeds = (state._famFeeds||0) + 1;
   const sprite = document.getElementById('fam-sprite');
   if (sprite) sprite.style.filter = 'drop-shadow(0 2px 6px rgba(0,0,0,0.5))';
   const pet = getFamData();
@@ -3182,11 +2898,29 @@ window._ta = function(fn, msg) { try { fn(); if(msg) showToast(msg); } catch(e){
 // ====================================================
 window.enterTestMode = function() {
   if (!confirm('🧪 Activer le MODE TEST ?\n\nTu vas être connecté sur un compte test invisible avec des ressources illimitées.\nPour revenir sur ton compte admin, déconnecte-toi et reconnecte-toi normalement.')) return;
-  saveGame(true); // sauvegarde le compte actuel avant de basculer
+  // On sauvegarde d'abord le compte actuel
+  autoSave();
+  // On stocke la session test
   localStorage.setItem('axo_session', JSON.stringify({ username: '_axo_test', isTest: true }));
   showToast('🧪 Mode test activé — rechargement...');
   setTimeout(() => location.reload(), 800);
 };
+
+// ── MODE TEST : démarre vide mais tout est gratuit
+// buyBuilding / buyUpgrade / buyRebirthItem vérifient currentUser === '_axo_test'
+// et sautent la déduction de cookies/points.
+// On ne pré-remplit RIEN : le joueur teste en partant de zéro.
+if (currentUser === '_axo_test') {
+  // Bannière fixe en haut
+  const banner = document.createElement('div');
+  banner.id = 'test-banner';
+  banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:linear-gradient(90deg,#7c3aed,#a855f7);color:#fff;text-align:center;font-family:"Space Mono",monospace;font-size:0.7rem;padding:0.3rem 1rem;letter-spacing:0.04em;pointer-events:auto;';
+  banner.innerHTML = '🧪 MODE TEST — Tout est GRATUIT, rien sauvegardé. Pars de zéro pour tester ! <a href="#" style="color:#fde68a;text-decoration:underline;margin-left:0.5rem;" onclick="exitTestMode(event)">Quitter</a>';
+  document.body.prepend(banner);
+  // Décale le contenu pour ne pas être sous la bannière
+  document.body.style.paddingTop = '24px';
+  showToast('🧪 MODE TEST — Tout est gratuit, commence à acheter !');
+}
 
 window.exitTestMode = function(e) {
   if(e) e.preventDefault();
@@ -3194,22 +2928,15 @@ window.exitTestMode = function(e) {
   location.href = 'login.html';
 };
 
-// ── MODE TEST : tout est gratuit, bannière + patch saveGame
+// Override dbSet pour compte test (ne rien sauvegarder sur Firebase)
 if (currentUser === '_axo_test') {
-  // Bannière fixe en haut
-  const banner = document.createElement('div');
-  banner.id = 'test-banner';
-  banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:linear-gradient(90deg,#7c3aed,#a855f7);color:#fff;text-align:center;font-family:"Space Mono",monospace;font-size:0.7rem;padding:0.3rem 1rem;letter-spacing:0.04em;pointer-events:auto;';
-  banner.innerHTML = '🧪 MODE TEST — Tout est GRATUIT, rien sauvegardé. <a href="#" style="color:#fde68a;text-decoration:underline;margin-left:0.5rem;" onclick="exitTestMode(event)">Quitter</a>';
-  document.body.prepend(banner);
-  document.body.style.paddingTop = '24px';
-  showToast('🧪 MODE TEST — Tout est gratuit, commence à acheter !');
-  // Patch saveGame pour ne rien écrire sur Firebase
+  window._testMode = true;
+  // On patch la fonction saveGame pour qu'elle ne fasse rien
+  const _origSaveGame = window.saveGame;
   window.saveGame = async function(silent) {
     if (!silent) showToast('🧪 Mode test — aucune sauvegarde Firebase');
   };
 }
-
 
 // ====================================================
 // CHAT GLOBAL — Firebase Realtime via polling
@@ -3615,7 +3342,6 @@ document.addEventListener('click',      () => SoundSystem.tryStart(), {once:true
     state.cookies += bonus;
     state.totalCookies += bonus;
     state.cookiesThisLife = (state.cookiesThisLife||0) + bonus;
-    state._easterEgg = true;
 
     // Pluie de cookies animée
     const style = document.createElement('style');
@@ -3682,9 +3408,7 @@ document.addEventListener('click',      () => SoundSystem.tryStart(), {once:true
   }
 })();
 
-</script>
-
-<!-- ===================== CHAT ===================== -->
+</script><!-- ===================== CHAT ===================== -->
 <div id="chat-container" style="display:none;">
   <div id="chat-box">
     <div id="chat-header">
