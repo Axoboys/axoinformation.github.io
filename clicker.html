@@ -778,6 +778,205 @@ const REBIRTH_ITEMS = [
 ];
 
 // ====================================================
+// SYSTÈME DE SUCCÈS
+// ====================================================
+const ACHIEVEMENTS = [
+  // ───── COOKIES — FACILE ─────
+  { id:'ck_1',       icon:'🍪', name:'Premier cookie',       desc:'Clique pour la première fois',            rarity:'easy',      check: s => s.totalClicks >= 1 },
+  { id:'ck_100',     icon:'🍪', name:'Centenaire',           desc:'Accumule 100 cookies au total',           rarity:'easy',      check: s => s.totalCookies >= 100 },
+  { id:'ck_1k',      icon:'🍪', name:'Millier doux',         desc:'Accumule 1 000 cookies au total',         rarity:'easy',      check: s => s.totalCookies >= 1e3 },
+  { id:'ck_100k',    icon:'🍪', name:'Cent milliers',        desc:'Accumule 100 000 cookies',                rarity:'easy',      check: s => s.totalCookies >= 1e5,   progress: s => [s.totalCookies, 1e5] },
+  { id:'ck_1m',      icon:'🍪', name:'Millionnaire',         desc:'Accumule 1 million de cookies',           rarity:'easy',      check: s => s.totalCookies >= 1e6,   progress: s => [s.totalCookies, 1e6] },
+  // ───── COOKIES — MOYEN ─────
+  { id:'ck_1b',      icon:'💰', name:'Milliardaire',         desc:'Accumule 1 milliard de cookies',          rarity:'medium',    check: s => s.totalCookies >= 1e9,   progress: s => [s.totalCookies, 1e9] },
+  { id:'ck_1t',      icon:'💎', name:'Trillionnaire',        desc:'Accumule 1 trillion de cookies',          rarity:'medium',    check: s => s.totalCookies >= 1e12,  progress: s => [s.totalCookies, 1e12] },
+  { id:'ck_1qa',     icon:'🌌', name:'Quadrillionnaire',     desc:'Accumule 1 quadrillion de cookies',       rarity:'hard',      check: s => s.totalCookies >= 1e15,  progress: s => [s.totalCookies, 1e15] },
+  { id:'ck_1qi',     icon:'🌠', name:'Quintillionnaire',     desc:'Accumule 1 quintillion de cookies',       rarity:'legendary', check: s => s.totalCookies >= 1e18,  progress: s => [s.totalCookies, 1e18] },
+  // ───── CLICS ─────
+  { id:'cl_10',      icon:'👆', name:'Tapoteur',             desc:'Clique 10 fois',                          rarity:'easy',      check: s => s.totalClicks >= 10 },
+  { id:'cl_100',     icon:'👆', name:'Cliqueur assidu',      desc:'Clique 100 fois',                         rarity:'easy',      check: s => s.totalClicks >= 100,    progress: s => [s.totalClicks, 100] },
+  { id:'cl_1k',      icon:'👊', name:'Mille clics',          desc:'Clique 1 000 fois',                       rarity:'easy',      check: s => s.totalClicks >= 1000,   progress: s => [s.totalClicks, 1000] },
+  { id:'cl_10k',     icon:'🤛', name:'Dix mille clics',      desc:'Clique 10 000 fois',                      rarity:'medium',    check: s => s.totalClicks >= 10000,  progress: s => [s.totalClicks, 10000] },
+  { id:'cl_100k',    icon:'⚡', name:'Cliqueur légendaire',  desc:'Clique 100 000 fois',                     rarity:'hard',      check: s => s.totalClicks >= 100000, progress: s => [s.totalClicks, 100000] },
+  { id:'cl_1m',      icon:'☄️', name:'Un million de clics',  desc:'Clique 1 000 000 fois',                   rarity:'legendary', check: s => s.totalClicks >= 1e6,    progress: s => [s.totalClicks, 1e6] },
+  // ───── BÂTIMENTS ─────
+  { id:'bld_first',  icon:'🏗', name:'Premier bâtiment',     desc:'Achète ton premier bâtiment',             rarity:'easy',      check: s => Object.values(s.buildings).some(v => v >= 1) },
+  { id:'bld_10',     icon:'🏘', name:'Petit village',        desc:'Possède 10 bâtiments au total',           rarity:'easy',      check: s => Object.values(s.buildings).reduce((a,b)=>a+b,0) >= 10, progress: s => [Object.values(s.buildings).reduce((a,b)=>a+b,0), 10] },
+  { id:'bld_50',     icon:'🏙', name:'Ville en croissance',  desc:'Possède 50 bâtiments au total',           rarity:'easy',      check: s => Object.values(s.buildings).reduce((a,b)=>a+b,0) >= 50, progress: s => [Object.values(s.buildings).reduce((a,b)=>a+b,0), 50] },
+  { id:'bld_100',    icon:'🌆', name:'Grande ville',         desc:'Possède 100 bâtiments au total',          rarity:'medium',    check: s => Object.values(s.buildings).reduce((a,b)=>a+b,0) >= 100, progress: s => [Object.values(s.buildings).reduce((a,b)=>a+b,0), 100] },
+  { id:'bld_500',    icon:'🌃', name:'Mégapole',             desc:'Possède 500 bâtiments au total',          rarity:'hard',      check: s => Object.values(s.buildings).reduce((a,b)=>a+b,0) >= 500, progress: s => [Object.values(s.buildings).reduce((a,b)=>a+b,0), 500] },
+  { id:'bld_all',    icon:'🌍', name:'Collectionneur total', desc:'Possède au moins 1 de chaque bâtiment',   rarity:'medium',    check: s => BUILDINGS.every(b => (s.buildings[b.id]||0) >= 1) },
+  { id:'bld_all10',  icon:'👑', name:'Maître bâtisseur',     desc:'Possède au moins 10 de chaque bâtiment',  rarity:'hard',      check: s => BUILDINGS.every(b => (s.buildings[b.id]||0) >= 10), progress: s => [BUILDINGS.filter(b=>(s.buildings[b.id]||0)>=10).length, BUILDINGS.length] },
+  { id:'bld_100ea',  icon:'🏆', name:'Armée de bâtiments',   desc:'Possède au moins 100 de chaque bâtiment', rarity:'legendary', check: s => BUILDINGS.every(b => (s.buildings[b.id]||0) >= 100), progress: s => [BUILDINGS.filter(b=>(s.buildings[b.id]||0)>=100).length, BUILDINGS.length] },
+  // ───── AMÉLIORATIONS ─────
+  { id:'upg_first',  icon:'✨', name:'Première amélioration', desc:'Débloque ta première amélioration',       rarity:'easy',      check: s => Object.values(s.upgrades).filter(Boolean).length >= 1 },
+  { id:'upg_10',     icon:'✨', name:'Dix améliorations',     desc:'Débloque 10 améliorations',               rarity:'easy',      check: s => Object.values(s.upgrades).filter(Boolean).length >= 10, progress: s => [Object.values(s.upgrades).filter(Boolean).length, 10] },
+  { id:'upg_all',    icon:'🌟', name:'Tout améliorer',        desc:'Débloque TOUTES les améliorations',       rarity:'legendary', check: s => UPGRADES.every(u => s.upgrades[u.id]), progress: s => [Object.values(s.upgrades).filter(Boolean).length, UPGRADES.length] },
+  // ───── CPS ─────
+  { id:'cps_1',      icon:'⚡', name:'Producteur',            desc:'Atteins 1 cookie/sec',                    rarity:'easy',      check: s => computeCps() >= 1 },
+  { id:'cps_100',    icon:'⚡', name:'Usine à cookies',       desc:'Atteins 100 cookies/sec',                 rarity:'easy',      check: s => computeCps() >= 100 },
+  { id:'cps_10k',    icon:'⚡', name:'Flux constant',         desc:'Atteins 10 000 cookies/sec',              rarity:'medium',    check: s => computeCps() >= 10000 },
+  { id:'cps_1m',     icon:'🚀', name:'Torrent sucré',         desc:'Atteins 1 million de cookies/sec',        rarity:'hard',      check: s => computeCps() >= 1e6 },
+  { id:'cps_1b',     icon:'🌌', name:'Déluge cosmique',       desc:'Atteins 1 milliard de cookies/sec',       rarity:'legendary', check: s => computeCps() >= 1e9 },
+  // ───── REBIRTH ─────
+  { id:'rb_1',       icon:'🌀', name:'Première renaissance',  desc:'Effectue ton premier Rebirth',            rarity:'medium',    check: s => s.rebirths >= 1 },
+  { id:'rb_3',       icon:'🌀', name:'Phénix',                desc:'Effectue 3 Rebirths',                     rarity:'medium',    check: s => s.rebirths >= 3,  progress: s => [s.rebirths, 3] },
+  { id:'rb_5',       icon:'🌀', name:'Cycle éternel',         desc:'Effectue 5 Rebirths',                     rarity:'hard',      check: s => s.rebirths >= 5,  progress: s => [s.rebirths, 5] },
+  { id:'rb_10',      icon:'♾️', name:'Transcendance',         desc:'Effectue 10 Rebirths',                    rarity:'legendary', check: s => s.rebirths >= 10, progress: s => [s.rebirths, 10] },
+  // ───── GOLDEN COOKIE & PATATES ─────
+  { id:'gc_first',   icon:'✨', name:'Cookie doré',           desc:'Clique ton premier cookie doré',          rarity:'easy',      check: s => (s._gcClicks||0) >= 1 },
+  { id:'gc_10',      icon:'✨', name:'Chasseur doré',         desc:'Clique 10 cookies dorés',                 rarity:'medium',    check: s => (s._gcClicks||0) >= 10,  progress: s => [(s._gcClicks||0), 10] },
+  { id:'gp_first',   icon:'🥔', name:'Patate dorée',          desc:'Collecte ta première patate dorée',       rarity:'easy',      check: s => (s.goldenPotatoes||0) >= 1 },
+  { id:'gp_10',      icon:'🥔', name:'Fermier doré',          desc:'Collecte 10 patates dorées',              rarity:'medium',    check: s => (s.goldenPotatoes||0) >= 10, progress: s => [(s.goldenPotatoes||0), 10] },
+  { id:'gp_50',      icon:'🥔', name:'Moisson dorée',         desc:'Collecte 50 patates dorées au total',     rarity:'hard',      check: s => (s._totalGP||0) >= 50,   progress: s => [(s._totalGP||0), 50] },
+  // ───── FAMILIERS ─────
+  { id:'fam_1',      icon:'🐾', name:'Ami à fourrure',        desc:'Adopte ton premier familier',             rarity:'easy',      check: s => Object.values(s.famOwned||{}).some(Boolean) },
+  { id:'fam_all',    icon:'🐾', name:'Éleveur légendaire',    desc:'Adopte TOUS les familiers',               rarity:'hard',      check: s => PETS.every(p => s.famOwned&&s.famOwned[p.id]), progress: s => [PETS.filter(p=>s.famOwned&&s.famOwned[p.id]).length, PETS.length] },
+  { id:'fam_feed',   icon:'🍖', name:'Chef cuisinier',        desc:'Nourris ton familier 10 fois',            rarity:'easy',      check: s => (s._famFeeds||0) >= 10,  progress: s => [(s._famFeeds||0), 10] },
+  // ───── SHOP REBIRTH ─────
+  { id:'rs_first',   icon:'💎', name:'Premier achat rebirth', desc:'Achète un item dans le Shop Rebirth',     rarity:'easy',      check: s => Object.values(s.rebirthShop||{}).some(Boolean) },
+  { id:'rs_all_mg',  icon:'🎮', name:'Arcade complète',       desc:'Débloque tous les mini-jeux',             rarity:'hard',      check: s => REBIRTH_ITEMS.filter(i=>i.effect==='minigame').every(i=>s.rebirthShop&&s.rebirthShop[i.id]), progress: s => [REBIRTH_ITEMS.filter(i=>i.effect==='minigame'&&s.rebirthShop&&s.rebirthShop[i.id]).length, REBIRTH_ITEMS.filter(i=>i.effect==='minigame').length] },
+  // ───── MINI-JEUX ─────
+  { id:'mg_play',    icon:'🎮', name:'Joueur',                desc:'Joue à un mini-jeu pour la première fois',rarity:'easy',      check: s => (s._mgPlays||0) >= 1 },
+  { id:'mg_10',      icon:'🎮', name:'Gamer',                 desc:'Joue à 10 mini-jeux',                     rarity:'medium',    check: s => (s._mgPlays||0) >= 10,   progress: s => [(s._mgPlays||0), 10] },
+  // ───── SPÉCIAUX ─────
+  { id:'egg_found',  icon:'🥚', name:'Easter egg trouvé',     desc:'Découvre le secret d'AxoClicker',        rarity:'legendary', check: s => (s._easterEgg||false) },
+  { id:'offline_1',  icon:'🌙', name:'Dormeur actif',         desc:'Récupère des gains hors-ligne',           rarity:'easy',      check: s => (s._offlineClaims||0) >= 1 },
+  { id:'save_10',    icon:'💾', name:'Sauvegarde manuelle',   desc:'Sauvegarde manuellement 10 fois',         rarity:'easy',      check: s => (s._manualSaves||0) >= 10, progress: s => [(s._manualSaves||0), 10] },
+];
+
+// Compteurs auxiliaires (non sauvegardés dans getStateToSave — on les ajoute)
+// _gcClicks, _totalGP, _famFeeds, _mgPlays, _easterEgg, _offlineClaims, _manualSaves
+
+// Init compteurs dans state
+function initAchCounters() {
+  if (!('_gcClicks'      in state)) state._gcClicks = 0;
+  if (!('_totalGP'       in state)) state._totalGP  = 0;
+  if (!('_famFeeds'      in state)) state._famFeeds = 0;
+  if (!('_mgPlays'       in state)) state._mgPlays  = 0;
+  if (!('_easterEgg'     in state)) state._easterEgg = false;
+  if (!('_offlineClaims' in state)) state._offlineClaims = 0;
+  if (!('_manualSaves'   in state)) state._manualSaves = 0;
+  if (!('achievements'   in state)) state.achievements = {};
+}
+
+let _achPopupTimer = null;
+let _achPendingPopups = [];
+
+function showAchPopup(ach) {
+  _achPendingPopups.push(ach);
+  if (_achPendingPopups.length === 1) _nextAchPopup();
+}
+
+function _nextAchPopup() {
+  if (!_achPendingPopups.length) return;
+  const ach = _achPendingPopups[0];
+  const popup = document.getElementById('ach-popup');
+  document.getElementById('ach-popup-icon').textContent = ach.icon;
+  document.getElementById('ach-popup-name').textContent = ach.name;
+  popup.classList.add('show');
+  clearTimeout(_achPopupTimer);
+  _achPopupTimer = setTimeout(() => {
+    popup.classList.remove('show');
+    setTimeout(() => {
+      _achPendingPopups.shift();
+      _nextAchPopup();
+    }, 450);
+  }, 3000);
+}
+
+function checkAchievements() {
+  if (!state.achievements) return false;
+  let newUnlock = false;
+  ACHIEVEMENTS.forEach(ach => {
+    if (state.achievements[ach.id]) return; // déjà débloqué
+    try {
+      if (ach.check(state)) {
+        state.achievements[ach.id] = Date.now();
+        newUnlock = true;
+        showAchPopup(ach);
+        // Notif rouge sur le bouton
+        const notif = document.getElementById('ach-notif');
+        if (notif) notif.style.display = 'inline';
+      }
+    } catch(e) {}
+  });
+  return newUnlock;
+}
+
+let _achLastCheck = 0;
+function tickAchievements() {
+  if (!state.achievements) return; // state pas encore initialisé
+  const now = Date.now();
+  if (now - _achLastCheck < 2000) return; // max 1 check/2s
+  _achLastCheck = now;
+  if (checkAchievements()) saveGame(true);
+}
+
+// Filtre actif
+let _achFilter = 'all';
+window.setAchFilter = function(f, el) {
+  _achFilter = f;
+  document.querySelectorAll('.ach-filter-btn').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderAchievements();
+};
+
+function renderAchievements() {
+  if (!state.achievements) return;
+  const body = document.getElementById('ach-body');
+  if (!body) return;
+
+  // Masquer la notif rouge
+  const notif = document.getElementById('ach-notif');
+  if (notif) notif.style.display = 'none';
+
+  const total = ACHIEVEMENTS.length;
+  const unlocked = ACHIEVEMENTS.filter(a => state.achievements && state.achievements[a.id]).length;
+  const counter = document.getElementById('ach-counter');
+  if (counter) counter.textContent = unlocked + ' / ' + total + ' débloqués';
+
+  let list = ACHIEVEMENTS;
+  if (_achFilter === 'unlocked') list = list.filter(a => state.achievements && state.achievements[a.id]);
+  else if (_achFilter !== 'all') list = list.filter(a => a.rarity === _achFilter);
+
+  if (!list.length) {
+    body.innerHTML = '<div style="text-align:center;padding:2rem;font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--muted);">Aucun succès dans cette catégorie.</div>';
+    return;
+  }
+
+  const rarityLabel = { easy:'Facile', medium:'Moyen', hard:'Difficile', legendary:'Légendaire' };
+
+  body.innerHTML = '<div class="ach-grid">' + list.map(ach => {
+    const isUnlocked = !!(state.achievements && state.achievements[ach.id]);
+    let progressHTML = '';
+    if (!isUnlocked && ach.progress) {
+      try {
+        const [cur, max] = ach.progress(state);
+        const pct = Math.min(100, (cur / max * 100)).toFixed(0);
+        const curF = cur >= 1e6 ? (cur/1e6).toFixed(1)+'M' : cur >= 1e3 ? (cur/1e3).toFixed(1)+'K' : Math.floor(cur).toString();
+        const maxF = max >= 1e6 ? (max/1e6).toFixed(1)+'M' : max >= 1e3 ? (max/1e3).toFixed(1)+'K' : max.toString();
+        progressHTML = `<div class="ach-progress">
+          <div class="ach-progress-bar"><div class="ach-progress-fill" style="width:${pct}%"></div></div>
+          <div class="ach-progress-label">${curF} / ${maxF}</div>
+        </div>`;
+      } catch(e) {}
+    }
+    return `<div class="ach-card ${isUnlocked?'unlocked':''} ${ach.rarity==='legendary'?'secret':''}">
+      <div class="ach-icon">${isUnlocked ? ach.icon : (ach.rarity==='legendary'?'❓':ach.icon)}</div>
+      <div class="ach-info">
+        <div class="ach-rarity ${ach.rarity}">${rarityLabel[ach.rarity]}</div>
+        <div class="ach-name">${isUnlocked || ach.rarity !== 'legendary' ? ach.name : '???'}</div>
+        <div class="ach-desc">${isUnlocked || ach.rarity !== 'legendary' ? ach.desc : 'Succès secret'}</div>
+        ${progressHTML}
+        ${isUnlocked ? `<div style="font-family:'Space Mono',monospace;font-size:0.55rem;color:var(--green);margin-top:0.25rem;">✓ ${new Date(state.achievements[ach.id]).toLocaleDateString('fr-FR')}</div>` : ''}
+      </div>
+      ${isUnlocked ? '<div class="ach-check">✅</div>' : ''}
+    </div>`;
+  }).join('') + '</div>';
+}
+
+// ====================================================
 // STATE
 // ====================================================
 let state = {
@@ -2154,203 +2353,6 @@ function mathEnd() {
   document.getElementById('math-feedback').style.color='var(--accent2)';
   const startBtn=document.getElementById('math-start');
   if(startBtn){startBtn.textContent='↺ Rejouer';startBtn.style.display='inline-block';}
-}
-
-// ====================================================
-// SYSTÈME DE SUCCÈS
-// ====================================================
-const ACHIEVEMENTS = [
-  // ───── COOKIES — FACILE ─────
-  { id:'ck_1',       icon:'🍪', name:'Premier cookie',       desc:'Clique pour la première fois',            rarity:'easy',      check: s => s.totalClicks >= 1 },
-  { id:'ck_100',     icon:'🍪', name:'Centenaire',           desc:'Accumule 100 cookies au total',           rarity:'easy',      check: s => s.totalCookies >= 100 },
-  { id:'ck_1k',      icon:'🍪', name:'Millier doux',         desc:'Accumule 1 000 cookies au total',         rarity:'easy',      check: s => s.totalCookies >= 1e3 },
-  { id:'ck_100k',    icon:'🍪', name:'Cent milliers',        desc:'Accumule 100 000 cookies',                rarity:'easy',      check: s => s.totalCookies >= 1e5,   progress: s => [s.totalCookies, 1e5] },
-  { id:'ck_1m',      icon:'🍪', name:'Millionnaire',         desc:'Accumule 1 million de cookies',           rarity:'easy',      check: s => s.totalCookies >= 1e6,   progress: s => [s.totalCookies, 1e6] },
-  // ───── COOKIES — MOYEN ─────
-  { id:'ck_1b',      icon:'💰', name:'Milliardaire',         desc:'Accumule 1 milliard de cookies',          rarity:'medium',    check: s => s.totalCookies >= 1e9,   progress: s => [s.totalCookies, 1e9] },
-  { id:'ck_1t',      icon:'💎', name:'Trillionnaire',        desc:'Accumule 1 trillion de cookies',          rarity:'medium',    check: s => s.totalCookies >= 1e12,  progress: s => [s.totalCookies, 1e12] },
-  { id:'ck_1qa',     icon:'🌌', name:'Quadrillionnaire',     desc:'Accumule 1 quadrillion de cookies',       rarity:'hard',      check: s => s.totalCookies >= 1e15,  progress: s => [s.totalCookies, 1e15] },
-  { id:'ck_1qi',     icon:'🌠', name:'Quintillionnaire',     desc:'Accumule 1 quintillion de cookies',       rarity:'legendary', check: s => s.totalCookies >= 1e18,  progress: s => [s.totalCookies, 1e18] },
-  // ───── CLICS ─────
-  { id:'cl_10',      icon:'👆', name:'Tapoteur',             desc:'Clique 10 fois',                          rarity:'easy',      check: s => s.totalClicks >= 10 },
-  { id:'cl_100',     icon:'👆', name:'Cliqueur assidu',      desc:'Clique 100 fois',                         rarity:'easy',      check: s => s.totalClicks >= 100,    progress: s => [s.totalClicks, 100] },
-  { id:'cl_1k',      icon:'👊', name:'Mille clics',          desc:'Clique 1 000 fois',                       rarity:'easy',      check: s => s.totalClicks >= 1000,   progress: s => [s.totalClicks, 1000] },
-  { id:'cl_10k',     icon:'🤛', name:'Dix mille clics',      desc:'Clique 10 000 fois',                      rarity:'medium',    check: s => s.totalClicks >= 10000,  progress: s => [s.totalClicks, 10000] },
-  { id:'cl_100k',    icon:'⚡', name:'Cliqueur légendaire',  desc:'Clique 100 000 fois',                     rarity:'hard',      check: s => s.totalClicks >= 100000, progress: s => [s.totalClicks, 100000] },
-  { id:'cl_1m',      icon:'☄️', name:'Un million de clics',  desc:'Clique 1 000 000 fois',                   rarity:'legendary', check: s => s.totalClicks >= 1e6,    progress: s => [s.totalClicks, 1e6] },
-  // ───── BÂTIMENTS ─────
-  { id:'bld_first',  icon:'🏗', name:'Premier bâtiment',     desc:'Achète ton premier bâtiment',             rarity:'easy',      check: s => Object.values(s.buildings).some(v => v >= 1) },
-  { id:'bld_10',     icon:'🏘', name:'Petit village',        desc:'Possède 10 bâtiments au total',           rarity:'easy',      check: s => Object.values(s.buildings).reduce((a,b)=>a+b,0) >= 10, progress: s => [Object.values(s.buildings).reduce((a,b)=>a+b,0), 10] },
-  { id:'bld_50',     icon:'🏙', name:'Ville en croissance',  desc:'Possède 50 bâtiments au total',           rarity:'easy',      check: s => Object.values(s.buildings).reduce((a,b)=>a+b,0) >= 50, progress: s => [Object.values(s.buildings).reduce((a,b)=>a+b,0), 50] },
-  { id:'bld_100',    icon:'🌆', name:'Grande ville',         desc:'Possède 100 bâtiments au total',          rarity:'medium',    check: s => Object.values(s.buildings).reduce((a,b)=>a+b,0) >= 100, progress: s => [Object.values(s.buildings).reduce((a,b)=>a+b,0), 100] },
-  { id:'bld_500',    icon:'🌃', name:'Mégapole',             desc:'Possède 500 bâtiments au total',          rarity:'hard',      check: s => Object.values(s.buildings).reduce((a,b)=>a+b,0) >= 500, progress: s => [Object.values(s.buildings).reduce((a,b)=>a+b,0), 500] },
-  { id:'bld_all',    icon:'🌍', name:'Collectionneur total', desc:'Possède au moins 1 de chaque bâtiment',   rarity:'medium',    check: s => BUILDINGS.every(b => (s.buildings[b.id]||0) >= 1) },
-  { id:'bld_all10',  icon:'👑', name:'Maître bâtisseur',     desc:'Possède au moins 10 de chaque bâtiment',  rarity:'hard',      check: s => BUILDINGS.every(b => (s.buildings[b.id]||0) >= 10), progress: s => [BUILDINGS.filter(b=>(s.buildings[b.id]||0)>=10).length, BUILDINGS.length] },
-  { id:'bld_100ea',  icon:'🏆', name:'Armée de bâtiments',   desc:'Possède au moins 100 de chaque bâtiment', rarity:'legendary', check: s => BUILDINGS.every(b => (s.buildings[b.id]||0) >= 100), progress: s => [BUILDINGS.filter(b=>(s.buildings[b.id]||0)>=100).length, BUILDINGS.length] },
-  // ───── AMÉLIORATIONS ─────
-  { id:'upg_first',  icon:'✨', name:'Première amélioration', desc:'Débloque ta première amélioration',       rarity:'easy',      check: s => Object.values(s.upgrades).filter(Boolean).length >= 1 },
-  { id:'upg_10',     icon:'✨', name:'Dix améliorations',     desc:'Débloque 10 améliorations',               rarity:'easy',      check: s => Object.values(s.upgrades).filter(Boolean).length >= 10, progress: s => [Object.values(s.upgrades).filter(Boolean).length, 10] },
-  { id:'upg_all',    icon:'🌟', name:'Tout améliorer',        desc:'Débloque TOUTES les améliorations',       rarity:'legendary', check: s => UPGRADES.every(u => s.upgrades[u.id]), progress: s => [Object.values(s.upgrades).filter(Boolean).length, UPGRADES.length] },
-  // ───── CPS ─────
-  { id:'cps_1',      icon:'⚡', name:'Producteur',            desc:'Atteins 1 cookie/sec',                    rarity:'easy',      check: s => computeCps() >= 1 },
-  { id:'cps_100',    icon:'⚡', name:'Usine à cookies',       desc:'Atteins 100 cookies/sec',                 rarity:'easy',      check: s => computeCps() >= 100 },
-  { id:'cps_10k',    icon:'⚡', name:'Flux constant',         desc:'Atteins 10 000 cookies/sec',              rarity:'medium',    check: s => computeCps() >= 10000 },
-  { id:'cps_1m',     icon:'🚀', name:'Torrent sucré',         desc:'Atteins 1 million de cookies/sec',        rarity:'hard',      check: s => computeCps() >= 1e6 },
-  { id:'cps_1b',     icon:'🌌', name:'Déluge cosmique',       desc:'Atteins 1 milliard de cookies/sec',       rarity:'legendary', check: s => computeCps() >= 1e9 },
-  // ───── REBIRTH ─────
-  { id:'rb_1',       icon:'🌀', name:'Première renaissance',  desc:'Effectue ton premier Rebirth',            rarity:'medium',    check: s => s.rebirths >= 1 },
-  { id:'rb_3',       icon:'🌀', name:'Phénix',                desc:'Effectue 3 Rebirths',                     rarity:'medium',    check: s => s.rebirths >= 3,  progress: s => [s.rebirths, 3] },
-  { id:'rb_5',       icon:'🌀', name:'Cycle éternel',         desc:'Effectue 5 Rebirths',                     rarity:'hard',      check: s => s.rebirths >= 5,  progress: s => [s.rebirths, 5] },
-  { id:'rb_10',      icon:'♾️', name:'Transcendance',         desc:'Effectue 10 Rebirths',                    rarity:'legendary', check: s => s.rebirths >= 10, progress: s => [s.rebirths, 10] },
-  // ───── GOLDEN COOKIE & PATATES ─────
-  { id:'gc_first',   icon:'✨', name:'Cookie doré',           desc:'Clique ton premier cookie doré',          rarity:'easy',      check: s => (s._gcClicks||0) >= 1 },
-  { id:'gc_10',      icon:'✨', name:'Chasseur doré',         desc:'Clique 10 cookies dorés',                 rarity:'medium',    check: s => (s._gcClicks||0) >= 10,  progress: s => [(s._gcClicks||0), 10] },
-  { id:'gp_first',   icon:'🥔', name:'Patate dorée',          desc:'Collecte ta première patate dorée',       rarity:'easy',      check: s => (s.goldenPotatoes||0) >= 1 },
-  { id:'gp_10',      icon:'🥔', name:'Fermier doré',          desc:'Collecte 10 patates dorées',              rarity:'medium',    check: s => (s.goldenPotatoes||0) >= 10, progress: s => [(s.goldenPotatoes||0), 10] },
-  { id:'gp_50',      icon:'🥔', name:'Moisson dorée',         desc:'Collecte 50 patates dorées au total',     rarity:'hard',      check: s => (s._totalGP||0) >= 50,   progress: s => [(s._totalGP||0), 50] },
-  // ───── FAMILIERS ─────
-  { id:'fam_1',      icon:'🐾', name:'Ami à fourrure',        desc:'Adopte ton premier familier',             rarity:'easy',      check: s => Object.values(s.famOwned||{}).some(Boolean) },
-  { id:'fam_all',    icon:'🐾', name:'Éleveur légendaire',    desc:'Adopte TOUS les familiers',               rarity:'hard',      check: s => PETS.every(p => s.famOwned&&s.famOwned[p.id]), progress: s => [PETS.filter(p=>s.famOwned&&s.famOwned[p.id]).length, PETS.length] },
-  { id:'fam_feed',   icon:'🍖', name:'Chef cuisinier',        desc:'Nourris ton familier 10 fois',            rarity:'easy',      check: s => (s._famFeeds||0) >= 10,  progress: s => [(s._famFeeds||0), 10] },
-  // ───── SHOP REBIRTH ─────
-  { id:'rs_first',   icon:'💎', name:'Premier achat rebirth', desc:'Achète un item dans le Shop Rebirth',     rarity:'easy',      check: s => Object.values(s.rebirthShop||{}).some(Boolean) },
-  { id:'rs_all_mg',  icon:'🎮', name:'Arcade complète',       desc:'Débloque tous les mini-jeux',             rarity:'hard',      check: s => REBIRTH_ITEMS.filter(i=>i.effect==='minigame').every(i=>s.rebirthShop&&s.rebirthShop[i.id]), progress: s => [REBIRTH_ITEMS.filter(i=>i.effect==='minigame'&&s.rebirthShop&&s.rebirthShop[i.id]).length, REBIRTH_ITEMS.filter(i=>i.effect==='minigame').length] },
-  // ───── MINI-JEUX ─────
-  { id:'mg_play',    icon:'🎮', name:'Joueur',                desc:'Joue à un mini-jeu pour la première fois',rarity:'easy',      check: s => (s._mgPlays||0) >= 1 },
-  { id:'mg_10',      icon:'🎮', name:'Gamer',                 desc:'Joue à 10 mini-jeux',                     rarity:'medium',    check: s => (s._mgPlays||0) >= 10,   progress: s => [(s._mgPlays||0), 10] },
-  // ───── SPÉCIAUX ─────
-  { id:'egg_found',  icon:'🥚', name:'Easter egg trouvé',     desc:'Découvre le secret d'AxoClicker',        rarity:'legendary', check: s => (s._easterEgg||false) },
-  { id:'offline_1',  icon:'🌙', name:'Dormeur actif',         desc:'Récupère des gains hors-ligne',           rarity:'easy',      check: s => (s._offlineClaims||0) >= 1 },
-  { id:'save_10',    icon:'💾', name:'Sauvegarde manuelle',   desc:'Sauvegarde manuellement 10 fois',         rarity:'easy',      check: s => (s._manualSaves||0) >= 10, progress: s => [(s._manualSaves||0), 10] },
-];
-
-// Compteurs auxiliaires (non sauvegardés dans getStateToSave — on les ajoute)
-// _gcClicks, _totalGP, _famFeeds, _mgPlays, _easterEgg, _offlineClaims, _manualSaves
-
-// Init compteurs dans state
-function initAchCounters() {
-  if (!('_gcClicks'      in state)) state._gcClicks = 0;
-  if (!('_totalGP'       in state)) state._totalGP  = 0;
-  if (!('_famFeeds'      in state)) state._famFeeds = 0;
-  if (!('_mgPlays'       in state)) state._mgPlays  = 0;
-  if (!('_easterEgg'     in state)) state._easterEgg = false;
-  if (!('_offlineClaims' in state)) state._offlineClaims = 0;
-  if (!('_manualSaves'   in state)) state._manualSaves = 0;
-  if (!('achievements'   in state)) state.achievements = {};
-}
-
-let _achPopupTimer = null;
-let _achPendingPopups = [];
-
-function showAchPopup(ach) {
-  _achPendingPopups.push(ach);
-  if (_achPendingPopups.length === 1) _nextAchPopup();
-}
-
-function _nextAchPopup() {
-  if (!_achPendingPopups.length) return;
-  const ach = _achPendingPopups[0];
-  const popup = document.getElementById('ach-popup');
-  document.getElementById('ach-popup-icon').textContent = ach.icon;
-  document.getElementById('ach-popup-name').textContent = ach.name;
-  popup.classList.add('show');
-  clearTimeout(_achPopupTimer);
-  _achPopupTimer = setTimeout(() => {
-    popup.classList.remove('show');
-    setTimeout(() => {
-      _achPendingPopups.shift();
-      _nextAchPopup();
-    }, 450);
-  }, 3000);
-}
-
-function checkAchievements() {
-  if (!state.achievements) state.achievements = {};
-  let newUnlock = false;
-  ACHIEVEMENTS.forEach(ach => {
-    if (state.achievements[ach.id]) return; // déjà débloqué
-    try {
-      if (ach.check(state)) {
-        state.achievements[ach.id] = Date.now();
-        newUnlock = true;
-        showAchPopup(ach);
-        // Notif rouge sur le bouton
-        const notif = document.getElementById('ach-notif');
-        if (notif) notif.style.display = 'inline';
-      }
-    } catch(e) {}
-  });
-  return newUnlock;
-}
-
-let _achLastCheck = 0;
-function tickAchievements() {
-  const now = Date.now();
-  if (now - _achLastCheck < 2000) return; // max 1 check/2s
-  _achLastCheck = now;
-  if (checkAchievements()) saveGame(true);
-}
-
-// Filtre actif
-let _achFilter = 'all';
-window.setAchFilter = function(f, el) {
-  _achFilter = f;
-  document.querySelectorAll('.ach-filter-btn').forEach(b => b.classList.remove('active'));
-  if (el) el.classList.add('active');
-  renderAchievements();
-};
-
-function renderAchievements() {
-  const body = document.getElementById('ach-body');
-  if (!body) return;
-
-  // Masquer la notif rouge
-  const notif = document.getElementById('ach-notif');
-  if (notif) notif.style.display = 'none';
-
-  const total = ACHIEVEMENTS.length;
-  const unlocked = ACHIEVEMENTS.filter(a => state.achievements && state.achievements[a.id]).length;
-  const counter = document.getElementById('ach-counter');
-  if (counter) counter.textContent = unlocked + ' / ' + total + ' débloqués';
-
-  let list = ACHIEVEMENTS;
-  if (_achFilter === 'unlocked') list = list.filter(a => state.achievements && state.achievements[a.id]);
-  else if (_achFilter !== 'all') list = list.filter(a => a.rarity === _achFilter);
-
-  if (!list.length) {
-    body.innerHTML = '<div style="text-align:center;padding:2rem;font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--muted);">Aucun succès dans cette catégorie.</div>';
-    return;
-  }
-
-  const rarityLabel = { easy:'Facile', medium:'Moyen', hard:'Difficile', legendary:'Légendaire' };
-
-  body.innerHTML = '<div class="ach-grid">' + list.map(ach => {
-    const isUnlocked = !!(state.achievements && state.achievements[ach.id]);
-    let progressHTML = '';
-    if (!isUnlocked && ach.progress) {
-      try {
-        const [cur, max] = ach.progress(state);
-        const pct = Math.min(100, (cur / max * 100)).toFixed(0);
-        const curF = cur >= 1e6 ? (cur/1e6).toFixed(1)+'M' : cur >= 1e3 ? (cur/1e3).toFixed(1)+'K' : Math.floor(cur).toString();
-        const maxF = max >= 1e6 ? (max/1e6).toFixed(1)+'M' : max >= 1e3 ? (max/1e3).toFixed(1)+'K' : max.toString();
-        progressHTML = `<div class="ach-progress">
-          <div class="ach-progress-bar"><div class="ach-progress-fill" style="width:${pct}%"></div></div>
-          <div class="ach-progress-label">${curF} / ${maxF}</div>
-        </div>`;
-      } catch(e) {}
-    }
-    return `<div class="ach-card ${isUnlocked?'unlocked':''} ${ach.rarity==='legendary'?'secret':''}">
-      <div class="ach-icon">${isUnlocked ? ach.icon : (ach.rarity==='legendary'?'❓':ach.icon)}</div>
-      <div class="ach-info">
-        <div class="ach-rarity ${ach.rarity}">${rarityLabel[ach.rarity]}</div>
-        <div class="ach-name">${isUnlocked || ach.rarity !== 'legendary' ? ach.name : '???'}</div>
-        <div class="ach-desc">${isUnlocked || ach.rarity !== 'legendary' ? ach.desc : 'Succès secret'}</div>
-        ${progressHTML}
-        ${isUnlocked ? `<div style="font-family:'Space Mono',monospace;font-size:0.55rem;color:var(--green);margin-top:0.25rem;">✓ ${new Date(state.achievements[ach.id]).toLocaleDateString('fr-FR')}</div>` : ''}
-      </div>
-      ${isUnlocked ? '<div class="ach-check">✅</div>' : ''}
-    </div>`;
-  }).join('') + '</div>';
 }
 
 // ====================================================
