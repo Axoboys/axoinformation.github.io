@@ -324,6 +324,10 @@
     #chat-send{background:var(--accent2);border:none;border-radius:6px;padding:0.35rem 0.65rem;color:#000;font-family:'Space Mono',monospace;font-size:0.68rem;font-weight:700;cursor:pointer;white-space:nowrap;}
     .chat-banned-notice{font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--red);padding:0.5rem;text-align:center;}
     @media(max-width:600px){#chat-container{width:calc(100vw - 1rem);right:0.5rem;bottom:3.5rem;}}
+
+    /* ── SOUND WIDGET ── */
+    .sound-btn{background:transparent;border:1px solid var(--border);border-radius:6px;padding:0.18rem 0.45rem;font-size:0.75rem;cursor:pointer;color:var(--muted);transition:all 0.15s;line-height:1;}
+    .sound-btn:hover{border-color:var(--accent2);color:var(--accent2);}
   </style>
 </head>
 <body>
@@ -332,6 +336,7 @@
   <a href="index.html" class="nav-logo">AXO<span>BOYS</span></a>
   <div class="nav-right">
     <span class="save-indicator" id="save-indicator">✓ Sauvé</span>
+    <button class="sound-btn" id="sound-btn" onclick="toggleSound()" title="Son">🔊</button>
     <span class="rebirth-badge" id="rebirth-badge">🌀 R0</span>
     <button class="fam-equip-btn" id="fam-equip-btn" onclick="openModal('fshop')">🐾 <span id="fam-equip-name">Familier</span></button>
     <span class="gold-display" id="gold-display" onclick="openModal('gshop')" title="Boutique Patates Dorées"><span class="gold-icon">🥔</span>&nbsp;<span class="gold-val" id="gold-count">0</span></span>
@@ -818,6 +823,25 @@ async function initGame() {
       </div>`;
     return;
   }
+  // ── Vérification du ban avant tout
+  if (currentUser !== '_axo_test') {
+    const userDoc = await dbGet('users', userKey);
+    if (userDoc && userDoc.tempBanUntil && userDoc.tempBanUntil > Date.now()) {
+      // Joueur banni → affiche écran de ban
+      const banEnd = new Date(userDoc.tempBanUntil).toLocaleString('fr-FR');
+      const reason = userDoc.tempBanReason ? '<br><span style="color:#94a3b8;">Raison : ' + userDoc.tempBanReason + '</span>' : '';
+      document.body.innerHTML = `
+        <div style="position:fixed;inset:0;background:#0a0a0f;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Syne',sans-serif;text-align:center;padding:2rem;z-index:9999;">
+          <div style="font-size:4rem;margin-bottom:1.5rem;">🚫</div>
+          <h1 style="font-size:2rem;font-weight:800;color:#ef4444;margin-bottom:0.75rem;">Accès suspendu</h1>
+          <p style="font-family:'Space Mono',monospace;font-size:0.85rem;color:#64748b;max-width:400px;line-height:1.7;margin-bottom:0.5rem;">Ton compte est temporairement banni.</p>
+          <p style="font-family:'Space Mono',monospace;font-size:0.85rem;color:#ef4444;margin-bottom:2rem;">Jusqu'au : ${banEnd}${reason}</p>
+          <a href="index.html" style="font-family:'Space Mono',monospace;font-size:0.75rem;color:#64748b;text-decoration:none;border:1px solid #1e1e2e;padding:0.5rem 1rem;border-radius:8px;">← Retour au Hub</a>
+        </div>`;
+      return;
+    }
+  }
+
   const saved = await dbGet('saves', userKey);
   if (saved) {
     loadFromSave(saved);
@@ -1069,6 +1093,7 @@ const cookieBtn = document.getElementById('cookie-btn');
 function handleClick(cx, cy) {
   const val = getClickValue();
   state.cookies += val; state.totalCookies += val; state.cookiesThisLife += val; state.totalClicks++;
+  if(typeof SoundSystem !== 'undefined') SoundSystem.playClick();
   spawnParticle(cx, cy, '+' + formatNum(val));
   updateDisplay();
 }
@@ -1092,17 +1117,23 @@ function spawnParticle(x, y, text) {
 // ====================================================
 function buyBuilding(id) {
   const b = BUILDINGS.find(x=>x.id===id); if(!b) return;
-  const totalCost = getBulkCost(b); if(state.cookies < totalCost) return;
-  state.cookies -= totalCost;
+  if (currentUser !== '_axo_test') {
+    const totalCost = getBulkCost(b); if(state.cookies < totalCost) return;
+    state.cookies -= totalCost;
+  }
   state.buildings[id] = (state.buildings[id]||0) + bulkQty;
   const label = bulkQty > 1 ? ' x'+bulkQty : '';
+  if(typeof SoundSystem !== 'undefined') SoundSystem.playBuy();
   showToast(b.emoji + ' ' + b.name + label + ' acheté !'); updateDisplay();
 }
 
 function buyUpgrade(id) {
   const u = UPGRADES.find(x=>x.id===id); if(!u||state.upgrades[id]) return;
-  if(state.cookies < u.cost) return;
-  state.cookies -= u.cost; state.upgrades[id]=true;
+  if (currentUser !== '_axo_test') {
+    if(state.cookies < u.cost) return;
+    state.cookies -= u.cost;
+  }
+  state.upgrades[id]=true;
   recomputeMultipliers();
   showToast(u.emoji + ' ' + u.name + ' débloqué !'); updateDisplay();
 }
@@ -1110,8 +1141,10 @@ function buyUpgrade(id) {
 window.buyRebirthItem = function(id) {
   const item = REBIRTH_ITEMS.find(x=>x.id===id); if(!item) return;
   if(state.rebirthShop[id]) return;
-  if(state.rebirthPoints < item.cost) { showToast('❌ Pas assez de points rebirth !'); return; }
-  state.rebirthPoints -= item.cost;
+  if (currentUser !== '_axo_test') {
+    if(state.rebirthPoints < item.cost) { showToast('❌ Pas assez de points rebirth !'); return; }
+    state.rebirthPoints -= item.cost;
+  }
   state.rebirthShop[id] = true;
   if (item.effect === 'minigame') state.minigameUnlocks[item.bid] = true;
   // ✅ FIX: Starter pack → donne les bâtiments immédiatement
@@ -1229,6 +1262,7 @@ window.goldenClick = function(){
   state.cookies+=bonus;state.totalCookies+=bonus;
   document.getElementById('golden-cookie').style.display='none';
   spawnParticle(window.innerWidth/2,window.innerHeight/2,'✨ +'+formatNum(bonus));
+  if(typeof SoundSystem !== 'undefined') SoundSystem.playGolden();
   showToast('✨ Cookie doré ! +'+formatNum(bonus));
   scheduleGoldenCookie();updateDisplay();
 }
@@ -1462,6 +1496,7 @@ let lbCurrentTab='cookies';
 
 async function pushScore() {
   if(!currentUser) return;
+  if(currentUser === '_axo_test') return; // compte test invisible
   try {
     await dbSet('scores', userKey, {
       username: currentUser,
@@ -1475,7 +1510,9 @@ async function pushScore() {
 }
 
 async function fetchAllScores() {
-  return await dbListAll('scores');
+  const all = await dbListAll('scores');
+  // Exclure le compte test et les comptes marqués hidden
+  return all.filter(e => e.username && e.username !== '_axo_test' && !e.hidden);
 }
 
 window.switchLbTab = function(tab){
@@ -2162,6 +2199,7 @@ window.potatoClick = function() {
   const bonus = Math.max(50, Math.floor(computeCps() * 300 * bonusMult));
   state.cookies += bonus; state.totalCookies += bonus; state.cookiesThisLife += bonus;
   spawnParticle(window.innerWidth/2, window.innerHeight/3, '🥔 +'+formatNum(bonus));
+  if(typeof SoundSystem !== 'undefined') SoundSystem.playGolden();
   showToast('🥔✨ Patate dorée ! +'+formatNum(bonus)+' cookies | +1 patate dorée');
   updateDisplay(); scheduleGoldenPotato();
 };
@@ -2213,8 +2251,10 @@ function renderGoldShop() {
 window.buyGoldUpgrade = function(id) {
   const u = GOLD_UPGRADES.find(x => x.id===id); if (!u) return;
   if (state.goldShop[id]) { showToast('Déjà acheté !'); return; }
-  if (state.goldenPotatoes < u.cost) { showToast('❌ Pas assez de patates dorées !'); return; }
-  state.goldenPotatoes -= u.cost;
+  if (currentUser !== '_axo_test') {
+    if (state.goldenPotatoes < u.cost) { showToast('❌ Pas assez de patates dorées !'); return; }
+    state.goldenPotatoes -= u.cost;
+  }
   state.goldShop[id] = true;
   recomputeMultipliers();
   renderGoldShop();
@@ -3048,6 +3088,148 @@ if (currentUser === '_axo_test') {
   })();
 })();
 
+
+
+// ====================================================
+// SYSTÈME SON — musique d'ambiance + sons UI
+// ====================================================
+const SoundSystem = (function() {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  let masterGain = ctx.createGain();
+  masterGain.connect(ctx.destination);
+
+  // Préférences persistantes
+  let enabled = localStorage.getItem('axo_sound') !== 'false';
+  let volume  = parseFloat(localStorage.getItem('axo_vol') || '0.4');
+  masterGain.gain.value = enabled ? volume : 0;
+
+  // ── Musique d'ambiance générative (boucle) ──────────────
+  let bgNodes = [];
+  let bgLoop  = null;
+
+  function startAmbience() {
+    stopAmbience();
+    if (!enabled) return;
+
+    // Drone grave doux
+    const drone = ctx.createOscillator();
+    drone.type = 'sine';
+    drone.frequency.value = 55; // La1 grave
+    const droneGain = ctx.createGain();
+    droneGain.gain.value = 0.06;
+    drone.connect(droneGain); droneGain.connect(masterGain);
+    drone.start();
+    bgNodes.push(drone, droneGain);
+
+    // Harmonique douce
+    const harm = ctx.createOscillator();
+    harm.type = 'triangle';
+    harm.frequency.value = 110;
+    const harmGain = ctx.createGain();
+    harmGain.gain.value = 0.03;
+    harm.connect(harmGain); harmGain.connect(masterGain);
+    harm.start();
+    bgNodes.push(harm, harmGain);
+
+    // Petits tintements aléatoires
+    bgLoop = setInterval(() => {
+      if (!enabled) return;
+      const notes = [261.6, 329.6, 392, 440, 523.3]; // Do Mi Sol La Do
+      const freq = notes[Math.floor(Math.random() * notes.length)];
+      const osc = ctx.createOscillator();
+      const g   = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      g.gain.setValueAtTime(0, ctx.currentTime);
+      g.gain.linearRampToValueAtTime(0.04, ctx.currentTime + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
+      osc.connect(g); g.connect(masterGain);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 1.2);
+    }, 1800 + Math.random() * 2000);
+  }
+
+  function stopAmbience() {
+    if (bgLoop) { clearInterval(bgLoop); bgLoop = null; }
+    bgNodes.forEach(n => { try { n.stop && n.stop(); n.disconnect && n.disconnect(); } catch(e){} });
+    bgNodes = [];
+  }
+
+  // ── Sons UI ─────────────────────────────────────────────
+  function playClick() {
+    if (!enabled) return;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'sine'; o.frequency.value = 800;
+    g.gain.setValueAtTime(0.08, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+    o.connect(g); g.connect(masterGain);
+    o.start(); o.stop(ctx.currentTime + 0.08);
+  }
+
+  function playBuy() {
+    if (!enabled) return;
+    [523.3, 659.3, 783.9].forEach((freq, i) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'triangle'; o.frequency.value = freq;
+      g.gain.setValueAtTime(0, ctx.currentTime + i*0.07);
+      g.gain.linearRampToValueAtTime(0.07, ctx.currentTime + i*0.07 + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i*0.07 + 0.2);
+      o.connect(g); g.connect(masterGain);
+      o.start(ctx.currentTime + i*0.07);
+      o.stop(ctx.currentTime + i*0.07 + 0.2);
+    });
+  }
+
+  function playGolden() {
+    if (!enabled) return;
+    [880, 1047, 1319, 1047, 880].forEach((freq, i) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'sine'; o.frequency.value = freq;
+      g.gain.setValueAtTime(0, ctx.currentTime + i*0.09);
+      g.gain.linearRampToValueAtTime(0.06, ctx.currentTime + i*0.09 + 0.04);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i*0.09 + 0.3);
+      o.connect(g); g.connect(masterGain);
+      o.start(ctx.currentTime + i*0.09);
+      o.stop(ctx.currentTime + i*0.09 + 0.3);
+    });
+  }
+
+  function setEnabled(v) {
+    enabled = v;
+    masterGain.gain.value = enabled ? volume : 0;
+    localStorage.setItem('axo_sound', v ? 'true' : 'false');
+    if (enabled) { ctx.resume().then(startAmbience); }
+    else { stopAmbience(); }
+    document.getElementById('sound-btn').textContent = enabled ? '🔊' : '🔇';
+  }
+
+  function setVolume(v) {
+    volume = Math.max(0, Math.min(1, v));
+    if (enabled) masterGain.gain.value = volume;
+    localStorage.setItem('axo_vol', volume);
+  }
+
+  function toggle() {
+    setEnabled(!enabled);
+  }
+
+  // Démarrage après interaction (politique navigateurs)
+  function tryStart() {
+    ctx.resume().then(() => { if (enabled) startAmbience(); });
+  }
+
+  return { playClick, playBuy, playGolden, toggle, setEnabled, setVolume, tryStart,
+           isEnabled: () => enabled, getVolume: () => volume };
+})();
+
+window.toggleSound = function() { SoundSystem.toggle(); };
+
+// Démarrer après première interaction
+document.addEventListener('touchstart', () => SoundSystem.tryStart(), {once:true, passive:true});
+document.addEventListener('click',      () => SoundSystem.tryStart(), {once:true});
 
 </script><!-- ===================== CHAT ===================== -->
 <div id="chat-container" style="display:none;">

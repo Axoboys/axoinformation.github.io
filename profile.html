@@ -117,6 +117,18 @@
         <button class="btn btn-outline" id="logout-btn2">← Se déconnecter</button>
         <button class="btn btn-danger" id="delete-btn">🗑 Supprimer mon compte</button>
       </div>
+      <div class="card">
+        <div class="card-title">Son & Musique</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+          <span style="font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--muted);">Musique d'ambiance</span>
+          <button id="sound-toggle-btn" onclick="toggleSoundPref()" style="padding:0.4rem 1rem;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.75rem;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text);transition:all 0.2s;">🔊 Activé</button>
+        </div>
+        <div>
+          <label style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);display:block;margin-bottom:0.4rem;">Volume : <span id="vol-label">40%</span></label>
+          <input type="range" id="vol-slider" min="0" max="100" value="40" oninput="updateVolPref(this.value)"
+            style="width:100%;accent-color:var(--accent);cursor:pointer;">
+        </div>
+      </div>
     </div>
   </div>
   <div id="error-state" style="display:none;text-align:center;padding:4rem;">
@@ -227,6 +239,35 @@ async function init() {
 }
 
 init();
+
+// ── Préférences son ──────────────────────────────
+function initSoundUI() {
+  const enabled = localStorage.getItem('axo_sound') !== 'false';
+  const vol     = parseFloat(localStorage.getItem('axo_vol') || '0.4');
+  const btn     = document.getElementById('sound-toggle-btn');
+  const slider  = document.getElementById('vol-slider');
+  const label   = document.getElementById('vol-label');
+  if (btn)    btn.textContent    = enabled ? '🔊 Activé' : '🔇 Désactivé';
+  if (btn)    btn.style.borderColor = enabled ? 'var(--accent2)' : 'var(--border)';
+  if (btn)    btn.style.color    = enabled ? 'var(--accent2)' : 'var(--muted)';
+  if (slider) slider.value       = Math.round(vol * 100);
+  if (label)  label.textContent  = Math.round(vol * 100) + '%';
+}
+
+window.toggleSoundPref = function() {
+  const current = localStorage.getItem('axo_sound') !== 'false';
+  localStorage.setItem('axo_sound', (!current).toString());
+  initSoundUI();
+};
+
+window.updateVolPref = function(val) {
+  const v = parseInt(val) / 100;
+  localStorage.setItem('axo_vol', v.toFixed(2));
+  const label = document.getElementById('vol-label');
+  if (label) label.textContent = val + '%';
+};
+
+initSoundUI();
 </script>
 </body>
 </html>
