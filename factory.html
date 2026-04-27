@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Factory — Axoboys</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --border: #1e1e2e;
+      --accent: #7c3aed;
+      --accent2: #06b6d4;
+      --accent3: #f59e0b;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --glow: rgba(124,58,237,0.3);
+      --green: #22c55e;
+      --red: #ef4444;
+      --nav-h: 52px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(124,58,237,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,58,237,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* NAV */
+    nav {
+      position: relative;
+      z-index: 100;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1rem;
+      height: var(--nav-h);
+      background: rgba(10,10,15,0.97);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+    }
+    .nav-logo { font-size: 1rem; font-weight: 800; letter-spacing: 0.1em; color: var(--text); text-decoration: none; }
+    .nav-logo span { color: var(--accent); }
+    .nav-right { display: flex; align-items: center; gap: 0.75rem; }
+    .nav-right a { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .nav-right a:hover { color: var(--accent2); }
+    .save-indicator { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: var(--green); display: none; }
+    .prestige-badge { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: var(--accent3); display: none; }
+
+    /* LAYOUT */
+    .game-wrapper {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: row;
+    }
+
+    /* PANELS */
+    .panel { display: flex; flex-direction: column; overflow: hidden; }
+
+    .panel-left {
+      width: 240px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--border);
+    }
+
+    .panel-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-title {
+      padding: 0.6rem 1rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--accent);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .panel-title-sub { color: var(--muted); font-size: 0.58rem; }
+
+    /* LEFT — Click zone */
+    .click-zone {
+      padding: 1.25rem 1rem;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .big-btn {
+      width: 100%;
+      padding: 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent2);
+      letter-spacing: 0.1em;
+      transition: all 0.1s;
+      user-select: none;
+      position: relative;
+      overflow: hidden;
+    }
+    .big-btn::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s;
+    }
+    .big-btn:hover::before { transform: scaleX(1); }
+    .big-btn:hover { border-color: var(--accent2); box-shadow: 0 0 20px rgba(6,182,212,0.15); }
+    .big-btn:active { transform: scale(0.96); background: rgba(6,182,212,0.08); }
+
+    .lines-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      margin-top: 0.65rem;
+    }
+    .lines-count {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--accent2);
+      line-height: 1.1;
+      margin-top: 0.2rem;
+    }
+    .per-sec {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--accent);
+      margin-top: 0.15rem;
+    }
+    .commits-disp {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+      margin-top: 0.1rem;
+    }
+
+    /* UPGRADES LIST */
+    .upgrades-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.4rem;
+    }
+    .upgrades-scroll::-webkit-scrollbar { width: 3px; }
+    .upgrades-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .upgrades-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.4rem 0.5rem 0.6rem;
+    }
+
+    .upgrade-btn {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      margin-bottom: 0.3rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: left;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--text);
+      transition: all 0.15s;
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+    .upgrade-btn:hover:not(:disabled) { border-color: var(--accent3); background: rgba(245,158,11,0.06); }
+    .upgrade-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .upgrade-btn.bought { border-color: rgba(34,197,94,0.4); opacity: 0.4; cursor: default; }
+    .ub-name { font-weight: 700; font-size: 0.75rem; }
+    .ub-desc { color: var(--muted); font-size: 0.6rem; }
+    .ub-cost { color: var(--accent3); font-size: 0.62rem; font-weight: 700; }
+    .upgrade-btn.bought .ub-cost { color: var(--green); }
+
+    /* RIGHT PANEL TABS */
+    .tabs-bar {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      background: rgba(10,10,15,0.5);
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 0.6rem 0.25rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .tab-btn.active { color: var(--accent2); border-bottom-color: var(--accent2); }
+    .tab-btn:hover:not(.active) { color: var(--text); }
+
+    #tab-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+    #tab-content::-webkit-scrollbar { width: 3px; }
+    #tab-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* SECTION TITLE inside tabs */
+    .section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--accent);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+
+    /* WORKER CARDS */
+    .worker-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      transition: all 0.2s;
+    }
+    .worker-card.can-buy { border-color: var(--accent); }
+    .worker-card.can-buy:hover { box-shadow: 0 0 20px rgba(124,58,237,0.15); }
+    .wc-info { flex: 1; }
+    .wc-name { font-size: 0.82rem; font-weight: 700; }
+    .wc-desc { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: var(--muted); margin-top: 0.15rem; }
+    .wc-owned { font-family: 'Space Mono', monospace; font-size: 0.58rem; color: var(--accent2); margin-top: 0.2rem; }
+    .wc-buy {
+      padding: 0.4rem 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: transparent;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.62rem;
+      cursor: pointer;
+      color: var(--muted);
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .wc-buy:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+    .wc-buy:disabled { opacity: 0.3; cursor: not-allowed; }
+    .wc-buy.affordable { border-color: var(--accent); color: var(--accent); background: rgba(124,58,237,0.08); }
+
+    /* PROJECTS */
+    .project-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 0.6rem;
+      transition: border-color 0.2s;
+    }
+    .project-card.active-proj { border-color: var(--accent2); }
+    .pc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.3rem; }
+    .pc-name { font-size: 0.85rem; font-weight: 700; }
+    .pc-reward { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--green); font-weight: 700; }
+    .pc-desc { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: var(--muted); margin-top: 0.2rem; }
+    .progress-bar {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin-top: 0.65rem;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width 0.3s;
+    }
+    .pc-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 0.6rem; }
+    .pc-pct { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: var(--muted); }
+    .pc-btn {
+      padding: 0.3rem 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: transparent;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.62rem;
+      cursor: pointer;
+      color: var(--muted);
+      transition: all 0.15s;
+    }
+    .pc-btn:hover:not(:disabled) { border-color: var(--accent2); color: var(--accent2); }
+    .pc-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .pc-btn.complete { border-color: var(--green); color: var(--green); }
+
+    /* TECH TREE */
+    #tech-tree { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .tech-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.85rem;
+      transition: border-color 0.2s;
+    }
+    .tech-card.researched { border-color: rgba(34,197,94,0.4); }
+    .tech-name { font-size: 0.78rem; font-weight: 700; }
+    .tech-eff { font-family: 'Space Mono', monospace; font-size: 0.58rem; color: var(--muted); margin-top: 0.2rem; }
+    .tech-cost { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: var(--accent3); margin-top: 0.3rem; font-weight: 700; }
+    .tech-btn {
+      margin-top: 0.5rem;
+      width: 100%;
+      padding: 0.3rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: transparent;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      cursor: pointer;
+      color: var(--muted);
+      transition: all 0.15s;
+    }
+    .tech-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+    .tech-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* PRESTIGE */
+    .prestige-info-box {
+      background: var(--surface);
+      border: 1px solid rgba(245,158,11,0.3);
+      border-radius: 12px;
+      padding: 1.25rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .prestige-big { font-size: 2rem; font-weight: 800; color: var(--accent3); }
+    .prestige-sub { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); margin-top: 0.3rem; }
+    .prestige-bonus-text { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--accent3); margin-top: 0.5rem; }
+    #prestige-btn {
+      width: 100%;
+      padding: 0.85rem;
+      border: 1px solid var(--accent3);
+      border-radius: 8px;
+      background: rgba(245,158,11,0.08);
+      color: var(--accent3);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    #prestige-btn:hover:not(:disabled) { background: rgba(245,158,11,0.18); box-shadow: 0 0 20px rgba(245,158,11,0.2); }
+    #prestige-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* MILESTONES */
+    .milestone-item {
+      display: flex;
+      gap: 0.6rem;
+      padding: 0.45rem 0;
+      border-bottom: 1px solid rgba(30,30,46,0.5);
+      align-items: center;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+    .milestone-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); flex-shrink: 0; transition: background 0.3s; }
+    .milestone-dot.done { background: var(--green); box-shadow: 0 0 6px var(--green); }
+
+    /* LOG */
+    .log-entry {
+      display: flex;
+      gap: 0.6rem;
+      padding: 0.3rem 0;
+      border-bottom: 1px solid rgba(30,30,46,0.4);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+    }
+    .log-time { color: var(--border); min-width: 52px; }
+    .log-text { color: var(--muted); }
+
+    /* BADGES */
+    .badge { display: inline-block; padding: 0.1rem 0.4rem; border-radius: 4px; font-family: 'Space Mono', monospace; font-size: 0.58rem; font-weight: 700; margin-left: 0.35rem; }
+    .badge-green { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: var(--green); }
+    .badge-amber { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); color: var(--accent3); }
+    .badge-blue { background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.3); color: var(--accent2); }
+
+    /* NOTIF TOAST */
+    #notif {
+      position: fixed;
+      top: calc(var(--nav-h) + 0.75rem);
+      right: 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.6rem 1.1rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--text);
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 200;
+      max-width: 240px;
+    }
+
+    /* FLOAT NUMBERS */
+    #floats-container { position: fixed; pointer-events: none; z-index: 300; top: 0; left: 0; width: 100%; height: 100%; }
+    .float-num {
+      position: absolute;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--accent2);
+      animation: floatUp 1s ease-out forwards;
+      pointer-events: none;
+    }
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-45px) scale(0.7); }
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 700px) {
+      .panel-left { width: 190px; }
+      #tech-tree { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 500px) {
+      .game-wrapper { flex-direction: column; overflow: hidden; }
+      .panel-left { width: 100%; flex-shrink: 0; height: 220px; border-right: none; border-bottom: 1px solid var(--border); }
+      .click-zone { padding: 0.75rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">AXO<span>BOYS</span></a>
+  <div class="nav-right">
+    <span class="save-indicator" id="save-indicator">✓ Sauvé</span>
+    <span class="prestige-badge" id="prestige-badge">⭐ P0</span>
+    <a href="clicker.html">🍪 Clicker</a>
+    <a href="index.html">Hub</a>
+  </div>
+</nav>
+
+<div class="game-wrapper">
+
+  <!-- LEFT -->
+  <div class="panel panel-left">
+    <div class="click-zone">
+      <button class="big-btn" id="big-btn">[ CODER ]</button>
+      <div class="lines-count" id="h-lines">0</div>
+      <div class="lines-label">lignes de code</div>
+      <div class="per-sec" id="per-sec">0 lignes/sec</div>
+      <div class="commits-disp" id="h-commits">0 commits</div>
+    </div>
+    <div class="panel-title">// Améliorations</div>
+    <div class="upgrades-scroll">
+      <div id="upgrades-container"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="panel panel-right">
+    <div class="tabs-bar">
+      <button class="tab-btn active" onclick="showTab('workers')">Équipe</button>
+      <button class="tab-btn" onclick="showTab('projects')">Projets</button>
+      <button class="tab-btn" onclick="showTab('tech')">Technos</button>
+      <button class="tab-btn" onclick="showTab('prestige')">Prestige</button>
+      <button class="tab-btn" onclick="showTab('log')">Journal</button>
+    </div>
+    <div id="tab-content"></div>
+  </div>
+</div>
+
+<div id="notif"></div>
+<div id="floats-container"></div>
+
+<script>
+// ============================================================
+// ÉTAT DU JEU
+// ============================================================
+const G = {
+  lines: 0, totalLines: 0, commits: 0,
+  prestige: 0, prestigeBonus: 1,
+  clickPower: 1, lps: 0,
+  lastTick: Date.now(),
+  upgrades: {}, workers: {}, techs: {},
+  activeProjects: {},
+  logEntries: [],
+  currentTab: 'workers',
+};
+
+let milestonesSeen = new Set();
+
+const SAVE_KEY = 'axo_factory_save';
+
+function saveGame() {
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      lines: G.lines, totalLines: G.totalLines, commits: G.commits,
+      prestige: G.prestige, prestigeBonus: G.prestigeBonus,
+      upgrades: G.upgrades, workers: G.workers, techs: G.techs,
+      logEntries: G.logEntries.slice(-50),
+      milestonesSeen: [...milestonesSeen],
+    }));
+    const si = document.getElementById('save-indicator');
+    si.style.display = 'inline';
+    setTimeout(() => si.style.display = 'none', 1500);
+  } catch(e) {}
+}
+
+function loadGame() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    Object.assign(G, {
+      lines: d.lines || 0, totalLines: d.totalLines || 0, commits: d.commits || 0,
+      prestige: d.prestige || 0, prestigeBonus: d.prestigeBonus || 1,
+      upgrades: d.upgrades || {}, workers: d.workers || {}, techs: d.techs || {},
+      logEntries: d.logEntries || [],
+    });
+    milestonesSeen = new Set(d.milestonesSeen || []);
+    if (G.prestige > 0) {
+      const pb = document.getElementById('prestige-badge');
+      pb.style.display = 'inline';
+      pb.textContent = `⭐ P${G.prestige}`;
+    }
+  } catch(e) {}
+}
+
+// ============================================================
+// DATA — WORKERS
+// ============================================================
+const WORKERS = [
+  { id:'junior',    name:'Dev Junior',       emoji:'👶', baseCost:50,      baseLps:0.3,   desc:'Copie-colle du Stack Overflow' },
+  { id:'mid',       name:'Dev Mid',           emoji:'💻', baseCost:800,     baseLps:2,     desc:'Connaît ses design patterns' },
+  { id:'senior',    name:'Dev Senior',        emoji:'🧑‍💻', baseCost:12000,   baseLps:8,     desc:'Refactorise pour s\'amuser' },
+  { id:'lead',      name:'Tech Lead',         emoji:'🏗',  baseCost:180000,  baseLps:30,    desc:'Fait des réunions techniques' },
+  { id:'architect', name:'Architecte',        emoji:'📐', baseCost:2.5e6,   baseLps:120,   desc:'Pense en microservices' },
+  { id:'aidev',     name:'Dev IA',            emoji:'🤖', baseCost:4e7,     baseLps:500,   desc:'Demande à ChatGPT pour lui' },
+  { id:'wizard',    name:'Wizard 10x',        emoji:'🧙', baseCost:7e8,     baseLps:2000,  desc:'Code en binaire pour le fun' },
+  { id:'quantum',   name:'Dev Quantique',     emoji:'⚛️', baseCost:1.5e10,  baseLps:8000,  desc:'Le code existe et n\'existe pas' },
+];
+
+const UPGRADES = [
+  { id:'upg_click1', name:'Café double shot',    desc:'×2 lignes/clic',    effect:'click', mult:2,  cost:100,   unlock:0 },
+  { id:'upg_click2', name:'Caféine IV',           desc:'×3 lignes/clic',   effect:'click', mult:3,  cost:25000, unlock:500 },
+  { id:'upg_click3', name:'Red Bull debug mode', desc:'×4 lignes/clic',    effect:'click', mult:4,  cost:1e6,   unlock:20000 },
+  { id:'upg_jr1',    name:'Tuto YouTube',         desc:'Juniors ×2',       effect:'worker', wid:'junior',    mult:2, cost:500,    unlock:0 },
+  { id:'upg_jr2',    name:'Pair Programming',     desc:'Juniors ×2',       effect:'worker', wid:'junior',    mult:2, cost:8000,   unlock:200 },
+  { id:'upg_mid1',   name:'Clean Code book',      desc:'Mids ×2',          effect:'worker', wid:'mid',       mult:2, cost:10000,  unlock:1000 },
+  { id:'upg_mid2',   name:'Design Patterns',      desc:'Mids ×2',          effect:'worker', wid:'mid',       mult:2, cost:200000, unlock:8000 },
+  { id:'upg_sr1',    name:'Neovim config',        desc:'Seniors ×2',       effect:'worker', wid:'senior',    mult:2, cost:300000, unlock:20000 },
+  { id:'upg_sr2',    name:'Arch Linux',           desc:'Seniors ×2',       effect:'worker', wid:'senior',    mult:2, cost:6e6,    unlock:150000 },
+  { id:'upg_gl1',    name:'SCRUM Master certif',  desc:'Leads ×2',         effect:'worker', wid:'lead',      mult:2, cost:4e6,    unlock:200000 },
+  { id:'upg_arc1',   name:'Cloud Native',         desc:'Architectes ×2',   effect:'worker', wid:'architect', mult:2, cost:5e7,    unlock:2e6 },
+  { id:'upg_ai1',    name:'GPT-5 abonnement',     desc:'Devs IA ×2',       effect:'worker', wid:'aidev',     mult:2, cost:8e8,    unlock:3e7 },
+  { id:'upg_glob1',  name:'CI/CD Pipeline',       desc:'Prod globale ×1.5',effect:'global', mult:1.5,        cost:2e6,    unlock:100000 },
+  { id:'upg_glob2',  name:'Kubernetes cluster',   desc:'Prod globale ×2',  effect:'global', mult:2,          cost:5e8,    unlock:5e6 },
+  { id:'upg_glob3',  name:'Quantum Computing',    desc:'Prod globale ×3',  effect:'global', mult:3,          cost:2e12,   unlock:1e9 },
+];
+
+const TECHS = [
+  { id:'t_git',     name:'Git branching', desc:'Undo illimité',        effect:'+10% prod',  mult:1.1,  cost:500,   unlock:0 },
+  { id:'t_docker',  name:'Docker',        desc:'Env reproductible',    effect:'+20% prod',  mult:1.2,  cost:20000, unlock:5000 },
+  { id:'t_ts',      name:'TypeScript',    desc:'Moins de bugs',        effect:'+25% clic',  clickMult:1.25, cost:150000, unlock:30000 },
+  { id:'t_tests',   name:'TDD',           desc:'Red-Green-Refactor',   effect:'+30% prod',  mult:1.3,  cost:1e6,   unlock:200000 },
+  { id:'t_micro',   name:'Microservices', desc:'Scale infini',         effect:'+50% prod',  mult:1.5,  cost:1e7,   unlock:2e6 },
+  { id:'t_ml',      name:'Machine Learning', desc:'Optimise tout',    effect:'+75% prod',  mult:1.75, cost:2e8,   unlock:2e7 },
+  { id:'t_quantum', name:'Quantum code',  desc:'Superposition de bugs',effect:'+100% prod', mult:2,    cost:5e10,  unlock:1e9 },
+  { id:'t_agi',     name:'AGI intégrée',  desc:'Écrit le code seul',   effect:'×3 prod',    mult:3,    cost:5e13,  unlock:1e12 },
+];
+
+const PROJECTS = [
+  { id:'p_landing', name:'Landing page',         reward:200,     lines:100,    duration:10,  desc:'HTML/CSS basique' },
+  { id:'p_api',     name:'REST API',              reward:2000,    lines:1000,   duration:30,  desc:'CRUD avec Express' },
+  { id:'p_mobile',  name:'App mobile',            reward:25000,   lines:12000,  duration:90,  desc:'React Native MVP' },
+  { id:'p_saas',    name:'SaaS plateforme',       reward:300000,  lines:150000, duration:300, desc:'Auth + billing inclus' },
+  { id:'p_ai',      name:'Modèle IA',             reward:4e6,     lines:2e6,    duration:900, desc:'Fine-tuned LLM' },
+  { id:'p_os',      name:'Système d\'OS',         reward:8e7,     lines:5e7,    duration:3600,desc:'Kernel from scratch' },
+];
+
+const MILESTONES = [
+  { lines:100,    label:'100 lignes — Premier commit !' },
+  { lines:1000,   label:'1K lignes — Dev junior confirmé' },
+  { lines:10000,  label:'10K lignes — Portfolio solide' },
+  { lines:100000, label:'100K lignes — Le repo fait peur' },
+  { lines:1e6,    label:'1M lignes — Legacy code monster' },
+  { lines:1e9,    label:'1B lignes — Windows Vista vibes' },
+  { lines:1e12,   label:'1T lignes — Tu as recréé l\'univers' },
+];
+
+// ============================================================
+// HELPERS
+// ============================================================
+function fmt(n) {
+  if (n >= 1e15) return (n/1e15).toFixed(2) + 'Q';
+  if (n >= 1e12) return (n/1e12).toFixed(2) + 'T';
+  if (n >= 1e9)  return (n/1e9).toFixed(2)  + 'B';
+  if (n >= 1e6)  return (n/1e6).toFixed(2)  + 'M';
+  if (n >= 1e3)  return (n/1e3).toFixed(1)  + 'K';
+  return Math.floor(n).toString();
+}
+
+function addLines(n) {
+  G.lines += n;
+  G.totalLines += n;
+}
+
+function addLog(msg) {
+  const now = new Date();
+  const time = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  G.logEntries.unshift({ time, msg });
+  if (G.logEntries.length > 80) G.logEntries.pop();
+}
+
+function showNotif(msg) {
+  const el = document.getElementById('notif');
+  el.textContent = msg;
+  el.style.opacity = '1';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.style.opacity = '0', 2200);
+}
+
+function spawnFloat(x, y, val) {
+  const el = document.createElement('div');
+  el.className = 'float-num';
+  el.textContent = '+' + fmt(val);
+  el.style.left = (x - 20) + 'px';
+  el.style.top = (y - 20) + 'px';
+  document.getElementById('floats-container').appendChild(el);
+  setTimeout(() => el.remove(), 1050);
+}
+
+// ============================================================
+// COMPUTE LPS
+// ============================================================
+function computeLps() {
+  let lps = 0;
+  WORKERS.forEach(w => {
+    const owned = G.workers[w.id] || 0;
+    if (!owned) return;
+    let wlps = w.baseLps * owned;
+    UPGRADES.forEach(u => {
+      if (!G.upgrades[u.id]) return;
+      if (u.effect === 'worker' && u.wid === w.id) wlps *= u.mult;
+    });
+    lps += wlps;
+  });
+  // Global upgrades
+  UPGRADES.forEach(u => { if (G.upgrades[u.id] && u.effect === 'global') lps *= u.mult; });
+  // Techs global
+  TECHS.forEach(t => { if (G.techs[t.id] && t.mult) lps *= t.mult; });
+  // Prestige bonus
+  lps *= G.prestigeBonus;
+  return lps;
+}
+
+function computeClickPower() {
+  let cp = 1;
+  UPGRADES.forEach(u => { if (G.upgrades[u.id] && u.effect === 'click') cp *= u.mult; });
+  TECHS.forEach(t => { if (G.techs[t.id] && t.clickMult) cp *= t.clickMult; });
+  cp *= G.prestigeBonus;
+  return cp;
+}
+
+function workerCost(w) {
+  const owned = G.workers[w.id] || 0;
+  return Math.ceil(w.baseCost * Math.pow(1.15, owned));
+}
+
+// ============================================================
+// CLICK
+// ============================================================
+document.getElementById('big-btn').addEventListener('click', function(e) {
+  const cp = computeClickPower();
+  addLines(cp);
+  G.commits += cp * 0.005;
+  checkMilestones();
+  updateUI();
+  // Float
+  const r = this.getBoundingClientRect();
+  spawnFloat(r.left + r.width/2, r.top, cp);
+});
+
+// ============================================================
+// BUY FUNCTIONS
+// ============================================================
+window.buyWorker = function(id) {
+  const w = WORKERS.find(x => x.id === id);
+  if (!w) return;
+  const cost = workerCost(w);
+  if (G.lines < cost) { showNotif('Pas assez de lignes !'); return; }
+  G.lines -= cost;
+  G.workers[id] = (G.workers[id] || 0) + 1;
+  addLog(`${w.emoji} ${w.name} engagé (×${G.workers[id]})`);
+  updateUI();
+  saveGame();
+};
+
+window.buyUpgrade = function(id) {
+  const u = UPGRADES.find(x => x.id === id);
+  if (!u || G.upgrades[id]) return;
+  if (G.lines < u.cost) { showNotif('Pas assez de lignes !'); return; }
+  G.lines -= u.cost;
+  G.upgrades[id] = true;
+  addLog(`✨ ${u.name} débloquée`);
+  updateUI();
+  saveGame();
+};
+
+window.buyTech = function(id) {
+  const t = TECHS.find(x => x.id === id);
+  if (!t || G.techs[id]) return;
+  if (G.lines < t.cost) { showNotif('Pas assez de lignes !'); return; }
+  G.lines -= t.cost;
+  G.techs[id] = true;
+  addLog(`🔬 ${t.name} recherchée`);
+  updateUI();
+  saveGame();
+};
+
+window.startProject = function(id) {
+  const p = PROJECTS.find(x => x.id === id);
+  if (!p || G.activeProjects[id]) return;
+  if (G.lines < p.lines) { showNotif('Pas assez de lignes !'); return; }
+  G.lines -= p.lines;
+  G.activeProjects[id] = { progress: 0, duration: p.duration, startTs: Date.now() };
+  addLog(`📋 Projet "${p.name}" démarré`);
+  updateUI();
+};
+
+window.collectProject = function(id) {
+  const p = PROJECTS.find(x => x.id === id);
+  if (!p || !G.activeProjects[id]) return;
+  const ap = G.activeProjects[id];
+  if (ap.progress < 1) return;
+  addLines(p.reward);
+  G.commits += p.reward * 0.02;
+  delete G.activeProjects[id];
+  showNotif(`✅ "${p.name}" livré ! +${fmt(p.reward)} lignes`);
+  addLog(`✅ Projet "${p.name}" livré — +${fmt(p.reward)} lignes`);
+  updateUI();
+  saveGame();
+};
+
+window.doPrestige = function() {
+  if (G.totalLines < 1000000) return;
+  const gain = Math.max(1, Math.floor(Math.sqrt(G.totalLines / 1000000)));
+  if (!confirm(`⭐ Faire Prestige ?\n\nTu gagnes ${gain} étoile(s) et recommences depuis zéro.\nChaque étoile booste la prod de +5%.`)) return;
+  G.prestige += gain;
+  G.prestigeBonus = 1 + G.prestige * 0.05;
+  G.lines = 0; G.totalLines = 0; G.commits = 0;
+  G.upgrades = {}; G.workers = {}; G.techs = {};
+  G.activeProjects = {};
+  milestonesSeen = new Set();
+  addLog(`⭐ Prestige ! +${gain} étoile(s) — Total: ${G.prestige} ★`);
+  const pb = document.getElementById('prestige-badge');
+  pb.style.display = 'inline';
+  pb.textContent = `⭐ P${G.prestige}`;
+  showNotif(`⭐ Prestige ! Tu as maintenant ${G.prestige} étoile(s).`);
+  updateUI();
+  saveGame();
+};
+
+// ============================================================
+// MILESTONES
+// ============================================================
+function checkMilestones() {
+  MILESTONES.forEach(m => {
+    if (!milestonesSeen.has(m.lines) && G.totalLines >= m.lines) {
+      milestonesSeen.add(m.lines);
+      addLog('🎯 ' + m.label);
+      showNotif('🎯 ' + m.label);
+    }
+  });
+}
+
+// ============================================================
+// TABS
+// ============================================================
+window.showTab = function(id) {
+  G.currentTab = id;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  const idx = ['workers','projects','tech','prestige','log'].indexOf(id);
+  document.querySelectorAll('.tab-btn')[idx]?.classList.add('active');
+  renderTab();
+};
+
+function renderTab() {
+  const c = document.getElementById('tab-content');
+  switch (G.currentTab) {
+    case 'workers':  renderWorkers(c); break;
+    case 'projects': renderProjects(c); break;
+    case 'tech':     renderTech(c); break;
+    case 'prestige': renderPrestige(c); break;
+    case 'log':      renderLog(c); break;
+  }
+}
+
+function renderWorkers(c) {
+  let html = '<div class="section-label">// équipe de développement</div>';
+  WORKERS.forEach(w => {
+    const cost = workerCost(w);
+    const owned = G.workers[w.id] || 0;
+    const canBuy = G.lines >= cost;
+    const lps = owned ? (w.baseLps * owned).toFixed(1) : null;
+    html += `<div class="worker-card ${canBuy ? 'can-buy' : ''}">
+      <div style="font-size:1.4rem;flex-shrink:0;">${w.emoji}</div>
+      <div class="wc-info">
+        <div class="wc-name">${w.name} ${owned ? `<span class="badge badge-blue">${owned}</span>` : ''}</div>
+        <div class="wc-desc">${w.desc}</div>
+        ${lps ? `<div class="wc-owned">${lps} lignes/sec</div>` : ''}
+      </div>
+      <button class="wc-buy ${canBuy ? 'affordable' : ''}" onclick="buyWorker('${w.id}')" ${G.lines < cost ? 'disabled' : ''}>
+        ${fmt(cost)} L
+      </button>
+    </div>`;
+  });
+  c.innerHTML = html;
+}
+
+function renderProjects(c) {
+  let html = '<div class="section-label">// projets clients</div>';
+  PROJECTS.forEach(p => {
+    const ap = G.activeProjects[p.id];
+    const done = ap && ap.progress >= 1;
+    const pct = ap ? Math.min(1, ap.progress) : 0;
+    const canStart = !ap && G.lines >= p.lines;
+    html += `<div class="project-card ${ap ? 'active-proj' : ''}">
+      <div class="pc-header">
+        <div class="pc-name">${p.name}</div>
+        <div class="pc-reward">+${fmt(p.reward)} L</div>
+      </div>
+      <div class="pc-desc">${p.desc} — Coût: ${fmt(p.lines)} L | Durée: ${p.duration}s</div>
+      ${ap ? `<div class="progress-bar"><div class="progress-fill" style="width:${Math.floor(pct*100)}%"></div></div>` : ''}
+      <div class="pc-actions">
+        <span class="pc-pct">${ap ? (done ? 'Prêt à livrer !' : Math.floor(pct*100) + '%') : 'Disponible'}</span>
+        ${done
+          ? `<button class="pc-btn complete" onclick="collectProject('${p.id}')">Livrer →</button>`
+          : ap
+          ? `<button class="pc-btn" disabled>En cours...</button>`
+          : `<button class="pc-btn" onclick="startProject('${p.id}')" ${canStart?'':'disabled'}>Démarrer</button>`}
+      </div>
+    </div>`;
+  });
+  c.innerHTML = html;
+}
+
+function renderTech(c) {
+  let html = '<div class="section-label">// arbre technologique</div><div id="tech-tree">';
+  TECHS.forEach(t => {
+    if (G.totalLines < t.unlock && !G.techs[t.id]) return;
+    const done = G.techs[t.id];
+    const canAfford = !done && G.lines >= t.cost;
+    html += `<div class="tech-card ${done ? 'researched' : ''}">
+      <div class="tech-name">${t.name} ${done ? '<span class="badge badge-green">✓</span>' : ''}</div>
+      <div class="tech-eff">${t.desc}</div>
+      <div class="tech-cost">${done ? t.effect : t.effect + ' — ' + fmt(t.cost) + ' L'}</div>
+      ${!done ? `<button class="tech-btn" onclick="buyTech('${t.id}')" ${canAfford?'':'disabled'}>Rechercher</button>` : ''}
+    </div>`;
+  });
+  html += '</div>';
+  c.innerHTML = html;
+}
+
+function renderPrestige(c) {
+  const canPrestige = G.totalLines >= 1000000;
+  const gain = canPrestige ? Math.max(1, Math.floor(Math.sqrt(G.totalLines/1000000))) : 0;
+  let html = `
+    <div class="prestige-info-box">
+      <div class="prestige-big">${G.prestige} ★</div>
+      <div class="prestige-sub">Étoiles de Prestige</div>
+      <div class="prestige-bonus-text">Bonus actuel: +${Math.floor((G.prestigeBonus-1)*100)}% à toute production</div>
+    </div>
+    <p style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--muted);margin-bottom:1rem;line-height:1.7;">
+      Le Prestige remet le jeu à zéro mais donne des étoiles permanentes qui boostent la production de <strong style="color:var(--accent3)">+5% chacune</strong>. Recommence plus fort !
+    </p>
+    <p style="font-family:'Space Mono',monospace;font-size:0.68rem;color:${canPrestige?'var(--green)':'var(--muted)'};margin-bottom:1rem;">
+      ${canPrestige ? `→ Tu gagnerais ${gain} étoile(s) maintenant !` : '→ Atteins 1 000 000 lignes pour débloquer le Prestige'}
+    </p>
+    <button id="prestige-btn" onclick="doPrestige()" ${canPrestige?'':'disabled'}>⭐ Faire Prestige (≥ 1M lignes)</button>
+    <div style="margin-top:1.5rem;" class="section-label">// milestones</div>`;
+  MILESTONES.forEach(m => {
+    const done = milestonesSeen.has(m.lines);
+    html += `<div class="milestone-item"><div class="milestone-dot ${done?'done':''}"></div><span>${m.label}</span></div>`;
+  });
+  c.innerHTML = html;
+}
+
+function renderLog(c) {
+  let html = '<div class="section-label">// journal de bord</div>';
+  if (!G.logEntries.length) html += '<div style="font-family:\'Space Mono\',monospace;font-size:0.7rem;color:var(--muted);padding:0.5rem 0;">Aucune entrée...</div>';
+  G.logEntries.forEach(e => {
+    html += `<div class="log-entry"><span class="log-time">${e.time}</span><span class="log-text">${e.msg}</span></div>`;
+  });
+  c.innerHTML = html;
+}
+
+function renderUpgrades() {
+  const c = document.getElementById('upgrades-container');
+  let html = '';
+  UPGRADES.forEach(u => {
+    if (G.totalLines < u.unlock && !G.upgrades[u.id]) return;
+    const done = G.upgrades[u.id];
+    const canAfford = !done && G.lines >= u.cost;
+    html += `<button class="upgrade-btn ${done?'bought':''}" onclick="buyUpgrade('${u.id}')" ${done?'disabled':''}>
+      <span class="ub-name">${u.name}</span>
+      <span class="ub-desc">${u.desc}</span>
+      ${done ? '<span class="ub-cost">✓ Acheté</span>' : `<span class="ub-cost" style="${canAfford?'color:var(--accent3)':''}">${fmt(u.cost)} lignes</span>`}
+    </button>`;
+  });
+  c.innerHTML = html || '<div style="font-family:\'Space Mono\',monospace;font-size:0.62rem;color:var(--muted);padding:0.5rem;">Code pour débloquer des améliorations...</div>';
+}
+
+// ============================================================
+// GAME LOOP
+// ============================================================
+function updateUI() {
+  document.getElementById('h-lines').textContent = fmt(G.lines);
+  document.getElementById('per-sec').textContent = fmt(computeLps()) + ' lignes/sec';
+  document.getElementById('h-commits').textContent = fmt(G.commits) + ' commits';
+  renderUpgrades();
+  renderTab();
+}
+
+function gameTick() {
+  const now = Date.now();
+  const dt = (now - G.lastTick) / 1000;
+  G.lastTick = now;
+
+  const lps = computeLps();
+  if (lps > 0) {
+    addLines(lps * dt);
+    G.commits += lps * dt * 0.01;
+    checkMilestones();
+  }
+
+  // Projects progress
+  Object.keys(G.activeProjects).forEach(id => {
+    const ap = G.activeProjects[id];
+    if (ap.progress < 1) ap.progress += dt / ap.duration;
+  });
+
+  // Update header only (cheap)
+  document.getElementById('h-lines').textContent = fmt(G.lines);
+
+  if (G.currentTab === 'projects' || G.currentTab === 'prestige') renderTab();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+loadGame();
+addLog('Bienvenue dans Code Factory !');
+addLog('Clique sur [CODER] pour écrire tes premières lignes...');
+updateUI();
+showTab('workers');
+
+setInterval(gameTick, 100);
+setInterval(updateUI, 2500);
+setInterval(saveGame, 30000);
+</script>
+</body>
+</html>

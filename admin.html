@@ -93,9 +93,59 @@
     .tempban-modal.open{display:flex;}
     .tempban-box{background:var(--surface);border:2px solid var(--red);border-radius:16px;width:min(440px,95vw);padding:2rem;}
     .tempban-title{font-size:1.1rem;font-weight:800;margin-bottom:1.25rem;color:var(--red);display:flex;align-items:center;justify-content:space-between;}
+
+    /* PANEL SELECTOR */
+    .panel-selector{position:fixed;inset:0;z-index:150;display:none;align-items:center;justify-content:center;background:var(--bg);}
+    .panel-selector.visible{display:flex;}
+    .panel-selector-box{width:min(700px,95vw);text-align:center;padding:2rem;}
+    .panel-sel-title{font-size:2rem;font-weight:800;margin-bottom:0.5rem;}
+    .panel-sel-sub{font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--muted);margin-bottom:2.5rem;}
+    .panel-sel-user{font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--accent2);margin-bottom:2.5rem;}
+    .panel-sel-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;}
+    @media(max-width:480px){.panel-sel-grid{grid-template-columns:1fr;}}
+    .panel-sel-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem 1.5rem;cursor:pointer;text-decoration:none;color:var(--text);display:block;transition:all 0.3s;position:relative;overflow:hidden;text-align:left;}
+    .panel-sel-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));transform:scaleX(0);transform-origin:left;transition:transform 0.3s;}
+    .panel-sel-card:hover::before{transform:scaleX(1);}
+    .panel-sel-card:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,0,0,0.4);}
+    .psc-icon{font-size:2.5rem;margin-bottom:1rem;}
+    .psc-name{font-size:1.2rem;font-weight:800;margin-bottom:0.4rem;}
+    .psc-desc{font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--muted);line-height:1.6;}
+    .psc-tag{display:inline-block;margin-top:0.75rem;padding:0.2rem 0.6rem;border-radius:999px;font-family:'Space Mono',monospace;font-size:0.6rem;font-weight:700;}
+    .psc-tag-red{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:var(--red);}
+    .psc-tag-amber{background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);color:var(--accent3);}
+    .panel-sel-back{margin-top:2rem;font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);cursor:pointer;background:none;border:none;transition:color 0.2s;}
+    .panel-sel-back:hover{color:var(--text);}
   </style>
 </head>
 <body>
+
+
+<!-- PANEL SELECTOR -->
+<div class="panel-selector" id="panel-selector">
+  <div class="panel-selector-box">
+    <div style="position:fixed;inset:0;background-image:linear-gradient(rgba(124,58,237,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(124,58,237,0.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;"></div>
+    <div style="position:relative;z-index:1;">
+      <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--accent);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.75rem;">// accès admin</div>
+      <div class="panel-sel-title">Choisir un Panel</div>
+      <div class="panel-sel-sub">Connecté en tant que <span id="sel-username" style="color:var(--accent2);">admin</span> — où veux-tu aller ?</div>
+      <div class="panel-sel-grid">
+        <div class="panel-sel-card" onclick="goToPanel('clicker')">
+          <div class="psc-icon">🍪</div>
+          <div class="psc-name">Panel Clicker</div>
+          <div class="psc-desc">Gestion du Cookie Clicker — comptes joueurs, sauvegardes, classements, chat, maintenance.</div>
+          <div class="psc-tag psc-tag-amber">⚠ ADMIN CLICKER</div>
+        </div>
+        <div class="panel-sel-card" onclick="goToPanel('site')">
+          <div class="psc-icon">🌐</div>
+          <div class="psc-name">Panel Site</div>
+          <div class="psc-desc">Administration du site Axoboys — gestion des bots, profils et paramètres généraux.</div>
+          <div class="psc-tag psc-tag-red">⚠ ADMIN SITE</div>
+        </div>
+      </div>
+      <button class="panel-sel-back" onclick="backToLogin()">← Se déconnecter</button>
+    </div>
+  </div>
+</div>
 
 <!-- AUTH GATE -->
 <div class="auth-gate" id="auth-gate">
@@ -371,10 +421,34 @@ window.checkAdmin = async function() {
     addLog('err','Accès refusé (non-admin) : '+username);
     return;
   }
+  // Stocker le session
+  localStorage.setItem('axo_admin_session', JSON.stringify({username: username, ts: Date.now()}));
   document.getElementById('auth-gate').style.display='none';
-  document.getElementById('main-content').style.display='block';
-  loadData(); loadSaves(); loadSysInfo(); loadMaintenanceStatus();
+  // Show panel selector
+  document.getElementById('sel-username').textContent = username;
+  document.getElementById('panel-selector').classList.add('visible');
   addLog('info','Connexion admin réussie : '+username);
+};
+
+window.goToPanel = function(panel) {
+  document.getElementById('panel-selector').classList.remove('visible');
+  if (panel === 'clicker') {
+    document.getElementById('main-content').style.display='block';
+    loadData(); loadSaves(); loadSysInfo(); loadMaintenanceStatus();
+    addLog('info','Accès Panel Clicker');
+  } else if (panel === 'site') {
+    // Pour l'instant: placeholder — à compléter avec le panel site
+    document.getElementById('panel-selector').classList.add('visible');
+    showToast('🚧 Panel Site — en construction !');
+    addLog('info','Accès Panel Site (en construction)');
+  }
+};
+
+window.backToLogin = function() {
+  localStorage.removeItem('axo_admin_session');
+  document.getElementById('panel-selector').classList.remove('visible');
+  document.getElementById('auth-gate').style.display='flex';
+  document.getElementById('admin-pw').value='';
 };
 
 window.changeAdminPw = function(){ showToast('ℹ️ Modifie isAdmin dans Firebase directement.'); };
