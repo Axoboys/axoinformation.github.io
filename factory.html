@@ -684,7 +684,7 @@ window.buyTech = function(id){
 window.startProject = function(id){
   const p=PROJECTS.find(x=>x.id===id); if(!p)return;
   if(G.activeProjects[id]){showToast('⏳ Projet déjà en cours !');return;}
-  if(G.lines<p.lines){showToast('❌ Pas assez de lignes !');return;}
+  if(Math.floor(G.lines)<p.lines){showToast('❌ Pas assez de lignes ! ('+Math.floor(G.lines)+'/'+p.lines+')');return;}
   G.lines-=p.lines;
   G.activeProjects[id]={progress:0, duration:p.duration, startTs:Date.now()};
   addLog(`📋 Projet "${p.name}" démarré`);
@@ -814,7 +814,7 @@ function renderProjects(c){
     const ap=G.activeProjects[p.id];
     const done=ap&&ap.progress>=1;
     const pct=ap?Math.min(1,ap.progress):0;
-    const canStart=!ap&&G.lines>=p.lines;
+    const canStart=!ap&&Math.floor(G.lines)>=p.lines;
     const completed=G.completedProjects&&G.completedProjects[p.id]?G.completedProjects[p.id]:0;
     html+=`<div class="project-card ${ap?'active-proj':''}">
       <div class="pc-header">
