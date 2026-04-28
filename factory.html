@@ -353,6 +353,42 @@
 
 <script>
 // ============================================================
+// FIREBASE — même config que le clicker
+// ============================================================
+(async function() {
+const { initializeApp }  = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+const { getFirestore, doc, getDoc, setDoc, collection, getDocs } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAODYOz_M_CAr4ReMZzhMi71qU_DASgBls",
+  authDomain: "axoclicker-24a88.firebaseapp.com",
+  projectId: "axoclicker-24a88",
+  storageBucket: "axoclicker-24a88.firebasestorage.app",
+  messagingSenderId: "398089022766",
+  appId: "1:398089022766:web:70f6c0f0d1fc4796abdebf"
+};
+const _app = initializeApp(FIREBASE_CONFIG);
+const _db  = getFirestore(_app);
+
+async function dbGet(col, id) {
+  try { const s=await getDoc(doc(_db,col,id)); return s.exists()?s.data():null; } catch(e){return null;}
+}
+async function dbSet(col, id, data) {
+  try { await setDoc(doc(_db,col,id),data); return true; } catch(e){return false;}
+}
+async function dbListAll(col) {
+  try { const snap=await getDocs(collection(_db,col)); return snap.docs.map(d=>({id:d.id,...d.data()})); } catch(e){return[];}
+}
+
+// ============================================================
+// SESSION — même système que le clicker (axo_session)
+// ============================================================
+function getSession() { try { return JSON.parse(localStorage.getItem('axo_session')); } catch(e){return null;} }
+const session     = getSession();
+const currentUser = session ? session.username : null;
+const userKey     = currentUser ? currentUser.toLowerCase() : null;
+
+// ============================================================
 // GAME STATE
 // ============================================================
 const G = {
@@ -366,14 +402,13 @@ const G = {
 };
 let milestonesSeen = new Set();
 let unlockedAch = new Set();
-const SAVE_KEY = 'axo_factory_save';
-const LB_KEY   = 'axo_factory_lb';
+const LB_KEY = 'axo_factory_lb';
 let currentLbTab = 'lines';
 
 // ============================================================
-// SAVE / LOAD
+// SAVE / LOAD — Firebase si connecté, localStorage sinon
 // ============================================================
-function saveGame(manual=false) {
+async function saveGame(manual=false) {
   const data = {
     lines:G.lines, totalLines:G.totalLines, commits:G.commits,
     prestige:G.prestige, prestigeBonus:G.prestigeBonus,
@@ -381,10 +416,23 @@ function saveGame(manual=false) {
     activeProjects:G.activeProjects, completedProjects:G.completedProjects,
     logEntries:G.logEntries.slice(-60), totalClicks:G.totalClicks,
     milestonesSeen:[...milestonesSeen], unlockedAch:[...unlockedAch],
+    lastSave: Date.now(),
+    username: currentUser || null,
   };
-  localStorage.setItem(SAVE_KEY, JSON.stringify(data));
-  // Update leaderboard entry
-  updateLbEntry();
+  // Toujours sauvegarder en local comme backup
+  localStorage.setItem('axo_factory_save', JSON.stringify(data));
+  // Si connecté → sauvegarder sur Firebase
+  if (userKey) {
+    await dbSet('factory_saves', userKey, data);
+    // Mettre à jour le classement Firebase
+    await dbSet('factory_scores', userKey, {
+      username: currentUser,
+      totalLines: G.totalLines,
+      prestige: G.prestige,
+      commits: Math.floor(G.commits),
+      lastSave: Date.now(),
+    });
+  }
   if (manual) {
     const si = document.getElementById('save-indicator');
     si.style.display = 'inline';
@@ -392,75 +440,111 @@ function saveGame(manual=false) {
     showToast('💾 Sauvegarde effectuée !');
   }
 }
+window.saveGame = saveGame;
 
-function loadGame() {
-  try {
-    const raw = localStorage.getItem(SAVE_KEY);
-    if (!raw) return;
-    const d = JSON.parse(raw);
-    Object.assign(G, {
-      lines:d.lines||0, totalLines:d.totalLines||0, commits:d.commits||0,
-      prestige:d.prestige||0, prestigeBonus:d.prestigeBonus||1,
-      upgrades:d.upgrades||{}, workers:d.workers||{}, techs:d.techs||{},
-      activeProjects:d.activeProjects||{}, completedProjects:d.completedProjects||{},
-      logEntries:d.logEntries||[], totalClicks:d.totalClicks||0,
-    });
-    milestonesSeen = new Set(d.milestonesSeen||[]);
-    unlockedAch    = new Set(d.unlockedAch||[]);
-    if (G.prestige > 0) {
-      const pb = document.getElementById('prestige-badge');
-      pb.style.display='inline'; pb.textContent=`⭐ P${G.prestige}`;
+async function loadGame() {
+  if (userKey) {
+    // Connecté → charger depuis Firebase
+    const saved = await dbGet('factory_saves', userKey);
+    if (saved) {
+      applyave(saved);
+      addLog('☁️ Progression chargée depuis le cloud !');
+      return;
     }
-  } catch(e) { console.error('Load error',e); }
+    // Pas de save Firebase → vérifier si save locale à migrer
+    const local = localStorage.getItem('axo_factory_save');
+    if (local) {
+      try {
+        const d = JSON.parse(local);
+        applyave(d);
+        // Migrer vers Firebase immédiatement
+        await saveGame(false);
+        addLog('📤 Progression locale migrée vers ton compte !');
+        return;
+      } catch(e) {}
+    }
+  } else {
+    // Non connecté → charger depuis localStorage
+    const raw = localStorage.getItem('axo_factory_save');
+    if (raw) {
+      try { applyave(JSON.parse(raw)); } catch(e) {}
+    }
+  }
+}
+
+function applyave(d) {
+  Object.assign(G, {
+    lines:d.lines||0, totalLines:d.totalLines||0, commits:d.commits||0,
+    prestige:d.prestige||0, prestigeBonus:d.prestigeBonus||1,
+    upgrades:d.upgrades||{}, workers:d.workers||{}, techs:d.techs||{},
+    activeProjects:d.activeProjects||{}, completedProjects:d.completedProjects||{},
+    logEntries:d.logEntries||[], totalClicks:d.totalClicks||0,
+  });
+  milestonesSeen = new Set(d.milestonesSeen||[]);
+  unlockedAch    = new Set(d.unlockedAch||[]);
+  if (G.prestige > 0) {
+    const pb = document.getElementById('prestige-badge');
+    if (pb) { pb.style.display='inline'; pb.textContent=`⭐ P${G.prestige}`; }
+  }
 }
 
 function confirmReset() {
   if (!confirm('⚠️ Réinitialiser la partie ?\n\nToute ta progression sera perdue. Irréversible !')) return;
-  localStorage.removeItem(SAVE_KEY);
+  localStorage.removeItem('axo_factory_save');
+  if (userKey) dbSet('factory_saves', userKey, {});
   location.reload();
 }
+window.confirmReset = confirmReset;
 
 // ============================================================
-// LEADERBOARD (localStorage global simulation)
+// LEADERBOARD — Firebase si connecté, localStorage sinon
 // ============================================================
-function updateLbEntry() {
-  const name = localStorage.getItem('axo_factory_player') || generatePlayerName();
-  const entries = getLbEntries();
-  const idx = entries.findIndex(e => e.name === name);
-  const entry = { name, totalLines:G.totalLines, prestige:G.prestige, commits:Math.floor(G.commits), ts:Date.now() };
-  if (idx >= 0) entries[idx] = entry; else entries.push(entry);
-  localStorage.setItem(LB_KEY, JSON.stringify(entries));
+async function updateLbEntry() {
+  if (!userKey) {
+    // Mode non connecté : localStorage local uniquement
+    const entries = getLbEntries();
+    const name = currentUser || localStorage.getItem('axo_factory_player') || 'Anonyme';
+    const idx = entries.findIndex(e => e.name === name);
+    const entry = { name, totalLines:G.totalLines, prestige:G.prestige, commits:Math.floor(G.commits), ts:Date.now() };
+    if (idx >= 0) entries[idx] = entry; else entries.push(entry);
+    localStorage.setItem(LB_KEY, JSON.stringify(entries));
+    return;
+  }
+  // Connecté : déjà géré dans saveGame via factory_scores
 }
+
 function getLbEntries() {
   try { return JSON.parse(localStorage.getItem(LB_KEY)||'[]'); } catch(e){ return []; }
 }
-function generatePlayerName() {
-  const adj = ['Swift','Silent','Cosmic','Quantum','Cyber','Hyper','Dark','Neon'];
-  const noun= ['Dev','Coder','Hacker','Wizard','Builder','Ninja','Ghost'];
-  const name = adj[Math.floor(Math.random()*adj.length)]+noun[Math.floor(Math.random()*noun.length)]+(Math.floor(Math.random()*9000)+1000);
-  localStorage.setItem('axo_factory_player', name);
-  return name;
-}
-function getMyName() { return localStorage.getItem('axo_factory_player') || generatePlayerName(); }
+function getMyName() { return currentUser || localStorage.getItem('axo_factory_player') || 'Anonyme'; }
 
-function renderLeaderboard() {
-  const entries = getLbEntries();
-  const myName  = getMyName();
+async function renderLeaderboard() {
+  const c = document.getElementById('lb-content');
+  c.innerHTML = '<div class="lb-empty">⏳ Chargement...</div>';
+  let entries = [];
+  if (userKey) {
+    // Connecté → lire depuis Firebase
+    entries = await dbListAll('factory_scores');
+  } else {
+    // Non connecté → localStorage
+    entries = getLbEntries();
+  }
+  const myName = getMyName();
   let sorted;
   if (currentLbTab === 'lines')   sorted = [...entries].sort((a,b)=>(b.totalLines||0)-(a.totalLines||0));
   if (currentLbTab === 'prestige')sorted = [...entries].sort((a,b)=>(b.prestige||0)-(a.prestige||0));
   if (currentLbTab === 'commits') sorted = [...entries].sort((a,b)=>(b.commits||0)-(a.commits||0));
-  const c = document.getElementById('lb-content');
-  if (!sorted.length){ c.innerHTML='<div class="lb-empty">Aucun joueur — joue pour apparaître !</div>'; return; }
+  if (!sorted||!sorted.length){ c.innerHTML='<div class="lb-empty">Aucun joueur — joue pour apparaître !</div>'; return; }
   let html = `<div class="lb-row lb-header"><span>#</span><span>Joueur</span><span>Score</span></div>`;
   sorted.slice(0,20).forEach((e,i) => {
+    const name = e.username || e.name || e.id || '?';
     const rank = i+1;
     const rankClass = rank===1?'lb-rank-1':rank===2?'lb-rank-2':rank===3?'lb-rank-3':'';
-    const isMe = e.name === myName;
+    const isMe = name.toLowerCase() === myName.toLowerCase();
     const val = currentLbTab==='lines' ? fmt(e.totalLines||0)+'L' : currentLbTab==='prestige' ? (e.prestige||0)+'⭐' : fmt(e.commits||0);
     html += `<div class="lb-row ${isMe?'lb-me':''}">
       <div class="lb-rank ${rankClass}">${rank<=3?['🥇','🥈','🥉'][rank-1]:rank}</div>
-      <div class="lb-user"><div class="lb-avatar">${e.name.charAt(0)}</div><div class="lb-username">${e.name}${isMe?' <span style="font-size:0.5rem;color:var(--accent);">[toi]</span>':''}</div></div>
+      <div class="lb-user"><div class="lb-avatar">${name.charAt(0).toUpperCase()}</div><div class="lb-username">${name}${isMe?' <span style="font-size:0.5rem;color:var(--accent);">[toi]</span>':''}</div></div>
       <div class="lb-val">${val}</div>
     </div>`;
   });
@@ -932,18 +1016,41 @@ function gameTick(){
 // ============================================================
 // INIT
 // ============================================================
-loadGame();
-addLog('Bienvenue dans Code Factory !');
-addLog('Clique sur [CODER] pour commencer...');
-updateUI();
-showTab('workers');
-// Mobile: start on coder panel
-if(window.innerWidth<768){
-  switchMobTab('left');
+async function init() {
+  // Mettre à jour la nav avec le nom d'utilisateur
+  if (currentUser) {
+    const navRight = document.querySelector('.nav-right');
+    // Ajouter le nom dans la nav
+    const userSpan = document.createElement('span');
+    userSpan.style.cssText = "font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--accent2);";
+    userSpan.textContent = '👤 ' + currentUser;
+    navRight.insertBefore(userSpan, navRight.firstChild);
+  } else {
+    // Afficher banner connexion comme le clicker
+    const banner = document.createElement('div');
+    banner.style.cssText = 'flex-shrink:0;background:linear-gradient(135deg,rgba(124,58,237,0.92),rgba(6,182,212,0.92));padding:0.6rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:0.75rem;z-index:60;';
+    banner.innerHTML = `<p style="font-family:'Space Mono',monospace;font-size:0.68rem;">🔐 Connecte-toi pour sauvegarder ta progression !</p><a href="login.html" style="padding:0.4rem 0.9rem;background:#fff;color:#111;border-radius:6px;font-family:'Space Mono',monospace;font-size:0.68rem;font-weight:700;text-decoration:none;white-space:nowrap;">Se connecter →</a>`;
+    document.body.insertBefore(banner, document.querySelector('.game-wrapper'));
+  }
+
+  // Charger la sauvegarde (async car Firebase)
+  await loadGame();
+
+  addLog('Bienvenue dans Code Factory !' + (currentUser ? ' (' + currentUser + ')' : ''));
+  addLog('Clique sur [CODER] pour commencer...');
+  updateUI();
+  showTab('workers');
+  if(window.innerWidth<768) switchMobTab('left');
+
+  setInterval(gameTick, 100);
+  setInterval(updateUI, 2500);
+  // Auto-save toutes les 30s
+  setInterval(() => saveGame(false), 30000);
 }
-setInterval(gameTick, 100);
-setInterval(updateUI, 2500);
-setInterval(()=>saveGame(), 30000);
+
+init();
+
+})(); // fin async IIFE Firebase
 </script>
 </body>
 </html>
