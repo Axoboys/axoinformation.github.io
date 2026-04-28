@@ -1140,7 +1140,7 @@ window.loadFactoryPlayers = function() {
     const workerCount = save ? Object.values(save.workers||{}).reduce((a,v)=>a+v,0) : '—';
     const achCount = save ? (save.unlockedAch||[]).length : '—';
     return `<tr ${isSelf?'style="background:rgba(124,58,237,0.05);"':''}>
-      <td><strong>${e.name}</strong>${isSelf?' <span style="font-size:0.55rem;color:var(--accent);font-family:'Space Mono',monospace;">[admin/vous]</span>':''}</td>
+      <td><strong>${e.name}</strong>${isSelf?` <span style="font-size:0.55rem;color:var(--accent);font-family:'Space Mono',monospace;">[admin/vous]</span>`:''}</td>
       <td style="font-family:'Space Mono',monospace;color:var(--accent2);">${isSelf&&save ? fmtFactory(save.lines||0)+' L' : '—'}</td>
       <td style="font-family:'Space Mono',monospace;color:var(--accent2);">${fmtFactory(e.totalLines||0)} L</td>
       <td style="color:var(--accent3);">${e.prestige||0} ⭐</td>
