@@ -1107,7 +1107,7 @@ window.switchFactoryLbSort = function(sort, btn) {
 };
 
 window.deleteFactoryEntry = function(name) {
-  if (!confirm('🗑 Supprimer l'entrée de "' + name + '" du classement ?')) return;
+  if (!confirm('🗑 Supprimer l\'entrée de "' + name + '" du classement ?')) return;
   const entries = getFactoryLbEntries().filter(e => e.name !== name);
   localStorage.setItem(FACTORY_LB_KEY, JSON.stringify(entries));
   addFactoryLog('err', 'Entrée supprimée : ' + name);
