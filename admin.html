@@ -115,7 +115,38 @@
     .psc-tag-amber{background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);color:var(--accent3);}
     .panel-sel-back{margin-top:2rem;font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);cursor:pointer;background:none;border:none;transition:color 0.2s;}
     .panel-sel-back:hover{color:var(--text);}
-  </style>
+  
+    /* MOBILE RESPONSIVE ADMIN */
+    @media(max-width:768px){
+      nav{padding:0 1rem;}
+      .nav-logo{font-size:0.9rem;}
+      main{padding:1rem;}
+      .page-title{font-size:1.6rem;}
+      .stats-row{grid-template-columns:1fr 1fr;}
+      .stat-val{font-size:1.2rem;}
+      .tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;}
+      .tab-btn{white-space:nowrap;padding:0.55rem 0.9rem;font-size:0.65rem;}
+      .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+      table{min-width:500px;}
+      .auth-gate-box{padding:1.75rem;}
+      .auth-gate-title{font-size:1.3rem;}
+      .panel-sel-grid{grid-template-columns:1fr;}
+      .panel-sel-card{padding:1.5rem 1.25rem;}
+      .panel-sel-title{font-size:1.5rem;}
+      .edit-box{padding:1.5rem;}
+      .tempban-box{padding:1.5rem;}
+      .maint-bar{padding:0.55rem 1rem;font-size:0.65rem;flex-wrap:wrap;gap:0.5rem;}
+      .nav-badge{font-size:0.6rem;padding:0.2rem 0.5rem;}
+      .action-row{flex-wrap:wrap;}
+      .act-btn{font-size:0.58rem;padding:0.25rem 0.5rem;}
+    }
+    @media(max-width:480px){
+      .stats-row{grid-template-columns:1fr;}
+      .page-title{font-size:1.3rem;}
+      nav{height:52px;}
+      main{padding:0.75rem;}
+    }
+</style>
 </head>
 <body>
 
@@ -134,6 +165,12 @@
           <div class="psc-name">Panel Clicker</div>
           <div class="psc-desc">Gestion du Cookie Clicker — comptes joueurs, sauvegardes, classements, chat, maintenance.</div>
           <div class="psc-tag psc-tag-amber">⚠ ADMIN CLICKER</div>
+        </div>
+        <div class="panel-sel-card" onclick="goToPanel('factory')">
+          <div class="psc-icon">💻</div>
+          <div class="psc-name">Panel Factory</div>
+          <div class="psc-desc">Gestion du Code Factory — classements, sauvegardes joueurs, et statistiques globales.</div>
+          <div class="psc-tag" style="background:rgba(6,182,212,0.12);border:1px solid rgba(6,182,212,0.3);color:var(--accent2);">⚠ ADMIN FACTORY</div>
         </div>
         <div class="panel-sel-card" onclick="goToPanel('site')">
           <div class="psc-icon">🌐</div>
@@ -431,13 +468,26 @@ window.checkAdmin = async function() {
 };
 
 window.goToPanel = function(panel) {
+  // Hide everything
   document.getElementById('panel-selector').classList.remove('visible');
+  document.getElementById('main-content').style.display='none';
+  const fc = document.getElementById('factory-content');
+  if (fc) fc.style.display='none';
+
   if (panel === 'clicker') {
     document.getElementById('main-content').style.display='block';
     loadData(); loadSaves(); loadSysInfo(); loadMaintenanceStatus();
     addLog('info','Accès Panel Clicker');
+  } else if (panel === 'factory') {
+    if (fc) { fc.style.display='block'; document.getElementById('factory-topbar').style.display='flex'; }
+    loadFactoryData(); loadFactoryPlayers(); loadFactorySysInfo();
+    addLog('info','Accès Panel Factory');
+  } else if (panel === 'back') {
+    // Return to panel selector
+    const uname = JSON.parse(localStorage.getItem('axo_admin_session')||'{}').username||'admin';
+    document.getElementById('sel-username').textContent = uname;
+    document.getElementById('panel-selector').classList.add('visible');
   } else if (panel === 'site') {
-    // Pour l'instant: placeholder — à compléter avec le panel site
     document.getElementById('panel-selector').classList.add('visible');
     showToast('🚧 Panel Site — en construction !');
     addLog('info','Accès Panel Site (en construction)');
@@ -942,6 +992,307 @@ window.switchTab = function(id) {
   _origSwitchTab(id);
   if (id === 'chat') loadChatMsgs();
 };
+
+// ====================================================
+// FACTORY ADMIN FUNCTIONS
+// ====================================================
+const FACTORY_LB_KEY = 'axo_factory_lb';
+const FACTORY_SAVE_KEY = 'axo_factory_save';
+
+let factoryLbSort = 'lines';
+let factoryLogs = [];
+
+function addFactoryLog(type, msg) {
+  const now = new Date();
+  const time = now.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  factoryLogs.unshift({type, msg, time});
+  if (factoryLogs.length > 100) factoryLogs.pop();
+  renderFactoryLogs();
+}
+
+function renderFactoryLogs() {
+  const box = document.getElementById('f-log-box');
+  if (!box) return;
+  if (!factoryLogs.length) { box.innerHTML = '<div style="color:var(--muted);">Aucun log.</div>'; return; }
+  box.innerHTML = factoryLogs.map(l =>
+    `<div class="log-line ${l.type}">[${l.time}] ${l.msg}</div>`
+  ).join('');
+}
+
+window.clearFactoryLogs = function() {
+  factoryLogs = [];
+  renderFactoryLogs();
+  showToast('🗑 Logs Factory vidés.');
+};
+
+function getFactoryLbEntries() {
+  try { return JSON.parse(localStorage.getItem(FACTORY_LB_KEY)||'[]'); } catch(e) { return []; }
+}
+
+function fmtFactory(n) {
+  if (!n || isNaN(n)) return '0';
+  n = parseFloat(n);
+  if (n >= 1e12) return (n/1e12).toFixed(2)+'T';
+  if (n >= 1e9)  return (n/1e9).toFixed(2)+'B';
+  if (n >= 1e6)  return (n/1e6).toFixed(2)+'M';
+  if (n >= 1e3)  return (n/1e3).toFixed(1)+'K';
+  return Math.floor(n).toString();
+}
+
+window.loadFactoryData = function() {
+  const entries = getFactoryLbEntries();
+  document.getElementById('f-lb-count').textContent = entries.length + ' joueur(s)';
+
+  // Stats
+  let totalLines = 0, totalPrestige = 0, totalCommits = 0;
+  entries.forEach(e => {
+    totalLines += (e.totalLines || 0);
+    totalPrestige += (e.prestige || 0);
+    totalCommits += (e.commits || 0);
+  });
+  const ps = document.getElementById('fs-players');
+  const ls = document.getElementById('fs-lines');
+  const pr = document.getElementById('fs-prestige');
+  const co = document.getElementById('fs-commits');
+  if (ps) ps.textContent = entries.length;
+  if (ls) ls.textContent = fmtFactory(totalLines);
+  if (pr) pr.textContent = totalPrestige + ' ★';
+  if (co) co.textContent = fmtFactory(totalCommits);
+
+  // Sort
+  let sorted;
+  if (factoryLbSort==='lines') sorted=[...entries].sort((a,b)=>(b.totalLines||0)-(a.totalLines||0));
+  else if (factoryLbSort==='prestige') sorted=[...entries].sort((a,b)=>(b.prestige||0)-(a.prestige||0));
+  else sorted=[...entries].sort((a,b)=>(b.commits||0)-(a.commits||0));
+
+  if (!sorted.length) {
+    document.getElementById('f-lb-tbody').innerHTML = '<tr><td colspan="7" class="loading-row">Aucune entrée — les joueurs doivent jouer à Code Factory pour apparaître.</td></tr>';
+    return;
+  }
+  document.getElementById('f-lb-tbody').innerHTML = sorted.map((e, i) => {
+    const rank = i+1;
+    const rankIcon = rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':rank;
+    return `<tr>
+      <td style="font-family:'Space Mono',monospace;font-size:0.85rem;font-weight:700;">${rankIcon}</td>
+      <td><strong>${e.name||'—'}</strong></td>
+      <td style="color:var(--accent2);font-family:'Space Mono',monospace;">${fmtFactory(e.totalLines||0)} L</td>
+      <td style="color:var(--accent3);">${e.prestige||0} ⭐</td>
+      <td style="font-family:'Space Mono',monospace;font-size:0.72rem;">${fmtFactory(e.commits||0)}</td>
+      <td style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);">${e.ts ? new Date(e.ts).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—'}</td>
+      <td><div class="action-row">
+        <button class="act-btn danger" onclick="deleteFactoryEntry('${e.name}')">🗑 Suppr.</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+
+  addFactoryLog('info', `Classement chargé — ${sorted.length} entrée(s)`);
+};
+
+window.switchFactoryTab = function(id, ev) {
+  document.querySelectorAll('#factory-content .tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('#factory-content .tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  if (ev && ev.target) ev.target.classList.add('active');
+  if (id==='leaderboard') loadFactoryData();
+  if (id==='players') loadFactoryPlayers();
+  if (id==='fsettings') loadFactorySysInfo();
+};
+
+window.switchFactoryLbSort = function(sort, btn) {
+  factoryLbSort = sort;
+  document.querySelectorAll('#panel-leaderboard .act-btn').forEach(b => { b.style.borderColor=''; b.style.color=''; });
+  if (btn) { btn.style.borderColor='var(--accent2)'; btn.style.color='var(--accent2)'; }
+  loadFactoryData();
+};
+
+window.deleteFactoryEntry = function(name) {
+  if (!confirm('🗑 Supprimer l'entrée de "' + name + '" du classement ?')) return;
+  const entries = getFactoryLbEntries().filter(e => e.name !== name);
+  localStorage.setItem(FACTORY_LB_KEY, JSON.stringify(entries));
+  addFactoryLog('err', 'Entrée supprimée : ' + name);
+  showToast('🗑 Entrée supprimée.');
+  loadFactoryData();
+};
+
+window.clearFactoryLb = function() {
+  if (!confirm('⚠️ Reset TOUT le classement Factory ? Irréversible !')) return;
+  localStorage.removeItem(FACTORY_LB_KEY);
+  addFactoryLog('err', 'Classement Factory entièrement vidé');
+  showToast('🗑 Classement Factory vidé.');
+  loadFactoryData();
+};
+
+window.loadFactoryPlayers = function() {
+  const entries = getFactoryLbEntries();
+  document.getElementById('f-players-count').textContent = entries.length + ' joueur(s)';
+  if (!entries.length) {
+    document.getElementById('f-players-tbody').innerHTML = '<tr><td colspan="7" class="loading-row">Aucun joueur.</td></tr>';
+    return;
+  }
+  // Try to read their local save for more details (only works if same browser)
+  const selfSave = (() => { try { return JSON.parse(localStorage.getItem('axo_factory_save')||'null'); } catch(e){return null;} })();
+  const selfName = localStorage.getItem('axo_factory_player');
+
+  document.getElementById('f-players-tbody').innerHTML = entries.map(e => {
+    const isSelf = e.name === selfName;
+    const save = isSelf ? selfSave : null;
+    const workerCount = save ? Object.values(save.workers||{}).reduce((a,v)=>a+v,0) : '—';
+    const achCount = save ? (save.unlockedAch||[]).length : '—';
+    return `<tr ${isSelf?'style="background:rgba(124,58,237,0.05);"':''}>
+      <td><strong>${e.name}</strong>${isSelf?' <span style="font-size:0.55rem;color:var(--accent);font-family:'Space Mono',monospace;">[admin/vous]</span>':''}</td>
+      <td style="font-family:'Space Mono',monospace;color:var(--accent2);">${isSelf&&save ? fmtFactory(save.lines||0)+' L' : '—'}</td>
+      <td style="font-family:'Space Mono',monospace;color:var(--accent2);">${fmtFactory(e.totalLines||0)} L</td>
+      <td style="color:var(--accent3);">${e.prestige||0} ⭐</td>
+      <td style="font-family:'Space Mono',monospace;font-size:0.72rem;">${workerCount}</td>
+      <td style="font-family:'Space Mono',monospace;font-size:0.72rem;">${achCount !== '—' ? achCount+'/18' : '—'}</td>
+      <td><div class="action-row">
+        ${isSelf && save ? `<button class="act-btn primary" onclick="editFactoryPlayer('${e.name}')">✏️ Éditer</button>` : ''}
+        <button class="act-btn danger" onclick="deleteFactoryEntry('${e.name}')">🗑 Suppr.</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+  addFactoryLog('info', 'Joueurs Factory chargés — ' + entries.length + ' entrée(s)');
+};
+
+window.editFactoryPlayer = function(name) {
+  const save = (() => { try { return JSON.parse(localStorage.getItem('axo_factory_save')||'null'); } catch(e){return null;} })();
+  if (!save) { showToast('⚠️ Sauvegarde non trouvée.'); return; }
+  const box = document.getElementById('edit-box');
+  box.innerHTML = `<div class="edit-title">✏️ Éditer Factory — ${name} <button class="edit-close" onclick="closeEdit()">✕</button></div>
+    <div class="field-group"><div class="field-label">Lignes actuelles</div><input class="field-input" id="ef-lines" type="number" value="${Math.floor(save.lines||0)}"></div>
+    <div class="field-group"><div class="field-label">Lignes totales</div><input class="field-input" id="ef-total" type="number" value="${Math.floor(save.totalLines||0)}"></div>
+    <div class="field-group"><div class="field-label">Prestige ⭐</div><input class="field-input" id="ef-prestige" type="number" value="${save.prestige||0}"></div>
+    <div class="field-group"><div class="field-label">Commits</div><input class="field-input" id="ef-commits" type="number" value="${Math.floor(save.commits||0)}"></div>
+    <button class="save-btn" onclick="saveFactoryEdit()">💾 Enregistrer</button>`;
+  document.getElementById('edit-modal').classList.add('open');
+};
+
+window.saveFactoryEdit = function() {
+  try {
+    const save = JSON.parse(localStorage.getItem('axo_factory_save')||'{}');
+    save.lines = parseFloat(document.getElementById('ef-lines').value)||0;
+    save.totalLines = parseFloat(document.getElementById('ef-total').value)||0;
+    save.prestige = parseInt(document.getElementById('ef-prestige').value)||0;
+    save.prestige_bonus = 1 + save.prestige * 0.05;
+    save.commits = parseFloat(document.getElementById('ef-commits').value)||0;
+    localStorage.setItem('axo_factory_save', JSON.stringify(save));
+    addFactoryLog('ok', 'Sauvegarde Factory modifiée');
+    showToast('✅ Sauvegarde Factory mise à jour.');
+    closeEdit(); loadFactoryPlayers();
+  } catch(e) { showToast('❌ Erreur modification.'); }
+};
+
+window.loadFactorySysInfo = function() {
+  const entries = getFactoryLbEntries();
+  const selfSave = (() => { try { return JSON.parse(localStorage.getItem('axo_factory_save')||'null'); } catch(e){return null;} })();
+  const el = document.getElementById('f-sys-info');
+  if (!el) return;
+  el.innerHTML = `
+    Joueurs classement: <strong style="color:var(--text);">${entries.length}</strong><br>
+    Stockage: <strong style="color:var(--text);">localStorage</strong><br>
+    Clé classement: <strong style="color:var(--text);">axo_factory_lb</strong><br>
+    Clé sauvegarde: <strong style="color:var(--text);">axo_factory_save</strong><br>
+    ${selfSave ? `Ma progression: <strong style="color:var(--accent2);">${fmtFactory(selfSave.totalLines||0)} L</strong><br>` : ''}
+    ${selfSave ? `Mon prestige: <strong style="color:var(--accent3);">${selfSave.prestige||0} ⭐</strong><br>` : ''}
+  `;
+};
+
 </script>
+
+<!-- FACTORY PANEL -->
+<div id="factory-content" style="display:none;">
+  <div style="position:sticky;top:60px;z-index:90;display:none;align-items:center;justify-content:space-between;gap:1rem;padding:0.5rem 2rem;font-family:'Space Mono',monospace;font-size:0.72rem;background:rgba(6,182,212,0.06);border-bottom:1px solid rgba(6,182,212,0.2);color:var(--accent2);" id="factory-topbar">
+    <span>💻 Panel Code Factory</span>
+    <button style="padding:0.28rem 0.8rem;border:1px solid rgba(6,182,212,0.4);border-radius:6px;background:transparent;color:var(--accent2);font-family:'Space Mono',monospace;font-size:0.65rem;cursor:pointer;" onclick="goToPanel('back')">← Changer de panel</button>
+  </div>
+  <main style="position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:2rem;">
+    <div class="page-label" style="color:var(--accent2);">// code factory</div>
+    <h1 class="page-title">Panel Factory</h1>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">Joueurs Factory</div><div class="stat-val" id="fs-players">—</div></div>
+      <div class="stat-card"><div class="stat-label">Total Lignes</div><div class="stat-val" id="fs-lines">—</div></div>
+      <div class="stat-card"><div class="stat-label">Total Prestige</div><div class="stat-val" id="fs-prestige">—</div></div>
+      <div class="stat-card"><div class="stat-label">Total Commits</div><div class="stat-val" id="fs-commits">—</div></div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchFactoryTab('leaderboard',event)">🏆 Classement</button>
+      <button class="tab-btn" onclick="switchFactoryTab('players',event)">👥 Joueurs</button>
+      <button class="tab-btn" onclick="switchFactoryTab('flogs',event)">📋 Logs</button>
+      <button class="tab-btn" onclick="switchFactoryTab('fsettings',event)">⚙️ Paramètres</button>
+    </div>
+
+    <!-- LEADERBOARD TAB -->
+    <div class="tab-panel active" id="panel-leaderboard">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);" id="f-lb-count">Chargement...</div>
+        <div style="display:flex;gap:0.5rem;">
+          <button class="act-btn" onclick="switchFactoryLbSort('lines',this)" style="border-color:var(--accent2);color:var(--accent2);">📊 Lignes</button>
+          <button class="act-btn" onclick="switchFactoryLbSort('prestige',this)">⭐ Prestige</button>
+          <button class="act-btn" onclick="switchFactoryLbSort('commits',this)">✅ Commits</button>
+          <button class="act-btn primary" onclick="loadFactoryData()">↻ Refresh</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>#</th><th>Joueur</th><th>Lignes totales</th><th>Prestige ⭐</th><th>Commits</th><th>Dernière MàJ</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="f-lb-tbody"><tr><td colspan="7" class="loading-row">⏳ Chargement...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PLAYERS TAB -->
+    <div class="tab-panel" id="panel-players">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);" id="f-players-count">Chargement...</div>
+        <button class="act-btn primary" onclick="loadFactoryPlayers()">↻ Rafraîchir</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Pseudo</th><th>Lignes actuelles</th><th>Lignes totales</th><th>Prestige</th><th>Workers</th><th>Succès</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="f-players-tbody"><tr><td colspan="7" class="loading-row">⏳ Chargement...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- LOGS TAB -->
+    <div class="tab-panel" id="panel-flogs">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);">Logs d'activité admin Factory</div>
+        <button class="act-btn danger" onclick="clearFactoryLogs()">🗑 Vider</button>
+      </div>
+      <div class="log-box" id="f-log-box"><div style="color:var(--muted);">Aucun log.</div></div>
+    </div>
+
+    <!-- SETTINGS TAB -->
+    <div class="tab-panel" id="panel-fsettings">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;">
+          <div style="font-weight:700;margin-bottom:0.75rem;color:var(--accent2);">📊 Infos Factory</div>
+          <div id="f-sys-info" style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);line-height:2;"></div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;">
+          <div style="font-weight:700;margin-bottom:0.75rem;color:var(--accent2);">🏆 Classement</div>
+          <p style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--muted);line-height:1.7;margin-bottom:0.75rem;">Le classement Factory est stocké en localStorage côté client. Les données sont partagées sur le même navigateur.</p>
+          <button class="act-btn primary" style="width:100%;padding:0.65rem;" onclick="loadFactoryData()">↻ Rafraîchir les données</button>
+        </div>
+        <div style="background:var(--surface);border:2px solid var(--red);border-radius:12px;padding:1.5rem;">
+          <div style="font-weight:700;margin-bottom:0.75rem;color:var(--red);">⚠️ Zone dangereuse</div>
+          <button class="act-btn danger" style="width:100%;padding:0.65rem;margin-bottom:0.5rem;" onclick="clearFactoryLb()">🗑 Reset le classement Factory</button>
+          <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--muted);">Supprime toutes les entrées du classement Factory. Irréversible.</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
 </body>
 </html>
