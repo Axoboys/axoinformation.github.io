@@ -377,9 +377,10 @@
 
 <div class="toast" id="toast"></div>
 
-<script type="module">
-import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+<script>
+(async function() {
+const { initializeApp }   = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+const { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
 
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyAODYOz_M_CAr4ReMZzhMi71qU_DASgBls",
@@ -446,37 +447,25 @@ window.checkAdmin = async function() {
   if(!username||!password){errEl.textContent='Remplis tous les champs.';errEl.style.display='block';return;}
   const btn = document.querySelector('.auth-btn');
   btn.textContent='Vérification...'; btn.disabled=true;
-  try {
-    const user = await dbGet('users', username.toLowerCase());
-    btn.textContent='Accéder →'; btn.disabled=false;
-    if(!user){
-      errEl.textContent='Compte introuvable.';errEl.style.display='block';
-      addLog('err','Compte introuvable : '+username);
-      return;
-    }
-    if(user.password!==simpleHash(password)){
-      errEl.textContent='Mot de passe incorrect.';errEl.style.display='block';
-      addLog('err','Mauvais mot de passe pour : '+username);
-      return;
-    }
-    if(!user.isAdmin){
-      errEl.textContent="Ce compte n'a pas les droits admin.";errEl.style.display='block';
-      addLog('err','Accès refusé (non-admin) : '+username);
-      return;
-    }
-    // Connexion réussie
-    localStorage.setItem('axo_admin_session', JSON.stringify({username: username, ts: Date.now()}));
-    localStorage.setItem('axo_session', JSON.stringify({username: username}));
-    document.getElementById('auth-gate').style.display='none';
-    document.getElementById('sel-username').textContent = username;
-    document.getElementById('panel-selector').classList.add('visible');
-    addLog('info','Connexion admin réussie : '+username);
-  } catch(e) {
-    btn.textContent='Accéder →'; btn.disabled=false;
-    errEl.textContent='Erreur de connexion : '+e.message;
-    errEl.style.display='block';
-    console.error('checkAdmin error:', e);
+  const user = await dbGet('users', username.toLowerCase());
+  btn.textContent='Accéder →'; btn.disabled=false;
+  if(!user||user.password!==simpleHash(password)){
+    errEl.textContent='Identifiants incorrects.';errEl.style.display='block';
+    addLog('err','Tentative connexion admin échouée : '+username);
+    return;
   }
+  if(!user.isAdmin){
+    errEl.textContent="Ce compte n'a pas les droits admin.";errEl.style.display='block';
+    addLog('err','Accès refusé (non-admin) : '+username);
+    return;
+  }
+  // Stocker le session
+  localStorage.setItem('axo_admin_session', JSON.stringify({username: username, ts: Date.now()}));
+  document.getElementById('auth-gate').style.display='none';
+  // Show panel selector
+  document.getElementById('sel-username').textContent = username;
+  document.getElementById('panel-selector').classList.add('visible');
+  addLog('info','Connexion admin réussie : '+username);
 };
 
 window.goToPanel = function(panel) {
@@ -711,7 +700,7 @@ document.getElementById('edit-modal').addEventListener('click',e=>{if(e.target==
 const LOG_KEY='axo_admin_logs';
 function getLogs(){try{return JSON.parse(localStorage.getItem(LOG_KEY)||'[]');}catch(e){return[];}}
 function addLog(type,msg){const logs=getLogs();logs.unshift({type,msg,ts:Date.now()});if(logs.length>100)logs.pop();localStorage.setItem(LOG_KEY,JSON.stringify(logs));renderLogs();}
-function renderLogs(){const logs=getLogs();const box=document.getElementById('log-box');if(!box)return;if(!logs.length){box.innerHTML='<div style="color:var(--muted);">Aucune action.</div>';return;}box.innerHTML=logs.map(l=>`<div class="log-line ${l.type}">[${formatDate(l.ts)}] ${l.msg}</div>`).join('');}
+function renderLogs(){const logs=getLogs();const box=document.getElementById('log-box');if(!logs.length){box.innerHTML='<div style="color:var(--muted);">Aucune action.</div>';return;}box.innerHTML=logs.map(l=>`<div class="log-line ${l.type}">[${formatDate(l.ts)}] ${l.msg}</div>`).join('');}
 window.clearLogs = function(){localStorage.removeItem(LOG_KEY);renderLogs();showToast('Logs vidés.');};
 
 async function loadSysInfo(){
@@ -839,25 +828,6 @@ window.pushUpdate = async function() {
 
 renderLogs();
 loadVersionInfo();
-
-// ── Auto-connexion si session admin toujours valide ──
-(async function() {
-  try {
-    const saved = localStorage.getItem('axo_admin_session');
-    if (!saved) return;
-    const sess = JSON.parse(saved);
-    // Session valide 8h max
-    if (!sess.username || Date.now() - (sess.ts||0) > 8*3600*1000) {
-      localStorage.removeItem('axo_admin_session'); return;
-    }
-    const user = await dbGet('users', sess.username.toLowerCase());
-    if (!user || !user.isAdmin) { localStorage.removeItem('axo_admin_session'); return; }
-    // Toujours admin → bypass login gate
-    document.getElementById('auth-gate').style.display = 'none';
-    document.getElementById('sel-username').textContent = sess.username;
-    document.getElementById('panel-selector').classList.add('visible');
-  } catch(e) { /* silently fail */ }
-})();
 
 // Wire up buttons that need module scope
 const pushBtn = document.getElementById('push-update-btn');
@@ -1228,6 +1198,7 @@ window.loadFactorySysInfo = function() {
   `;
 };
 
+})(); // fin async IIFE
 </script>
 
 <!-- FACTORY PANEL -->
