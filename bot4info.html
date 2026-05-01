@@ -355,6 +355,193 @@
       </div>
     </a>
   </div>
+<!-- CHAT TEST BLOCK -->
+<div style="margin-top:2.5rem;">
+  <div class="page-label">// tester le bot</div>
+  <div class="chat-launcher" id="chatLauncher">
+    <div class="chat-launcher-icon">🤖</div>
+    <div>
+      <div class="chat-launcher-label">Tester LeVraiBot</div>
+      <div class="chat-launcher-sub">Clique pour ouvrir le simulateur de commandes</div>
+    </div>
+    <div class="chat-launcher-arrow">→</div>
+  </div>
+
+  <div class="chat-container" id="chatContainer" style="display:none;">
+    <div class="chat-header">
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <div class="chat-bot-avatar">👑</div>
+        <div>
+          <div class="chat-bot-name">LeVraiBot</div>
+          <div class="chat-bot-status"><span class="chat-status-dot"></span>En ligne — Simulateur</div>
+        </div>
+      </div>
+      <button class="chat-close-btn" onclick="document.getElementById('chatContainer').style.display='none';document.getElementById('chatLauncher').style.display='flex';">✕</button>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-msg bot-msg">
+        <div class="chat-msg-avatar">👑</div>
+        <div class="chat-msg-content">
+          <div class="chat-msg-name">LeVraiBot</div>
+          <div class="chat-msg-text">Salut ! Je suis le simulateur de <strong>LeVraiBot</strong>. Tape une commande Discord (ex: <code>/bwan</code>, <code>/tdb</code>, <code>/wordle</code>, <code>/help</code>) pour voir ce que je peux faire !</div>
+        </div>
+      </div>
+    </div>
+    <div class="chat-input-bar">
+      <input type="text" id="chatInput" class="chat-input" placeholder="Tape une commande... ex: /help" autocomplete="off"/>
+      <button class="chat-send-btn" onclick="sendChatMessage()">↑</button>
+    </div>
+    <div style="text-align:center;padding:0.4rem;font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--muted);">Simulateur IA — Les réponses sont générées et ne reflètent pas le vrai bot</div>
+  </div>
+</div>
+
+<style>
+.chat-launcher{display:flex;align-items:center;gap:1rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.75rem;cursor:pointer;transition:all 0.2s;max-width:500px;}
+.chat-launcher:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 10px 40px rgba(0,0,0,0.4);}
+.chat-launcher-icon{font-size:1.75rem;}
+.chat-launcher-label{font-size:1rem;font-weight:700;margin-bottom:0.2rem;}
+.chat-launcher-sub{font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--muted);}
+.chat-launcher-arrow{margin-left:auto;font-size:1.25rem;color:var(--accent);transition:transform 0.2s;}
+.chat-launcher:hover .chat-launcher-arrow{transform:translateX(4px);}
+.chat-container{max-width:600px;background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;}
+.chat-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border);background:rgba(124,58,237,0.06);}
+.chat-bot-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.chat-bot-name{font-weight:700;font-size:0.95rem;}
+.chat-bot-status{font-family:'Space Mono',monospace;font-size:0.65rem;color:#22c55e;display:flex;align-items:center;gap:0.3rem;}
+.chat-status-dot{width:5px;height:5px;border-radius:50%;background:#22c55e;animation:pulse 2s infinite;}
+.chat-close-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:0.3rem 0.6rem;cursor:pointer;font-size:0.8rem;transition:all 0.2s;}
+.chat-close-btn:hover{border-color:var(--accent);color:var(--text);}
+.chat-messages{height:320px;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:0.75rem;scroll-behavior:smooth;}
+.chat-messages::-webkit-scrollbar{width:4px;}
+.chat-messages::-webkit-scrollbar-track{background:transparent;}
+.chat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.chat-msg{display:flex;gap:0.65rem;align-items:flex-start;}
+.user-msg{flex-direction:row-reverse;}
+.chat-msg-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0;}
+.bot-msg .chat-msg-avatar{background:linear-gradient(135deg,var(--accent),var(--accent2));}
+.user-msg .chat-msg-avatar{background:linear-gradient(135deg,#06b6d4,#0ea5e9);font-size:0.75rem;}
+.chat-msg-content{max-width:75%;}
+.chat-msg-name{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);margin-bottom:0.2rem;}
+.user-msg .chat-msg-name{text-align:right;}
+.chat-msg-text{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:0.6rem 0.9rem;font-size:0.85rem;line-height:1.5;}
+.user-msg .chat-msg-text{background:rgba(124,58,237,0.15);border-color:rgba(124,58,237,0.3);}
+.chat-msg-text code{background:rgba(124,58,237,0.2);padding:0.1rem 0.3rem;border-radius:4px;font-family:'Space Mono',monospace;font-size:0.8rem;color:var(--accent2);}
+.chat-msg-text strong{color:var(--accent2);}
+.chat-typing{display:flex;gap:4px;padding:0.5rem 0.9rem;}
+.chat-typing span{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:typing 1s infinite;}
+.chat-typing span:nth-child(2){animation-delay:0.2s;}
+.chat-typing span:nth-child(3){animation-delay:0.4s;}
+@keyframes typing{0%,60%,100%{transform:translateY(0);opacity:0.4}30%{transform:translateY(-4px);opacity:1}}
+.chat-input-bar{display:flex;gap:0.5rem;padding:0.75rem;border-top:1px solid var(--border);}
+.chat-input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.6rem 1rem;color:var(--text);font-family:'Space Mono',monospace;font-size:0.82rem;outline:none;transition:border-color 0.2s;}
+.chat-input:focus{border-color:var(--accent);}
+.chat-input::placeholder{color:var(--muted);}
+.chat-send-btn{background:var(--accent);border:none;color:#fff;border-radius:8px;width:36px;height:36px;cursor:pointer;font-size:1rem;transition:all 0.2s;display:flex;align-items:center;justify-content:center;}
+.chat-send-btn:hover{background:#6d28d9;transform:scale(1.05);}
+</style>
+
+<script>
+(function(){
+  const launcher = document.getElementById('chatLauncher');
+  const container = document.getElementById('chatContainer');
+  if(launcher) launcher.addEventListener('click', function(){
+    launcher.style.display='none';
+    container.style.display='flex';
+    container.style.flexDirection='column';
+  });
+  
+  const input = document.getElementById('chatInput');
+  if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') sendChatMessage(); });
+})();
+
+async function sendChatMessage(){
+  const input = document.getElementById('chatInput');
+  const messages = document.getElementById('chatMessages');
+  const text = input.value.trim();
+  if(!text) return;
+  input.value = '';
+
+  // User message
+  const userDiv = document.createElement('div');
+  userDiv.className = 'chat-msg user-msg';
+  userDiv.innerHTML = `<div class="chat-msg-avatar">👤</div><div class="chat-msg-content"><div class="chat-msg-name">Toi</div><div class="chat-msg-text">${text.replace(/</g,'&lt;')}</div></div>`;
+  messages.appendChild(userDiv);
+  messages.scrollTop = messages.scrollHeight;
+
+  // Typing indicator
+  const typingDiv = document.createElement('div');
+  typingDiv.className = 'chat-msg bot-msg';
+  typingDiv.id = 'typingIndicator';
+  typingDiv.innerHTML = `<div class="chat-msg-avatar">👑</div><div class="chat-msg-content"><div class="chat-msg-name">LeVraiBot</div><div class="chat-msg-text"><div class="chat-typing"><span></span><span></span><span></span></div></div></div>`;
+  messages.appendChild(typingDiv);
+  messages.scrollTop = messages.scrollHeight;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `Tu es LeVraiBot, un bot Discord de la communauté Axoboys. Tu simules les réponses d'un bot Discord fun et communautaire. Réponds TOUJOURS comme si tu étais le bot Discord LeVraiBot en train d'exécuter une commande. Formate tes réponses comme un vrai bot Discord avec des emojis, du markdown (gras, italique, code), et un style décontracté. Voici la liste EXACTE des commandes disponibles:
+- /depop: Déconnecte un membre du vocal (modo)
+- /tdb: Insulte gentiment quelqu'un
+- /pub: Faire la pub du live de Hestouille (thèmes: Fortnite, SpiderMan, Lego)
+- /tdb_pourcentage: Donne un pourcentage de trou de ballitude d'un membre
+- /bwan: BWAN quelqu'un
+- /definition: Donne la définition d'un mot
+- /nombre: Démarre un jeu pour deviner un nombre entre 1 et 1000
+- /histoire: Construit une histoire avec tes amis
+- /pendu: Trouve le mot le plus rapidement possible
+- /wordle: Joue au Wordle pour gagner des points
+- /presentation: Présente toi
+- /joinvoc: Faire rejoindre le bot en vocal
+- /pileouface: Lance une pièce
+- /theme: Quel est le thème de ce discord ?
+- /qui_est_ce: Lance une partie de Qui est-ce
+- /dentiste: Envoie un membre chez le dentiste (modo)
+- /lockvoc: Bloque un membre dans le vocal (modo)
+- /unlockvoc: Libère un membre du vocal (modo)
+- /level: Affiche ton nombre de points
+- /classement: Affiche le top 10 des joueurs
+- /moula: GOAT moula
+- /axo: GOAT axo
+- /mano: GOAT mano
+- /hestia: GOAT hestia
+- /banana: GOAT banana
+- /mat: GOAT mat
+- /chloe: GOAT chloe
+- /acidic: GOAT acidic
+- /greg: GOAT greg
+- /kayou: GOAT kayou
+- /jojo: GOAT jojo
+- /fanarupi: GOAT fanarupi
+- /lesaviezvous: Affiche une anecdote aléatoire
+- /help: Montre toutes les commandes du bot
+
+Pour les commandes GOAT (comme /moula, /axo, /jojo etc.), réponds avec un message fun qui célèbre cette personne. Pour /tdb et /bwan, génère une insulte ou un bwan fictif et drôle. Pour /tdb_pourcentage, génère un pourcentage aléatoire entre 0 et 100%. Pour /pub, génère un message de pub pour un live. Pour /pileouface, tire pile ou face aléatoirement. Pour /definition, donne une définition drôle/inventée. Pour /lesaviezvous, invente une anecdote marrante. Pour /nombre, /pendu, /wordle, /histoire, /qui_est_ce, simule le démarrage du jeu. Pour /help, liste toutes les commandes avec leurs descriptions. Si ce n'est pas une vraie commande du bot, dis que cette commande n'existe pas et rappelle d'utiliser /help. Garde tes réponses concises (max 4-5 lignes).`,
+        messages: [{role:'user', content: text}]
+      })
+    });
+    const data = await res.json();
+    const reply = data.content && data.content[0] ? data.content[0].text : "Erreur de connexion…";
+    
+    document.getElementById('typingIndicator')?.remove();
+    const botDiv = document.createElement('div');
+    botDiv.className = 'chat-msg bot-msg';
+    botDiv.innerHTML = `<div class="chat-msg-avatar">👑</div><div class="chat-msg-content"><div class="chat-msg-name">LeVraiBot</div><div class="chat-msg-text">${reply.replace(/</g,'&lt;').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/`(.*?)`/g,'<code>$1</code>').replace(/\n/g,'<br>')}</div></div>`;
+    messages.appendChild(botDiv);
+    messages.scrollTop = messages.scrollHeight;
+  } catch(e) {
+    document.getElementById('typingIndicator')?.remove();
+    const errDiv = document.createElement('div');
+    errDiv.className = 'chat-msg bot-msg';
+    errDiv.innerHTML = `<div class="chat-msg-avatar">👑</div><div class="chat-msg-content"><div class="chat-msg-name">LeVraiBot</div><div class="chat-msg-text">❌ Erreur de connexion au simulateur.</div></div>`;
+    messages.appendChild(errDiv);
+  }
+}
+</script>
+
 </main>
 <footer><p>© 2026 <span>Axoboys</span> — Tous droits réservés</p></footer>
 
