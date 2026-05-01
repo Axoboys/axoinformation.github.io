@@ -159,7 +159,7 @@ body.rainbow-mode{animation:rainbowBg 3s linear infinite;}
 
 <script>
 
-(function(){
+document.addEventListener('DOMContentLoaded', function(){
   const launcher = document.getElementById('chatLauncher');
   const container = document.getElementById('chatContainer');
   if(launcher) launcher.addEventListener('click', function(){
@@ -169,7 +169,7 @@ body.rainbow-mode{animation:rainbowBg 3s linear infinite;}
   });
   const input = document.getElementById('chatInput');
   if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') sendChatMessage(); });
-})();
+});
 
 function getBotResponse(cmd, botName, botEmoji) {
   const c = cmd.trim().toLowerCase();
