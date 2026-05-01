@@ -162,7 +162,7 @@ function getBotResponse(cmd, botName, botEmoji) {
   const c = cmd.trim().toLowerCase();
   const pick = arr => arr[Math.floor(Math.random()*arr.length)];
   const pct = () => Math.floor(Math.random()*101);
-  const victims = ["Axoboys", "Acidic", "Chloé", "Hestnouille", "Fox", "Ash", "Greg", "Kayou"];
+  const victims = ["Axoboys", "Acidic", "Chloé", "Hestnouille", "Fox", "Ash", "Kayou"];
   const victim = pick(victims);
 
   if (c === '/help' || c === '/commandes') {
@@ -172,7 +172,7 @@ function getBotResponse(cmd, botName, botEmoji) {
 🎤 **Social:** \`/bwan\` \`/tdb\` \`/tdb_pourcentage\` \`/presentation\` \`/pub\`
 📖 **Infos:** \`/definition\` \`/lesaviezvous\` \`/theme\` \`/level\` \`/classement\`
 🎙️ **Vocal:** \`/joinvoc\` \`/depop\` \`/lockvoc\` \`/unlockvoc\` \`/dentiste\`
-🏆 **GOAT:** \`/axo\` \`/moula\` \`/jojo\` \`/fanarupi\` \`/banana\` \`/chloe\` \`/acidic\` \`/mano\` \`/hestia\` \`/mat\` \`/greg\` \`/kayou\``;
+🏆 **GOAT:** \`/axo\` \`/moula\` \`/fanarupi\` \`/banana\` \`/chloe\` \`/acidic\` \`/mano\` \`/hestia\` \`/mat\` \`/kayou\``;
   }
   if (c === '/bwan') return pick([
     `🚨 **BWAN ${victim} !!!**
@@ -267,9 +267,7 @@ Le /tdb record est de 47 utilisations en une seule journée. Record établi un m
     '/mat': '🎯 **GOAT MAT** — Toujours là, toujours fiable. GOAT de la constance. 🫡',
     '/chloe': '🐼 **GOAT CHLOE** — Douce mais déterminée. GOAT incontestable. 🫡',
     '/acidic': '🧪 **GOAT ACIDIC** — Acide par nature, GOAT par définition. 🫡',
-    '/greg': '🕶️ **GOAT GREG** — Le mystérieux. On sait pas trop, mais c\'est un GOAT quand même. 🫡',
     '/kayou': '🎵 **GOAT KAYOU** — GOAT de la musique et du vibe. Respect. 🫡',
-    '/jojo': '🌀 **GOAT JOJO** — JOJO référence. GOAT intergalactique. 🫡',
     '/fanarupi': '🌺 **GOAT FANARUPI** — Rare, unique, GOAT. Y\'a pas d\'autre mot. 🫡',
   };
   if (goats[c]) return goats[c];
