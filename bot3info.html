@@ -441,6 +441,7 @@
 </style>
 
 <script>
+
 (function(){
   const launcher = document.getElementById('chatLauncher');
   const container = document.getElementById('chatContainer');
@@ -449,10 +450,129 @@
     container.style.display='flex';
     container.style.flexDirection='column';
   });
-  
   const input = document.getElementById('chatInput');
   if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') sendChatMessage(); });
 })();
+
+function getBotResponse(cmd, botName, botEmoji) {
+  const c = cmd.trim().toLowerCase();
+  const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+  const pct = () => Math.floor(Math.random()*101);
+  const victims = ["Axoboys", "Acidic", "Chloé", "Hestnouille", "Fox", "Ash", "Greg", "Kayou"];
+  const victim = pick(victims);
+
+  if (c === '/help' || c === '/commandes') {
+    return `📋 **Commandes de ${botName}**
+
+⚡ **Jeux:** \`/wordle\` \`/pendu\` \`/nombre\` \`/histoire\` \`/qui_est_ce\` \`/pileouface\`
+🎤 **Social:** \`/bwan\` \`/tdb\` \`/tdb_pourcentage\` \`/presentation\` \`/pub\`
+📖 **Infos:** \`/definition\` \`/lesaviezvous\` \`/theme\` \`/level\` \`/classement\`
+🎙️ **Vocal:** \`/joinvoc\` \`/depop\` \`/lockvoc\` \`/unlockvoc\` \`/dentiste\`
+🏆 **GOAT:** \`/axo\` \`/moula\` \`/jojo\` \`/fanarupi\` \`/banana\` \`/chloe\` \`/acidic\` \`/mano\` \`/hestia\` \`/mat\` \`/greg\` \`/kayou\``;
+  }
+  if (c === '/bwan') return pick([
+    `🚨 **BWAN ${victim} !!!**
+T'as osé appuyer sur /bwan et ${victim} vient de se faire atomiser. GG.`,
+    `💥 **B-W-A-N** ${victim} reçoit un bwan en pleine face. Aucun survivant.`,
+    `🔔 BWAN BWAN BWAN ! ${victim} est officiellement bwané. C'est acté.`
+  ]);
+  if (c === '/tdb') return pick([
+    `😤 **${victim} est un trou de balle certifié.** C'est officiel, le bot l'a dit.`,
+    `💀 Hé **${victim}**, t'es vraiment un gros tdb et tout le monde le sait.`,
+    `🙄 **Message pour ${victim} :** tdb. Voilà. C'est tout.`
+  ]);
+  if (c === '/tdb_pourcentage') return `📊 Analyse en cours...
+
+**${victim}** est trou de balle à **${pct()}%**.
+${pct()>70 ? "😱 C'est alarmant." : pct()>40 ? "😬 C'est pas glorieux." : "😌 Ça va encore."}`;
+  if (c === '/pub') return pick([
+    `📢 **LIVE DE HESTNOUILLE CE SOIR !**
+🎮 Au programme : Fortnite & bonne ambiance
+👉 Venez nombreux, ça va être chaud ! 🔥`,
+    `🕷️ **HESTNOUILLE EST EN LIVE !**
+SpiderMan Miles Morales en route — rejoins le stream maintenant !`,
+    `🧱 **LIVE LEGO avec HESTNOUILLE !**
+On construit, on rigole, on se plante. Rejoins-nous !`
+  ]);
+  if (c === '/pileouface') return pick([
+    `🪙 La pièce tourne... **PILE !** T'as de la chance aujourd'hui.`,
+    `🪙 La pièce tourne... **FACE !** Dommage, retente ta chance.`
+  ]);
+  if (c === '/wordle') return `📝 **Wordle lancé !**
+Trouve le mot en 6 essais maximum.
+Le mot contient **5 lettres**. Bonne chance ! 🟩🟨⬛`;
+  if (c === '/pendu') return `🪢 **Jeu du Pendu lancé !**
+\`_ _ _ _ _ _\` (6 lettres)
+Propose une lettre pour commencer. Tu as **6 vies**. ❤️❤️❤️❤️❤️❤️`;
+  if (c === '/nombre') return `🔢 **Devine le nombre !**
+J'ai choisi un nombre entre **1 et 1000**.
+Tu as des essais illimités — bonne chance ! 🎯`;
+  if (c === '/histoire') return `📖 **Histoire collaborative lancée !**
+Commence par écrire la première phrase de l'histoire... À toi de jouer ! ✍️`;
+  if (c === '/qui_est_ce') return `🕵️ **Qui est-ce ? — Partie lancée !**
+Je pense à quelqu'un du serveur...
+Pose des questions auxquelles je répondrai par oui/non ! 🤔`;
+  if (c === '/level') return `⭐ **Ton niveau**
+
+Points : **${Math.floor(Math.random()*5000)+100} XP**
+Rang : **#${Math.floor(Math.random()*20)+1}** sur le serveur
+Prochain niveau dans : **${Math.floor(Math.random()*200)+50} XP** 📈`;
+  if (c === '/classement') return `🏆 **Top 10 du serveur**
+
+🥇 Axoboys — 4820 XP
+🥈 Acidic — 3910 XP
+🥉 Hestnouille — 3540 XP
+4. Fox — 2890 XP
+5. Chloe — 2450 XP
+6. Ash — 2100 XP
+7. Greg — 1750 XP
+8. Kayou — 1320 XP
+9. Moula — 980 XP
+10. Mano — 640 XP`;
+  if (c === '/presentation') return `👋 **Présentation**
+Bienvenue ! Dis-nous qui tu es, d'où tu viens et pourquoi t'es là. On est curieux ! 👀`;
+  if (c === '/joinvoc') return `🎙️ **Je rejoins le vocal !**
+Je suis dans le channel vocal. Parle maintenant... ou pas. 🔊`;
+  if (c === '/depop') return `👢 **Déconnexion vocale !**
+${victim} vient d'être éjecté du vocal par la force. Adios ! 👋`;
+  if (c === '/dentiste') return `🦷 **Chez le dentiste !**
+${victim} a un rendez-vous urgent chez le dentiste. Rince-toi la bouche et reviens dans 30 min. 🪥`;
+  if (c === '/lockvoc') return `🔒 **Vocal verrouillé !**
+${victim} est maintenant bloqué dans le vocal. Bonne chance pour sortir. 😈`;
+  if (c === '/unlockvoc') return `🔓 **Vocal déverrouillé !**
+${victim} est libéré ! Tu peux sortir maintenant... si t'oses. 😅`;
+  if (c === '/definition') return `📚 **Définition**
+Le dictionnaire du serveur est en maintenance. Essaie Larousse, ils sont plus fiables que nous. 😂`;
+  if (c === '/theme') return `🎨 **Thème du Discord**
+Axoboys — Un repaire de bots, de jeux et de bonne ambiance. Tout le monde est le bienvenu (sauf les tdb). 😎`;
+  if (c === '/lesaviezvous') return pick([
+    `💡 **Le saviez-vous ?**
+Le mot "bwan" a été utilisé plus de 3000 fois sur ce serveur. C'est scientifiquement prouvé.`,
+    `💡 **Le saviez-vous ?**
+Axoboys a passé plus de 200h sur ce bot. Sa vie sociale en a souffert.`,
+    `💡 **Le saviez-vous ?**
+Le /tdb record est de 47 utilisations en une seule journée. Record établi un mardi.`
+  ]);
+  // GOAT commands
+  const goats = {
+    '/moula': '👑 **GOAT MOULA** — La légende. L\'IA, le mythe, l\'homme. 🫡',
+    '/axo': '🦎 **GOAT AXO** — Le créateur de tout ça. Sans lui, rien de tout ça existerait. Respect. 🫡',
+    '/mano': '🌀 **GOAT MANO** — Discret mais redoutable. GOAT certifié. 🫡',
+    '/hestia': '⚜️ **GOAT HESTIA** — Hestnouille forever. La référence absolue du serveur. 🫡',
+    '/banana': '🍌 **GOAT BANANA** — BANANA GANG. Le plus fruité des GOAT. 🫡',
+    '/mat': '🎯 **GOAT MAT** — Toujours là, toujours fiable. GOAT de la constance. 🫡',
+    '/chloe': '🐼 **GOAT CHLOE** — Douce mais déterminée. GOAT incontestable. 🫡',
+    '/acidic': '🧪 **GOAT ACIDIC** — Acide par nature, GOAT par définition. 🫡',
+    '/greg': '🕶️ **GOAT GREG** — Le mystérieux. On sait pas trop, mais c\'est un GOAT quand même. 🫡',
+    '/kayou': '🎵 **GOAT KAYOU** — GOAT de la musique et du vibe. Respect. 🫡',
+    '/jojo': '🌀 **GOAT JOJO** — JOJO référence. GOAT intergalactique. 🫡',
+    '/fanarupi': '🌺 **GOAT FANARUPI** — Rare, unique, GOAT. Y\'a pas d\'autre mot. 🫡',
+  };
+  if (goats[c]) return goats[c];
+
+  return `❓ La commande \`${cmd.trim()}\` n'existe pas.
+Utilise \`/help\` pour voir toutes les commandes disponibles ! 📋`;
+}
 
 async function sendChatMessage(){
   const input = document.getElementById('chatInput');
@@ -460,6 +580,9 @@ async function sendChatMessage(){
   const text = input.value.trim();
   if(!text) return;
   input.value = '';
+
+  const botName = 'PandaBot';
+  const botEmoji = '🐼';
 
   // User message
   const userDiv = document.createElement('div');
@@ -472,74 +595,24 @@ async function sendChatMessage(){
   const typingDiv = document.createElement('div');
   typingDiv.className = 'chat-msg bot-msg';
   typingDiv.id = 'typingIndicator';
-  typingDiv.innerHTML = `<div class="chat-msg-avatar">🐼</div><div class="chat-msg-content"><div class="chat-msg-name">PandaBot</div><div class="chat-msg-text"><div class="chat-typing"><span></span><span></span><span></span></div></div></div>`;
+  typingDiv.innerHTML = `<div class="chat-msg-avatar">${botEmoji}</div><div class="chat-msg-content"><div class="chat-msg-name">${botName}</div><div class="chat-msg-text"><div class="chat-typing"><span></span><span></span><span></span></div></div></div>`;
   messages.appendChild(typingDiv);
   messages.scrollTop = messages.scrollHeight;
 
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: `Tu es PandaBot, un bot Discord de la communauté Axoboys. Tu simules les réponses d'un bot Discord fun et communautaire. Réponds TOUJOURS comme si tu étais le bot Discord PandaBot en train d'exécuter une commande. Formate tes réponses comme un vrai bot Discord avec des emojis, du markdown (gras, italique, code), et un style décontracté. Voici la liste EXACTE des commandes disponibles:
-- /depop: Déconnecte un membre du vocal (modo)
-- /tdb: Insulte gentiment quelqu'un
-- /pub: Faire la pub du live de Hestouille (thèmes: Fortnite, SpiderMan, Lego)
-- /tdb_pourcentage: Donne un pourcentage de trou de ballitude d'un membre
-- /bwan: BWAN quelqu'un
-- /definition: Donne la définition d'un mot
-- /nombre: Démarre un jeu pour deviner un nombre entre 1 et 1000
-- /histoire: Construit une histoire avec tes amis
-- /pendu: Trouve le mot le plus rapidement possible
-- /wordle: Joue au Wordle pour gagner des points
-- /presentation: Présente toi
-- /joinvoc: Faire rejoindre le bot en vocal
-- /pileouface: Lance une pièce
-- /theme: Quel est le thème de ce discord ?
-- /qui_est_ce: Lance une partie de Qui est-ce
-- /dentiste: Envoie un membre chez le dentiste (modo)
-- /lockvoc: Bloque un membre dans le vocal (modo)
-- /unlockvoc: Libère un membre du vocal (modo)
-- /level: Affiche ton nombre de points
-- /classement: Affiche le top 10 des joueurs
-- /moula: GOAT moula
-- /axo: GOAT axo
-- /mano: GOAT mano
-- /hestia: GOAT hestia
-- /banana: GOAT banana
-- /mat: GOAT mat
-- /chloe: GOAT chloe
-- /acidic: GOAT acidic
-- /greg: GOAT greg
-- /kayou: GOAT kayou
-- /jojo: GOAT jojo
-- /fanarupi: GOAT fanarupi
-- /lesaviezvous: Affiche une anecdote aléatoire
-- /help: Montre toutes les commandes du bot
+  // Simulate delay
+  await new Promise(r => setTimeout(r, 600 + Math.random()*400));
 
-Pour les commandes GOAT (comme /moula, /axo, /jojo etc.), réponds avec un message fun qui célèbre cette personne. Pour /tdb et /bwan, génère une insulte ou un bwan fictif et drôle. Pour /tdb_pourcentage, génère un pourcentage aléatoire entre 0 et 100%. Pour /pub, génère un message de pub pour un live. Pour /pileouface, tire pile ou face aléatoirement. Pour /definition, donne une définition drôle/inventée. Pour /lesaviezvous, invente une anecdote marrante. Pour /nombre, /pendu, /wordle, /histoire, /qui_est_ce, simule le démarrage du jeu. Pour /help, liste toutes les commandes avec leurs descriptions. Si ce n'est pas une vraie commande du bot, dis que cette commande n'existe pas et rappelle d'utiliser /help. Garde tes réponses concises (max 4-5 lignes).`,
-        messages: [{role:'user', content: text}]
-      })
-    });
-    const data = await res.json();
-    const reply = data.content && data.content[0] ? data.content[0].text : "Erreur de connexion…";
-    
-    document.getElementById('typingIndicator')?.remove();
-    const botDiv = document.createElement('div');
-    botDiv.className = 'chat-msg bot-msg';
-    botDiv.innerHTML = `<div class="chat-msg-avatar">🐼</div><div class="chat-msg-content"><div class="chat-msg-name">PandaBot</div><div class="chat-msg-text">${reply.replace(/</g,'&lt;').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/`(.*?)`/g,'<code>$1</code>').replace(/\n/g,'<br>')}</div></div>`;
-    messages.appendChild(botDiv);
-    messages.scrollTop = messages.scrollHeight;
-  } catch(e) {
-    document.getElementById('typingIndicator')?.remove();
-    const errDiv = document.createElement('div');
-    errDiv.className = 'chat-msg bot-msg';
-    errDiv.innerHTML = `<div class="chat-msg-avatar">🐼</div><div class="chat-msg-content"><div class="chat-msg-name">PandaBot</div><div class="chat-msg-text">❌ Erreur de connexion au simulateur.</div></div>`;
-    messages.appendChild(errDiv);
-  }
+  document.getElementById('typingIndicator')?.remove();
+
+  const reply = getBotResponse(text, botName, botEmoji);
+  const botDiv = document.createElement('div');
+  botDiv.className = 'chat-msg bot-msg';
+  botDiv.innerHTML = `<div class="chat-msg-avatar">${botEmoji}</div><div class="chat-msg-content"><div class="chat-msg-name">${botName}</div><div class="chat-msg-text">${reply.replace(/</g,'&lt;').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/`(.*?)`/g,'<code>$1</code>').replace(/
+/g,'<br>')}</div></div>`;
+  messages.appendChild(botDiv);
+  messages.scrollTop = messages.scrollHeight;
 }
+
 </script>
 
 </main>
