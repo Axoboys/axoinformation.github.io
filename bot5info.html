@@ -311,8 +311,13 @@ async function sendChatMessage(){
   const reply = getBotResponse(text, botName, botEmoji);
   const botDiv = document.createElement('div');
   botDiv.className = 'chat-msg bot-msg';
-  botDiv.innerHTML = `<div class="chat-msg-avatar">${botEmoji}</div><div class="chat-msg-content"><div class="chat-msg-name">${botName}</div><div class="chat-msg-text">${reply.replace(/</g,'&lt;').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/`(.*?)`/g,'<code>$1</code>').replace(/
-/g,'<br>')}</div></div>`;
+  const safeReply = reply
+    .replace(/</g,'&lt;')
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/`([^`]*)`/g,'<code>$1</code>')
+    .replace(/
+/g,'<br>');
+  botDiv.innerHTML = '<div class="chat-msg-avatar">'+botEmoji+'</div><div class="chat-msg-content"><div class="chat-msg-name">'+botName+'</div><div class="chat-msg-text">'+safeReply+'</div></div>';
   messages.appendChild(botDiv);
   messages.scrollTop = messages.scrollHeight;
 }
