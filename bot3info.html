@@ -355,43 +355,39 @@
       </div>
     </a>
   </div>
-<!-- CHAT TEST BLOCK -->
-<div style="margin-top:2.5rem;">
+
+<!-- CHAT TEST -->
+<div style="margin-top:2.5rem;" id="chatWrap">
   <div class="page-label">// tester le bot</div>
-  <div class="chat-launcher" id="chatLauncher">
+
+  <div id="chatLauncher" onclick="openChat()" class="chat-launcher">
     <div class="chat-launcher-icon">🤖</div>
     <div>
       <div class="chat-launcher-label">Tester PandaBot</div>
       <div class="chat-launcher-sub">Clique pour ouvrir le simulateur de commandes</div>
     </div>
-    <div class="chat-launcher-arrow">→</div>
+    <div style="margin-left:auto;font-size:1.25rem;color:var(--accent);">&#8594;</div>
   </div>
 
-  <div class="chat-container" id="chatContainer" style="display:none;">
-    <div class="chat-header">
+  <div id="chatBox" style="display:none;max-width:600px;background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;flex-direction:column;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border);background:rgba(124,58,237,0.06);">
       <div style="display:flex;align-items:center;gap:0.75rem;">
-        <div class="chat-bot-avatar">🐼</div>
+        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.1rem;">🐼</div>
         <div>
-          <div class="chat-bot-name">PandaBot</div>
-          <div class="chat-bot-status"><span class="chat-status-dot"></span>En ligne — Simulateur</div>
+          <div style="font-weight:700;font-size:0.95rem;">PandaBot</div>
+          <div style="font-family:monospace;font-size:0.65rem;color:#22c55e;">&#9679; En ligne &mdash; Simulateur</div>
         </div>
       </div>
-      <button class="chat-close-btn" onclick="document.getElementById('chatContainer').style.display='none';document.getElementById('chatLauncher').style.display='flex';">✕</button>
+      <button onclick="closeChat()" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:0.3rem 0.6rem;cursor:pointer;font-size:0.8rem;">&#x2715;</button>
     </div>
-    <div class="chat-messages" id="chatMessages">
-      <div class="chat-msg bot-msg">
-        <div class="chat-msg-avatar">🐼</div>
-        <div class="chat-msg-content">
-          <div class="chat-msg-name">PandaBot</div>
-          <div class="chat-msg-text">Salut ! Je suis le simulateur de <strong>PandaBot</strong>. Tape une commande Discord (ex: <code>/bwan</code>, <code>/tdb</code>, <code>/wordle</code>, <code>/help</code>) pour voir ce que je peux faire !</div>
-        </div>
-      </div>
+    <div id="chatMsgs" style="height:320px;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:0.75rem;"></div>
+    <div style="display:flex;gap:0.5rem;padding:0.75rem;border-top:1px solid var(--border);">
+      <input id="chatIn" type="text" placeholder="/help pour voir les commandes..." autocomplete="off"
+        style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.6rem 1rem;color:var(--text);font-family:monospace;font-size:0.82rem;outline:none;"
+        onkeydown="if(event.key==='Enter')sendChat()"/>
+      <button onclick="sendChat()" style="background:var(--accent);border:none;color:#fff;border-radius:8px;width:36px;height:36px;cursor:pointer;font-size:1rem;">&#8593;</button>
     </div>
-    <div class="chat-input-bar">
-      <input type="text" id="chatInput" class="chat-input" placeholder="Tape une commande... ex: /help" autocomplete="off"/>
-      <button class="chat-send-btn" onclick="sendChatMessage()">↑</button>
-    </div>
-    <div style="text-align:center;padding:0.4rem;font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--muted);">Simulateur IA — Les réponses sont générées et ne reflètent pas le vrai bot</div>
+    <div style="text-align:center;padding:0.3rem;font-family:monospace;font-size:0.6rem;color:var(--muted);">Simulateur local &mdash; pas le vrai bot</div>
   </div>
 </div>
 
@@ -400,224 +396,148 @@
 .chat-launcher:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 10px 40px rgba(0,0,0,0.4);}
 .chat-launcher-icon{font-size:1.75rem;}
 .chat-launcher-label{font-size:1rem;font-weight:700;margin-bottom:0.2rem;}
-.chat-launcher-sub{font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--muted);}
-.chat-launcher-arrow{margin-left:auto;font-size:1.25rem;color:var(--accent);transition:transform 0.2s;}
-.chat-launcher:hover .chat-launcher-arrow{transform:translateX(4px);}
-.chat-container{max-width:600px;background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;}
-.chat-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border);background:rgba(124,58,237,0.06);}
-.chat-bot-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
-.chat-bot-name{font-weight:700;font-size:0.95rem;}
-.chat-bot-status{font-family:'Space Mono',monospace;font-size:0.65rem;color:#22c55e;display:flex;align-items:center;gap:0.3rem;}
-.chat-status-dot{width:5px;height:5px;border-radius:50%;background:#22c55e;animation:pulse 2s infinite;}
-.chat-close-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:0.3rem 0.6rem;cursor:pointer;font-size:0.8rem;transition:all 0.2s;}
-.chat-close-btn:hover{border-color:var(--accent);color:var(--text);}
-.chat-messages{height:320px;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:0.75rem;scroll-behavior:smooth;}
-.chat-messages::-webkit-scrollbar{width:4px;}
-.chat-messages::-webkit-scrollbar-track{background:transparent;}
-.chat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
-.chat-msg{display:flex;gap:0.65rem;align-items:flex-start;}
-.user-msg{flex-direction:row-reverse;}
-.chat-msg-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0;}
-.bot-msg .chat-msg-avatar{background:linear-gradient(135deg,var(--accent),var(--accent2));}
-.user-msg .chat-msg-avatar{background:linear-gradient(135deg,#06b6d4,#0ea5e9);font-size:0.75rem;}
-.chat-msg-content{max-width:75%;}
-.chat-msg-name{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);margin-bottom:0.2rem;}
-.user-msg .chat-msg-name{text-align:right;}
-.chat-msg-text{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:0.6rem 0.9rem;font-size:0.85rem;line-height:1.5;}
-.user-msg .chat-msg-text{background:rgba(124,58,237,0.15);border-color:rgba(124,58,237,0.3);}
-.chat-msg-text code{background:rgba(124,58,237,0.2);padding:0.1rem 0.3rem;border-radius:4px;font-family:'Space Mono',monospace;font-size:0.8rem;color:var(--accent2);}
-.chat-msg-text strong{color:var(--accent2);}
-.chat-typing{display:flex;gap:4px;padding:0.5rem 0.9rem;}
-.chat-typing span{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:typing 1s infinite;}
-.chat-typing span:nth-child(2){animation-delay:0.2s;}
-.chat-typing span:nth-child(3){animation-delay:0.4s;}
-@keyframes typing{0%,60%,100%{transform:translateY(0);opacity:0.4}30%{transform:translateY(-4px);opacity:1}}
-.chat-input-bar{display:flex;gap:0.5rem;padding:0.75rem;border-top:1px solid var(--border);}
-.chat-input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.6rem 1rem;color:var(--text);font-family:'Space Mono',monospace;font-size:0.82rem;outline:none;transition:border-color 0.2s;}
-.chat-input:focus{border-color:var(--accent);}
-.chat-input::placeholder{color:var(--muted);}
-.chat-send-btn{background:var(--accent);border:none;color:#fff;border-radius:8px;width:36px;height:36px;cursor:pointer;font-size:1rem;transition:all 0.2s;display:flex;align-items:center;justify-content:center;}
-.chat-send-btn:hover{background:#6d28d9;transform:scale(1.05);}
+.chat-launcher-sub{font-family:monospace;font-size:0.7rem;color:var(--muted);}
+.cmsg{display:flex;gap:0.65rem;align-items:flex-start;}
+.cmsg-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0;background:linear-gradient(135deg,var(--accent),var(--accent2));}
+.cmsg-av-user{background:linear-gradient(135deg,#06b6d4,#0ea5e9);font-size:0.75rem;}
+.cmsg-bubble{max-width:80%;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:0.6rem 0.9rem;font-size:0.85rem;line-height:1.6;}
+.cmsg-name{font-family:monospace;font-size:0.65rem;color:var(--muted);margin-bottom:0.15rem;}
+.cmsg-user .cmsg-bubble{background:rgba(124,58,237,0.15);border-color:rgba(124,58,237,0.3);}
+.cmsg-user{flex-direction:row-reverse;}
+.cmsg-user .cmsg-name{text-align:right;}
+@keyframes blink{0%,100%{opacity:0.3}50%{opacity:1}}
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--muted);margin:0 2px;animation:blink 1s infinite;}
+.dot:nth-child(2){animation-delay:0.2s;}
+.dot:nth-child(3){animation-delay:0.4s;}
+#chatMsgs::-webkit-scrollbar{width:4px;}
+#chatMsgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 </style>
 
 <script>
+var BNAME = "PandaBot";
+var BEMOJI = "🐼";
 
-document.addEventListener('DOMContentLoaded', function(){
-  const launcher = document.getElementById('chatLauncher');
-  const container = document.getElementById('chatContainer');
-  if(launcher) launcher.addEventListener('click', function(){
-    launcher.style.display='none';
-    container.style.display='flex';
-    container.style.flexDirection='column';
-  });
-  const input = document.getElementById('chatInput');
-  if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') sendChatMessage(); });
-});
-
-function getBotResponse(cmd, botName, botEmoji) {
-  const c = cmd.trim().toLowerCase();
-  const pick = arr => arr[Math.floor(Math.random()*arr.length)];
-  const pct = () => Math.floor(Math.random()*101);
-  const victims = ["Axoboys", "Acidic", "Chloé", "Hestnouille", "Fox", "Ash", "Greg", "Kayou"];
-  const victim = pick(victims);
-
-  if (c === '/help' || c === '/commandes') {
-    return `📋 **Commandes de ${botName}**
-
-⚡ **Jeux:** \`/wordle\` \`/pendu\` \`/nombre\` \`/histoire\` \`/qui_est_ce\` \`/pileouface\`
-🎤 **Social:** \`/bwan\` \`/tdb\` \`/tdb_pourcentage\` \`/presentation\` \`/pub\`
-📖 **Infos:** \`/definition\` \`/lesaviezvous\` \`/theme\` \`/level\` \`/classement\`
-🎙️ **Vocal:** \`/joinvoc\` \`/depop\` \`/lockvoc\` \`/unlockvoc\` \`/dentiste\`
-🏆 **GOAT:** \`/axo\` \`/moula\` \`/jojo\` \`/fanarupi\` \`/banana\` \`/chloe\` \`/acidic\` \`/mano\` \`/hestia\` \`/mat\` \`/greg\` \`/kayou\``;
+function openChat() {
+  document.getElementById("chatLauncher").style.display = "none";
+  var box = document.getElementById("chatBox");
+  box.style.display = "flex";
+  box.style.flexDirection = "column";
+  if (document.getElementById("chatMsgs").children.length === 0) {
+    addBotMsg("Salut ! Je suis le simulateur de " + BNAME + ". Tape /help pour voir toutes les commandes !");
   }
-  if (c === '/bwan') return pick([
-    `🚨 **BWAN ${victim} !!!**
-T'as osé appuyer sur /bwan et ${victim} vient de se faire atomiser. GG.`,
-    `💥 **B-W-A-N** ${victim} reçoit un bwan en pleine face. Aucun survivant.`,
-    `🔔 BWAN BWAN BWAN ! ${victim} est officiellement bwané. C'est acté.`
-  ]);
-  if (c === '/tdb') return pick([
-    `😤 **${victim} est un trou de balle certifié.** C'est officiel, le bot l'a dit.`,
-    `💀 Hé **${victim}**, t'es vraiment un gros tdb et tout le monde le sait.`,
-    `🙄 **Message pour ${victim} :** tdb. Voilà. C'est tout.`
-  ]);
-  if (c === '/tdb_pourcentage') return `📊 Analyse en cours...
-
-**${victim}** est trou de balle à **${pct()}%**.
-${pct()>70 ? "😱 C'est alarmant." : pct()>40 ? "😬 C'est pas glorieux." : "😌 Ça va encore."}`;
-  if (c === '/pub') return pick([
-    `📢 **LIVE DE HESTNOUILLE CE SOIR !**
-🎮 Au programme : Fortnite & bonne ambiance
-👉 Venez nombreux, ça va être chaud ! 🔥`,
-    `🕷️ **HESTNOUILLE EST EN LIVE !**
-SpiderMan Miles Morales en route — rejoins le stream maintenant !`,
-    `🧱 **LIVE LEGO avec HESTNOUILLE !**
-On construit, on rigole, on se plante. Rejoins-nous !`
-  ]);
-  if (c === '/pileouface') return pick([
-    `🪙 La pièce tourne... **PILE !** T'as de la chance aujourd'hui.`,
-    `🪙 La pièce tourne... **FACE !** Dommage, retente ta chance.`
-  ]);
-  if (c === '/wordle') return `📝 **Wordle lancé !**
-Trouve le mot en 6 essais maximum.
-Le mot contient **5 lettres**. Bonne chance ! 🟩🟨⬛`;
-  if (c === '/pendu') return `🪢 **Jeu du Pendu lancé !**
-\`_ _ _ _ _ _\` (6 lettres)
-Propose une lettre pour commencer. Tu as **6 vies**. ❤️❤️❤️❤️❤️❤️`;
-  if (c === '/nombre') return `🔢 **Devine le nombre !**
-J'ai choisi un nombre entre **1 et 1000**.
-Tu as des essais illimités — bonne chance ! 🎯`;
-  if (c === '/histoire') return `📖 **Histoire collaborative lancée !**
-Commence par écrire la première phrase de l'histoire... À toi de jouer ! ✍️`;
-  if (c === '/qui_est_ce') return `🕵️ **Qui est-ce ? — Partie lancée !**
-Je pense à quelqu'un du serveur...
-Pose des questions auxquelles je répondrai par oui/non ! 🤔`;
-  if (c === '/level') return `⭐ **Ton niveau**
-
-Points : **${Math.floor(Math.random()*5000)+100} XP**
-Rang : **#${Math.floor(Math.random()*20)+1}** sur le serveur
-Prochain niveau dans : **${Math.floor(Math.random()*200)+50} XP** 📈`;
-  if (c === '/classement') return `🏆 **Top 10 du serveur**
-
-🥇 Axoboys — 4820 XP
-🥈 Acidic — 3910 XP
-🥉 Hestnouille — 3540 XP
-4. Fox — 2890 XP
-5. Chloe — 2450 XP
-6. Ash — 2100 XP
-7. Greg — 1750 XP
-8. Kayou — 1320 XP
-9. Moula — 980 XP
-10. Mano — 640 XP`;
-  if (c === '/presentation') return `👋 **Présentation**
-Bienvenue ! Dis-nous qui tu es, d'où tu viens et pourquoi t'es là. On est curieux ! 👀`;
-  if (c === '/joinvoc') return `🎙️ **Je rejoins le vocal !**
-Je suis dans le channel vocal. Parle maintenant... ou pas. 🔊`;
-  if (c === '/depop') return `👢 **Déconnexion vocale !**
-${victim} vient d'être éjecté du vocal par la force. Adios ! 👋`;
-  if (c === '/dentiste') return `🦷 **Chez le dentiste !**
-${victim} a un rendez-vous urgent chez le dentiste. Rince-toi la bouche et reviens dans 30 min. 🪥`;
-  if (c === '/lockvoc') return `🔒 **Vocal verrouillé !**
-${victim} est maintenant bloqué dans le vocal. Bonne chance pour sortir. 😈`;
-  if (c === '/unlockvoc') return `🔓 **Vocal déverrouillé !**
-${victim} est libéré ! Tu peux sortir maintenant... si t'oses. 😅`;
-  if (c === '/definition') return `📚 **Définition**
-Le dictionnaire du serveur est en maintenance. Essaie Larousse, ils sont plus fiables que nous. 😂`;
-  if (c === '/theme') return `🎨 **Thème du Discord**
-Axoboys — Un repaire de bots, de jeux et de bonne ambiance. Tout le monde est le bienvenu (sauf les tdb). 😎`;
-  if (c === '/lesaviezvous') return pick([
-    `💡 **Le saviez-vous ?**
-Le mot "bwan" a été utilisé plus de 3000 fois sur ce serveur. C'est scientifiquement prouvé.`,
-    `💡 **Le saviez-vous ?**
-Axoboys a passé plus de 200h sur ce bot. Sa vie sociale en a souffert.`,
-    `💡 **Le saviez-vous ?**
-Le /tdb record est de 47 utilisations en une seule journée. Record établi un mardi.`
-  ]);
-  // GOAT commands
-  const goats = {
-    '/moula': '👑 **GOAT MOULA** — La légende. L\'IA, le mythe, l\'homme. 🫡',
-    '/axo': '🦎 **GOAT AXO** — Le créateur de tout ça. Sans lui, rien de tout ça existerait. Respect. 🫡',
-    '/mano': '🌀 **GOAT MANO** — Discret mais redoutable. GOAT certifié. 🫡',
-    '/hestia': '⚜️ **GOAT HESTIA** — Hestnouille forever. La référence absolue du serveur. 🫡',
-    '/banana': '🍌 **GOAT BANANA** — BANANA GANG. Le plus fruité des GOAT. 🫡',
-    '/mat': '🎯 **GOAT MAT** — Toujours là, toujours fiable. GOAT de la constance. 🫡',
-    '/chloe': '🐼 **GOAT CHLOE** — Douce mais déterminée. GOAT incontestable. 🫡',
-    '/acidic': '🧪 **GOAT ACIDIC** — Acide par nature, GOAT par définition. 🫡',
-    '/greg': '🕶️ **GOAT GREG** — Le mystérieux. On sait pas trop, mais c\'est un GOAT quand même. 🫡',
-    '/kayou': '🎵 **GOAT KAYOU** — GOAT de la musique et du vibe. Respect. 🫡',
-    '/jojo': '🌀 **GOAT JOJO** — JOJO référence. GOAT intergalactique. 🫡',
-    '/fanarupi': '🌺 **GOAT FANARUPI** — Rare, unique, GOAT. Y\'a pas d\'autre mot. 🫡',
-  };
-  if (goats[c]) return goats[c];
-
-  return `❓ La commande \`${cmd.trim()}\` n'existe pas.
-Utilise \`/help\` pour voir toutes les commandes disponibles ! 📋`;
 }
 
-async function sendChatMessage(){
-  const input = document.getElementById('chatInput');
-  const messages = document.getElementById('chatMessages');
-  const text = input.value.trim();
-  if(!text) return;
-  input.value = '';
-
-  const botName = 'PandaBot';
-  const botEmoji = '🐼';
-
-  // User message
-  const userDiv = document.createElement('div');
-  userDiv.className = 'chat-msg user-msg';
-  userDiv.innerHTML = `<div class="chat-msg-avatar">👤</div><div class="chat-msg-content"><div class="chat-msg-name">Toi</div><div class="chat-msg-text">${text.replace(/</g,'&lt;')}</div></div>`;
-  messages.appendChild(userDiv);
-  messages.scrollTop = messages.scrollHeight;
-
-  // Typing indicator
-  const typingDiv = document.createElement('div');
-  typingDiv.className = 'chat-msg bot-msg';
-  typingDiv.id = 'typingIndicator';
-  typingDiv.innerHTML = `<div class="chat-msg-avatar">${botEmoji}</div><div class="chat-msg-content"><div class="chat-msg-name">${botName}</div><div class="chat-msg-text"><div class="chat-typing"><span></span><span></span><span></span></div></div></div>`;
-  messages.appendChild(typingDiv);
-  messages.scrollTop = messages.scrollHeight;
-
-  // Simulate delay
-  await new Promise(r => setTimeout(r, 600 + Math.random()*400));
-
-  document.getElementById('typingIndicator')?.remove();
-
-  const reply = getBotResponse(text, botName, botEmoji);
-  const botDiv = document.createElement('div');
-  botDiv.className = 'chat-msg bot-msg';
-  const safeReply = reply
-    .replace(/</g,'&lt;')
-    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
-    .replace(/`([^`]*)`/g,'<code>$1</code>')
-    .replace(/
-/g,'<br>');
-  botDiv.innerHTML = '<div class="chat-msg-avatar">'+botEmoji+'</div><div class="chat-msg-content"><div class="chat-msg-name">'+botName+'</div><div class="chat-msg-text">'+safeReply+'</div></div>';
-  messages.appendChild(botDiv);
-  messages.scrollTop = messages.scrollHeight;
+function closeChat() {
+  document.getElementById("chatBox").style.display = "none";
+  document.getElementById("chatLauncher").style.display = "flex";
 }
 
+function safe(s) {
+  return s.split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;");
+}
+
+function addMsg(isBot, text) {
+  var msgs = document.getElementById("chatMsgs");
+  var row = document.createElement("div");
+  row.className = "cmsg" + (isBot ? "" : " cmsg-user");
+  var av = document.createElement("div");
+  av.className = "cmsg-av" + (isBot ? "" : " cmsg-av-user");
+  av.textContent = isBot ? BEMOJI : "👤";
+  var right = document.createElement("div");
+  right.style.maxWidth = "80%";
+  var name = document.createElement("div");
+  name.className = "cmsg-name";
+  name.textContent = isBot ? BNAME : "Toi";
+  var bubble = document.createElement("div");
+  bubble.className = "cmsg-bubble";
+  bubble.innerHTML = text;
+  right.appendChild(name);
+  right.appendChild(bubble);
+  row.appendChild(av);
+  row.appendChild(right);
+  msgs.appendChild(row);
+  msgs.scrollTop = msgs.scrollHeight;
+  return row;
+}
+
+function addBotMsg(text) {
+  var lines = text.split("\n");
+  var html = "";
+  for (var i = 0; i < lines.length; i++) {
+    html += (i > 0 ? "<br>" : "") + safe(lines[i]);
+  }
+  return addMsg(true, html);
+}
+
+function addTyping() {
+  var row = addMsg(true, '<span class="dot"></span><span class="dot"></span><span class="dot"></span>');
+  row.id = "chatTyping";
+  return row;
+}
+
+function removeTyping() {
+  var t = document.getElementById("chatTyping");
+  if (t) t.parentNode.removeChild(t);
+}
+
+function rnd(n) { return Math.floor(Math.random() * n); }
+function pick(arr) { return arr[rnd(arr.length)]; }
+
+function getReply(cmd) {
+  var c = cmd.trim().toLowerCase();
+  var victims = ["Axoboys", "Acidic", "Chloe", "Hestnouille", "Fox", "Ash", "Greg", "Kayou"];
+  var v = pick(victims);
+  var p = rnd(101);
+
+  if (c === "/help") return "📋 Commandes de " + BNAME + "\n\n⚡ Jeux: /wordle /pendu /nombre /histoire /qui_est_ce /pileouface\n🎤 Social: /bwan /tdb /tdb_pourcentage /presentation /pub\n📖 Infos: /definition /lesaviezvous /theme /level /classement\n🎙️ Vocal: /joinvoc /depop /lockvoc /unlockvoc /dentiste\n🏆 GOAT: /axo /moula /jojo /fanarupi /banana /chloe /acidic /mano /hestia /mat /greg /kayou";
+  if (c === "/bwan") return pick(["🚨 BWAN " + v + " !!! Vient de se faire atomiser. GG.", "💥 B-W-A-N ! " + v + " reçoit un bwan en pleine face.", "🔔 BWAN BWAN BWAN ! " + v + " est officiellement bwané."]);
+  if (c === "/tdb") return pick(["😤 " + v + " est un trou de balle certifié. C'est officiel.", "💀 Hé " + v + ", t'es vraiment un gros tdb.", "🙄 Message pour " + v + " : tdb. C'est tout."]);
+  if (c === "/tdb_pourcentage") return "📊 Analyse de " + v + "...\n" + v + " est trou de balle à " + p + "%.\n" + (p > 70 ? "😱 C'est alarmant." : p > 40 ? "😬 C'est pas glorieux." : "😌 Ça va encore.");
+  if (c === "/pub") return pick(["📢 LIVE DE HESTNOUILLE CE SOIR ! Fortnite — venez nombreux ! 🔥", "🕷️ HESTNOUILLE EN LIVE ! SpiderMan Miles Morales — rejoins maintenant !", "🧱 LIVE LEGO avec HESTNOUILLE ! On construit, on rigole !"]);
+  if (c === "/pileouface") return pick(["🪙 La pièce tourne... PILE ! T'as de la chance.", "🪙 La pièce tourne... FACE ! Dommage, retente ta chance."]);
+  if (c === "/wordle") return "📝 Wordle lancé !\nTrouve le mot en 6 essais. 5 lettres.\n🟩🟨⬛ Bonne chance !";
+  if (c === "/pendu") return "🪢 Jeu du Pendu lancé !\n_ _ _ _ _ _ (6 lettres)\nPropose une lettre ! 6 vies. ❤️❤️❤️❤️❤️❤️";
+  if (c === "/nombre") return "🔢 Devine le nombre entre 1 et 1000.\nEssais illimités — bonne chance ! 🎯";
+  if (c === "/histoire") return "📖 Histoire lancée !\nCommence par écrire la première phrase. ✍️";
+  if (c === "/qui_est_ce") return "🕵️ Qui est-ce lancé !\nJe pense à quelqu'un du serveur...\nPose des questions oui/non ! 🤔";
+  if (c === "/level") return "⭐ Tes points\n" + (rnd(5000)+100) + " XP — Rang #" + (rnd(20)+1) + "\nProchain niveau dans " + (rnd(200)+50) + " XP 📈";
+  if (c === "/classement") return "🏆 Top 10\n🥇 Axoboys 4820 XP\n🥈 Acidic 3910 XP\n🥉 Hestnouille 3540 XP\n4. Fox 2890 XP\n5. Chloe 2450 XP\n6. Ash 2100 XP\n7. Greg 1750 XP\n8. Kayou 1320 XP\n9. Moula 980 XP\n10. Mano 640 XP";
+  if (c === "/presentation") return "👋 Présentation\nBienvenue ! Dis-nous qui tu es. On est curieux ! 👀";
+  if (c === "/joinvoc") return "🎙️ Je rejoins le vocal ! Parle maintenant... ou pas. 🔊";
+  if (c === "/depop") return "👢 " + v + " vient d'être éjecté du vocal. Adios ! 👋";
+  if (c === "/dentiste") return "🦷 " + v + " a un rendez-vous chez le dentiste. Rince-toi la bouche ! 🪥";
+  if (c === "/lockvoc") return "🔒 " + v + " est bloqué dans le vocal. Bonne chance pour sortir. 😈";
+  if (c === "/unlockvoc") return "🔓 " + v + " est libéré ! Tu peux sortir. 😅";
+  if (c === "/definition") return "📚 Dictionnaire en maintenance. Essaie Larousse ! 😂";
+  if (c === "/theme") return "🎨 Axoboys — Un repaire de bots, de jeux et de bonne ambiance. 😎";
+  if (c === "/lesaviezvous") return pick(["💡 Le saviez-vous ?\nLe mot bwan a été utilisé plus de 3000 fois. C'est prouvé.", "💡 Le saviez-vous ?\nAxoboys a passé plus de 200h sur ce bot. Sa vie sociale en a souffert.", "💡 Le saviez-vous ?\nRecord de /tdb : 47 en une journée. Un mardi."]);
+  if (c === "/moula") return "👑 GOAT MOULA — La légende. Le mythe. 🫡";
+  if (c === "/axo") return "🦎 GOAT AXO — Le créateur de tout ça. Respect. 🫡";
+  if (c === "/mano") return "🌀 GOAT MANO — Discret mais redoutable. 🫡";
+  if (c === "/hestia") return "⚜️ GOAT HESTIA — Hestnouille forever. 🫡";
+  if (c === "/banana") return "🍌 GOAT BANANA — Le plus fruité des GOAT. 🫡";
+  if (c === "/mat") return "🎯 GOAT MAT — Toujours là, toujours fiable. 🫡";
+  if (c === "/chloe") return "🐼 GOAT CHLOE — Douce mais déterminée. 🫡";
+  if (c === "/acidic") return "🧪 GOAT ACIDIC — Acide par nature, GOAT par définition. 🫡";
+  if (c === "/greg") return "🕶️ GOAT GREG — Mystérieux mais GOAT quand même. 🫡";
+  if (c === "/kayou") return "🎵 GOAT KAYOU — GOAT de la musique et du vibe. 🫡";
+  if (c === "/jojo") return "🌀 GOAT JOJO — GOAT intergalactique. 🫡";
+  if (c === "/fanarupi") return "🌺 GOAT FANARUPI — Rare, unique, GOAT. 🫡";
+  return "❓ Commande inconnue : " + cmd.trim() + "\nUtilise /help pour voir toutes les commandes !";
+}
+
+function sendChat() {
+  var input = document.getElementById("chatIn");
+  var text = input.value.trim();
+  if (!text) return;
+  input.value = "";
+  addMsg(false, safe(text));
+  var typing = addTyping();
+  setTimeout(function() {
+    removeTyping();
+    addBotMsg(getReply(text));
+  }, 500 + rnd(500));
+}
 </script>
 
 </main>
