@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Infos — AshBot</title>
+  <title>Infos — PythaBot</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
   <style>
 :root{--bg:#0a0a0f;--surface:#111118;--border:#1e1e2e;--accent:#7c3aed;--accent2:#06b6d4;--text:#e2e8f0;--muted:#64748b;--glow:rgba(124,58,237,0.3);}
@@ -56,7 +56,7 @@ body.rainbow-mode{animation:rainbowBg 3s linear infinite;}
 </nav>
 <main>
   <div class="page-label">// bot discord</div>
-  <h1 class="page-title">🔥 AshBot</h1>
+  <h1 class="page-title">🔥 PythaBot</h1>
   <p class="page-desc" style="margin-bottom:2rem;">Accède aux commandes ou vérifie le statut du bot.</p>
   <div class="info-cards">
     <a href="bot8.html" class="info-card">
@@ -80,7 +80,7 @@ body.rainbow-mode{animation:rainbowBg 3s linear infinite;}
   <div id="chatLauncher" onclick="openChat()" class="chat-launcher">
     <div class="chat-launcher-icon">🤖</div>
     <div>
-      <div class="chat-launcher-label">Tester AshBot</div>
+      <div class="chat-launcher-label">Tester PythaBot</div>
       <div class="chat-launcher-sub">Clique pour ouvrir le simulateur de commandes</div>
     </div>
     <div style="margin-left:auto;font-size:1.25rem;color:var(--accent);">&#8594;</div>
@@ -91,7 +91,7 @@ body.rainbow-mode{animation:rainbowBg 3s linear infinite;}
       <div style="display:flex;align-items:center;gap:0.75rem;">
         <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.1rem;">🔥</div>
         <div>
-          <div style="font-weight:700;font-size:0.95rem;">AshBot</div>
+          <div style="font-weight:700;font-size:0.95rem;">PythaBot</div>
           <div style="font-family:monospace;font-size:0.65rem;color:#22c55e;">&#9679; En ligne &mdash; Simulateur</div>
         </div>
       </div>
@@ -202,7 +202,7 @@ function pick(arr) { return arr[rnd(arr.length)]; }
 
 function getReply(cmd) {
   var c = cmd.trim().toLowerCase();
-  var victims = ["Axoboys", "Acidic", "Chloe", "Hestnouille", "Fox", "Ash", "Greg", "Kayou"];
+  var victims = ["Axoboys", "Acidic", "Chloe", "Hestnouille", "Fanarupi", "Ash", "Kayou"];
   var v = pick(victims);
   var p = rnd(101);
 
@@ -228,18 +228,8 @@ function getReply(cmd) {
   if (c === "/definition") return "📚 Dictionnaire en maintenance. Essaie Larousse ! 😂";
   if (c === "/theme") return "🎨 Axoboys — Un repaire de bots, de jeux et de bonne ambiance. 😎";
   if (c === "/lesaviezvous") return pick(["💡 Le saviez-vous ?\nLe mot bwan a été utilisé plus de 3000 fois. C'est prouvé.", "💡 Le saviez-vous ?\nAxoboys a passé plus de 200h sur ce bot. Sa vie sociale en a souffert.", "💡 Le saviez-vous ?\nRecord de /tdb : 47 en une journée. Un mardi."]);
-  if (c === "/moula") return "👑 GOAT MOULA — La légende. Le mythe. 🫡";
+  if (c === "/ash") return "👑 GOAT ASH — La légende. Le mythe. 🫡";
   if (c === "/axo") return "🦎 GOAT AXO — Le créateur de tout ça. Respect. 🫡";
-  if (c === "/mano") return "🌀 GOAT MANO — Discret mais redoutable. 🫡";
-  if (c === "/hestia") return "⚜️ GOAT HESTIA — Hestnouille forever. 🫡";
-  if (c === "/banana") return "🍌 GOAT BANANA — Le plus fruité des GOAT. 🫡";
-  if (c === "/mat") return "🎯 GOAT MAT — Toujours là, toujours fiable. 🫡";
-  if (c === "/chloe") return "🐼 GOAT CHLOE — Douce mais déterminée. 🫡";
-  if (c === "/acidic") return "🧪 GOAT ACIDIC — Acide par nature, GOAT par définition. 🫡";
-  if (c === "/greg") return "🕶️ GOAT GREG — Mystérieux mais GOAT quand même. 🫡";
-  if (c === "/kayou") return "🎵 GOAT KAYOU — GOAT de la musique et du vibe. 🫡";
-  if (c === "/jojo") return "🌀 GOAT JOJO — GOAT intergalactique. 🫡";
-  if (c === "/fanarupi") return "🌺 GOAT FANARUPI — Rare, unique, GOAT. 🫡";
   return "❓ Commande inconnue : " + cmd.trim() + "\nUtilise /help pour voir toutes les commandes !";
 }
 
