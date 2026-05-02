@@ -485,7 +485,7 @@ function pick(arr) { return arr[rnd(arr.length)]; }
 
 function getReply(cmd) {
   var c = cmd.trim().toLowerCase();
-  var victims = ["Axoboys", "Acidic", "Chloe", "Hestnouille", "Fox", "Ash", "Greg", "Kayou"];
+  var victims = ["Axoboys", "Acidic", "Chloe", "Hestnouille", "Fox", "Ash", "Kayou"];
   var v = pick(victims);
   var p = rnd(101);
 
@@ -519,9 +519,7 @@ function getReply(cmd) {
   if (c === "/mat") return "🎯 GOAT MAT — Toujours là, toujours fiable. 🫡";
   if (c === "/chloe") return "🐼 GOAT CHLOE — Douce mais déterminée. 🫡";
   if (c === "/acidic") return "🧪 GOAT ACIDIC — Acide par nature, GOAT par définition. 🫡";
-  if (c === "/greg") return "🕶️ GOAT GREG — Mystérieux mais GOAT quand même. 🫡";
   if (c === "/kayou") return "🎵 GOAT KAYOU — GOAT de la musique et du vibe. 🫡";
-  if (c === "/jojo") return "🌀 GOAT JOJO — GOAT intergalactique. 🫡";
   if (c === "/fanarupi") return "🌺 GOAT FANARUPI — Rare, unique, GOAT. 🫡";
   return "❓ Commande inconnue : " + cmd.trim() + "\nUtilise /help pour voir toutes les commandes !";
 }
